@@ -17,6 +17,8 @@ ModContext* modContext;
 json Config::jConfig;
 std::filesystem::file_time_type Config::lastModifiedTime;
 
+std::map<std::string, HMODULE> loadedDLLs;
+
 typedef Mod* (*CreateModFunc)();
 std::string activeModName = "";
 
@@ -28,90 +30,147 @@ void UnloadDll(HMODULE hModule) {
     }
 }
 
+// Helper to process shroudtopia config defaults from mod.json
+void ProcessModManifestConfig(const std::string& modId, const json& manifest) {
+    if (manifest.contains("shroudtopia") && manifest["shroudtopia"].contains("default")) {
+        // Check if mod entry already exists in global config
+        if (!Config::jConfig["mods"].contains(modId)) {
+            Utils::Log(Utils::INFO, "First time load for %s: Writing default config to %s", modId.c_str(), SHROUDTOPIA_CONFIG_FILE);
+            
+            Config::jConfig["mods"][modId] = manifest["shroudtopia"]["default"];
+            
+            // Ensure the mod is 'active' by default if not specified
+            if (!Config::jConfig["mods"][modId].contains("active")) {
+                Config::jConfig["mods"][modId]["active"] = true;
+            }
+            
+            Config::writeFile();
+        }
+    }
+}
+
 // Load a mod and register it
 void LoadAndRegisterMod(const std::string& dllPath) {
-    Utils::Log(Utils::DEBUG, std::string("Loading DLL: ").append(dllPath).c_str());
+    if (loadedDLLs.count(dllPath)) return;
+
+    Utils::Log(Utils::DEBUG, "Attempting to load: %s", dllPath.c_str());
 
     HMODULE hMod = LoadLibraryA(dllPath.c_str());
     if (!hMod) {
-        Utils::Log(Utils::ERRR, std::string("Failed to load DLL: ").append(dllPath).c_str());
+        Utils::Log(Utils::ERRR, "Failed to load DLL: %s", dllPath.c_str());
         return;
     }
 
     CreateModFunc createMod = (CreateModFunc)GetProcAddress(hMod, "CreateModInstance");
     if (!createMod) {
-        Utils::Log(Utils::ERRR, std::string("CreateModInstance function not found in DLL: ").append(dllPath).c_str());
+        Utils::Log(Utils::ERRR, "CreateModInstance not found in: %s", dllPath.c_str());
         FreeLibrary(hMod);
         return;
     }
 
     Mod* modInstance = createMod();
     if (!modInstance) {
-        Utils::Log(Utils::ERRR, "Failed to create mod instance.");
+        Utils::Log(Utils::ERRR, "Failed to create mod instance for: %s", dllPath.c_str());
         FreeLibrary(hMod);
         return;
     }
 
-    Utils::Log(Utils::INFO, std::string("Registering mod: ").append(modInstance->GetMetaData().name).c_str());
+    loadedDLLs[dllPath] = hMod;
     modContext->registeredMods[dllPath] = modInstance;
+    Utils::Log(Utils::INFO, "Registered mod: %s", modInstance->GetMetaData().name.c_str());
 }
 
-std::map<std::string, HMODULE> loadedDLLs;
-
-// Check for new DLLs and load them
+// Check for new mods using EML logic + legacy fallback
 void CheckAndLoadDlls(const std::string& modFolder = SHROUDTOPIA_MOD_FOLDER) {
-    // Load new DLLs
-    for (const auto& entry : fs::directory_iterator(modFolder)) {
-        if (entry.path().extension() == ".dll") {
-            std::string dllPath = entry.path().string();
+    if (!fs::exists(modFolder)) {
+        fs::create_directory(modFolder);
+        return;
+    }
 
-            auto it = loadedDLLs.find(dllPath);
-            if (it == loadedDLLs.end()) {
-                // Load new DLL
-                Utils::Log(Utils::DEBUG, std::string("Loading new DLL: ").append(dllPath).c_str());
-                LoadAndRegisterMod(dllPath);
-                loadedDLLs[dllPath] = LoadLibraryA(dllPath.c_str());
+    // 1. Scan for EML-style mods: mods/[mod_name]/mod.json
+    for (const auto& entry : fs::directory_iterator(modFolder)) {
+        if (entry.is_directory()) {
+            fs::path dirPath = entry.path();
+            fs::path manifestPath = dirPath / "mod.json";
+
+            if (fs::exists(manifestPath)) {
+                try {
+                    std::ifstream f(manifestPath);
+                    json manifest = json::parse(f);
+                    
+                    std::string modId = manifest.value("id", dirPath.filename().string());
+                    
+                    // Process shroudtopia defaults
+                    ProcessModManifestConfig(modId, manifest);
+
+                    // Look for [mod_id].dll inside the folder
+                    fs::path dllPath = dirPath / (modId + ".dll");
+                    if (fs::exists(dllPath)) {
+                        LoadAndRegisterMod(dllPath.string());
+                    } else {
+                        // Fallback: search for any .dll in that specific folder if ID-named one doesn't exist
+                        for (const auto& subEntry : fs::directory_iterator(dirPath)) {
+                            if (subEntry.path().extension() == ".dll") {
+                                LoadAndRegisterMod(subEntry.path().string());
+                                break; 
+                            }
+                        }
+                    }
+                } catch (const std::exception& e) {
+                    Utils::Log(Utils::ERRR, "Failed to parse manifest at %s: %s", manifestPath.string().c_str(), e.what());
+                }
             }
+        }
+    }
+
+    // 2. Legacy Fallback: Scan root mods/*.dll
+    for (const auto& entry : fs::directory_iterator(modFolder)) {
+        if (!entry.is_directory() && entry.path().extension() == ".dll") {
+            LoadAndRegisterMod(entry.path().string());
         }
     }
 }
 
-// Load and update mods
+// Logic for UpdateMods remains the same as provided
 void UpdateMods() {
-    // Load unloaded mods
     for (auto& [dllPath, regMod] : modContext->registeredMods) {
         if (!regMod->loaded) {
             ModMetaData modMeta = regMod->GetMetaData();
             activeModName = modMeta.name;
-            if ((modContext->game.isServer && !modMeta.hasServerSupport) ||
-                (!modContext->game.isServer && !modMeta.hasClientSupport)) {
+            
+            bool isServer = modContext->game.isServer;
+            if ((isServer && !modMeta.hasServerSupport) || (!isServer && !modMeta.hasClientSupport)) {
                 continue;
             }
-            Utils::Log(Utils::INFO, std::string("Loading mod: ").append(modMeta.name).c_str());
+
+            Utils::Log(Utils::INFO, "Loading mod: %s", modMeta.name.c_str());
             regMod->Load(modContext);
             regMod->loaded = true;
             modContext->loadedMods.insert(regMod);
         }
     }
 
-    // Update active mods
     for (Mod* mod : modContext->loadedMods) {
         ModMetaData meta = mod->GetMetaData();
         activeModName = meta.name;
+        
+        // Check config to see if mod should be active
         bool shouldBeActive = Config::modGet<bool>(meta.name.c_str(), "active", false);
+        
         if (shouldBeActive) {
             if (!mod->active) {
-                Utils::Log(Utils::INFO, std::string("Activating mod: ").append(meta.name).c_str());
+                Utils::Log(Utils::INFO, "Activating: %s", meta.name.c_str());
                 mod->Activate(modContext);
             }
             mod->Update(modContext);
         }
         else if (mod->active) {
-            Utils::Log(Utils::INFO, std::string("Deactivating mod: ").append(meta.name).c_str());
+            Utils::Log(Utils::INFO, "Deactivating: %s", meta.name.c_str());
             mod->Deactivate(modContext);
         }
     }
 }
+
 
 json defaultConfig({
     {"active", true},

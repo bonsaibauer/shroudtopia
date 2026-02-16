@@ -1,0 +1,28 @@
+[ENABLE]
+
+aobscanmodule(free_craft,enshrouded_server.exe,30 5B C3 CC CC CC CC CC 48 89 5C 24 18)
+alloc(newmem,$1000,free_craft)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  mov eax,0
+  mov [rsp+30],eax
+  mov [rsp+18],rbx
+  jmp return
+
+free_craft+08:
+  jmp newmem
+return:
+registersymbol(free_craft)
+
+[DISABLE]
+
+free_craft+08:
+  db 48 89 5C 24 18
+
+unregistersymbol(free_craft)
+dealloc(newmem)

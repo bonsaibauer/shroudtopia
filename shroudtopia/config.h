@@ -11,8 +11,8 @@ using json = nlohmann::json;
 class Config
 {
     Config() {}
-    static json jConfig;
 public:
+    static json jConfig;
     inline static bool readFile()
     {
         try {
