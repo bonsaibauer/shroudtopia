@@ -1,0 +1,43 @@
+name: Publish stable release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Validate version and release tag
+        id: release
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "VERSION must use MAJOR.MINOR.PATCH: $version" }
+          if ("${{ github.ref_name }}" -ne $version) { throw "Release branch '${{ github.ref_name }}' must match VERSION '$version'." }
+
+          $tag = "v$version"
+          $commit = git rev-parse HEAD
+          $existing = git rev-parse -q --verify "refs/tags/$tag^{}" 2>$null
+          if ($existing -and $existing -ne $commit) { throw "Tag $tag already points to a different commit." }
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "commit=$commit" >> $env:GITHUB_OUTPUT
+      - name: Build, test and package
+        shell: pwsh
+        run: .\build.ps1 -BuildNumber "${{ github.run_number }}" -RefName "${{ steps.release.outputs.version }}" -RefType branch
+      - name: Publish stable release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          target_commitish: ${{ steps.release.outputs.commit }}
+          files: build/shroudtopia-*.zip
+          generate_release_notes: true
+          prerelease: false
