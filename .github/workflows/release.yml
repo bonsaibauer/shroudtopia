@@ -32,6 +32,14 @@ jobs:
           $tag = "v$version"
           $commit = git rev-parse HEAD
           $existing = git rev-parse -q --verify "refs/tags/$tag^{}" 2>$null
+          $tagLookupExitCode = $LASTEXITCODE
+          if ($tagLookupExitCode -eq 1) {
+            # A missing tag is expected for the first stable release.
+            $existing = $null
+            $global:LASTEXITCODE = 0
+          } elseif ($tagLookupExitCode -ne 0) {
+            throw "Could not check whether tag $tag already exists."
+          }
           if ($existing -and $existing -ne $commit) { throw "Tag $tag already points to a different commit." }
 
           "version=$version" >> $env:GITHUB_OUTPUT
