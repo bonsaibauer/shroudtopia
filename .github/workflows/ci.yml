@@ -3,6 +3,8 @@ name: Build Shroudtopia
 on:
   workflow_dispatch:
   push:
+    branches:
+      - "**"
   pull_request:
 
 permissions:
@@ -27,15 +29,10 @@ jobs:
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
           $isVersionBranch = "${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/heads/$version"
-          $isStableTag = "${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/tags/v$version"
 
           if ($isVersionBranch) {
             "tag=v$version-build.${{ github.run_number }}" >> $env:GITHUB_OUTPUT
             "prerelease=true" >> $env:GITHUB_OUTPUT
-            "publish=true" >> $env:GITHUB_OUTPUT
-          } elseif ($isStableTag) {
-            "tag=v$version" >> $env:GITHUB_OUTPUT
-            "prerelease=false" >> $env:GITHUB_OUTPUT
             "publish=true" >> $env:GITHUB_OUTPUT
           } else {
             "publish=false" >> $env:GITHUB_OUTPUT

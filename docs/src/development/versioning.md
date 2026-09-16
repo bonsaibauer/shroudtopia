@@ -34,4 +34,4 @@ API ABI versions, service versions, and mod versions remain independent.
 2. Use the matching branch name.
 3. Run `build.ps1` and verify all checks.
 4. Every push to the matching version branch automatically creates a prerelease, `v<VERSION>-build.<BUILD>`.
-5. Tag a verified commit as `v<VERSION>` and push that tag to publish the stable release.
+5. In GitHub Actions, run `Publish stable release` for the matching version branch to publish `v<VERSION>`.
