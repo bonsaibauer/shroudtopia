@@ -21,10 +21,11 @@
 |---|---|
 | `VERSION` | `MAJOR.MINOR.PATCH` |
 | Branch | `MAJOR.MINOR.PATCH` |
-| Release tag | `vMAJOR.MINOR.PATCH` |
+| CI prerelease tag | `vMAJOR.MINOR.PATCH-build.BUILD` |
+| Stable release tag | `vMAJOR.MINOR.PATCH` |
 | Artifact | `shroudtopia-MAJOR.MINOR.PATCH-BUILD.zip` |
 
-The build number is not part of the Git tag. GitHub Actions uses its run number.
+Each push to the matching version branch creates a prerelease tag with the GitHub Actions run number. The stable release tag deliberately excludes it.
 API ABI versions, service versions, and mod versions remain independent.
 
 ## Release workflow
@@ -32,5 +33,5 @@ API ABI versions, service versions, and mod versions remain independent.
 1. Set the product version once in `VERSION`.
 2. Use the matching branch name.
 3. Run `build.ps1` and verify all checks.
-4. Tag the verified commit as `v<VERSION>`.
-5. Publish the already tested CI artifact.
+4. Every push to the matching version branch automatically creates a prerelease, `v<VERSION>-build.<BUILD>`.
+5. Tag a verified commit as `v<VERSION>` and push that tag to publish the stable release.

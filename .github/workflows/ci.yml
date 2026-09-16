@@ -21,14 +21,36 @@ jobs:
           $refName = if ("${{ github.event_name }}" -eq "pull_request") { "${{ github.base_ref }}" } else { "${{ github.ref_name }}" }
           $refType = if ("${{ github.ref }}".StartsWith("refs/tags/")) { "tag" } else { "branch" }
           .\build.ps1 -BuildNumber "${{ github.run_number }}" -RefName $refName -RefType $refType
+      - name: Determine release type
+        id: release
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $isVersionBranch = "${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/heads/$version"
+          $isStableTag = "${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/tags/v$version"
+
+          if ($isVersionBranch) {
+            "tag=v$version-build.${{ github.run_number }}" >> $env:GITHUB_OUTPUT
+            "prerelease=true" >> $env:GITHUB_OUTPUT
+            "publish=true" >> $env:GITHUB_OUTPUT
+          } elseif ($isStableTag) {
+            "tag=v$version" >> $env:GITHUB_OUTPUT
+            "prerelease=false" >> $env:GITHUB_OUTPUT
+            "publish=true" >> $env:GITHUB_OUTPUT
+          } else {
+            "publish=false" >> $env:GITHUB_OUTPUT
+          }
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
           name: shroudtopia-${{ github.run_number }}
           path: build/shroudtopia-*.zip
       - name: Publish release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: steps.release.outputs.publish == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           files: build/shroudtopia-*.zip
           generate_release_notes: true
+          prerelease: ${{ steps.release.outputs.prerelease }}
