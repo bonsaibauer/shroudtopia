@@ -1,0 +1,15 @@
+{
+  "id": "mod.commands",
+  "name": "Shroudtopia Commands",
+  "version": "1.0.0",
+  "shroudtopia": {
+    "abi": "1.0",
+    "entrypoint": "ShroudtopiaCreateModV1",
+    "binary": "shroudtopia-commands.dll",
+    "target": "both",
+    "default": {
+      "active": true
+    }
+  },
+  "description": "Bundled command gateway for commands registered by active Shroudtopia mods."
+}

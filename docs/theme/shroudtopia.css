@@ -1,0 +1,16 @@
+:root {
+  --content-max-width: 980px;
+}
+
+.menu-title {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+table {
+  width: 100%;
+}
+
+code {
+  overflow-wrap: anywhere;
+}

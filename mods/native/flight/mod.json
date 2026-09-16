@@ -1,0 +1,20 @@
+{
+  "id": "mod.flight",
+  "name": "Shroudtopia Flight",
+  "version": "1.0.0",
+  "requires": {
+    "capabilities": [
+      "shroudtopia.runtime.patches"
+    ]
+  },
+  "shroudtopia": {
+    "abi": "1.0",
+    "entrypoint": "ShroudtopiaCreateModV1",
+    "binary": "shroudtopia-flight.dll",
+    "target": "client",
+    "default": {
+      "active": false
+    }
+  },
+  "description": "Glider flight supplied as a mod through the public Runtime Patch API."
+}

@@ -1,219 +1,93 @@
-<p align="center">
-<img alt="Shroudtopia" src="https://github.com/s0t7x/shroudtopia/blob/main/logo_crop.png">
-</p>
-<p align="center">
-<img alt="Static Badge" src="https://img.shields.io/badge/Game%20Version%20(SVN)-645934-blue">
-<img alt="Static Badge" src="https://img.shields.io/badge/Core%20Version-0.0.3-blue">
-</p>
-<p align="center">
-<table class="n" border="0" align="center">
- <tr>
-<td>- <a href="#modloader-features">Modloader Features</a></td>
+# Shroudtopia
 
- </tr>
- <tr>
-<td>- <a href="#installation">Installation</a></td>
+Shroudtopia is a native Enshrouded mod loader with a versioned C API. Mods use the
+public API exclusively, and the loader does not depend on any mod.
 
- </tr>
- <tr>
-<td>- <a href="#configuration">Configuration</a></td>
+## Status legend
 
- </tr>
- <tr>
-<td>- <a href="#roadmap">Roadmap</a></td>
- </tr>
- <tr>
-<td>- <a href="#example-mods">Example Mods</a></td>
- </tr>
-     <tr>
-<td>- <a href="#creating-mods">Creating Mods</a></td>
- </tr>
-     <tr>
-     <td>- <a href="#contributing">Contributing</a></td>
- </tr>
-     <tr>
-     <td>- <a href="#license">License</a></td>
- </tr>
-</table>
-</p>
+| Symbol | Meaning |
+|:---:|---|
+| ✅ | Available and implemented |
+| 🧪 | Public contract or controlled test provider only |
+| 🚧 | In active development |
+| ❌ | Not available |
 
-## Modloader Features
+## Install
 
-- **Mod Management**: Dynamically load and unload mods from the "mods" folder.
-- **Live Configuration**: Modify mod settings at runtime without restarting the server.
-- **Dependency Injection**: Each mod is fully integrated into the system via the `ModContext`, enabling shared access to configuration, logging, and other utilities.
+1. Download the current release archive.
+2. Copy `winmm.dll`, `shroudtopia.dll`, and `shroudtopia-assets.dll` next to the
+   game or dedicated-server executable.
+3. Place each mod in its own `mods/<mod-id>/` directory.
+4. Start the game or server. Shroudtopia creates `shroudtopia.json` and the current
+   `shroudtopia.log`.
 
-## Installation
-
-### Requirements
-- [Microsoft Visual C++ Redistributable x64](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-
-### Steps to Install:
-1. **Download the Mod Loader:** Get the latest Shroudtopia binaries from the [release section](https://github.com/s0t7x/shroudtopia/releases).
-2. **Extract the Files:** Extract the contents into your Enshrouded game or dedicated server folder.
-3. **Download Example Mods:** You can download example mods from the [release section](https://github.com/s0t7x/shroudtopia/releases).
-4. **Create Mods Folder:** If it doesn’t already exist, create a `mods` folder and place your mod DLLs inside.
-5. **Launch the Server:** Start the server. A default config (`shroudtopia.json`) will be generated if it's absent.
-
-Once set up, you're ready to start using Shroudtopia to manage your mods.
-
-On servers: If Shroudtopia is loaded correctly, you should see something like this in the server console:
-```
-[shroudtopia][INFO] Config loaded.
-[shroudtopia][INFO] Wait before injection. Configured boot delay is 3000ms.
+```text
+Enshrouded/
+├── winmm.dll
+├── shroudtopia.dll
+├── shroudtopia-assets.dll
+├── shroudtopia.json
+├── shroudtopia.log
+├── shroudtopia_logs/
+└── mods/
+    └── mod.author.mod-name/
+        ├── mod.json
+        └── mod-name.dll
 ```
 
-Upon the first launch, a default configuration file `shroudtopia.json` is created. For mods you must manually adjust the configuration to their needs.
+## Bundled mods
 
-## Configuration
+| Status | Mod | Default | Purpose |
+|:---:|---|:---:|---|
+| ✅ | Shroudtopia Commands | On | Routes calls through the shared command registry. |
+| ✅ | Shroudtopia Debug Console | On | Displays the current Enshrouded and Shroudtopia logs. |
+| ✅ | Shroudtopia Flight | Off | Applies the validated glider-flight patch. |
+| ✅ | Shroudtopia No Stamina Loss | Off | Prevents the supported stamina deduction. |
+| ✅ | Shroudtopia No Fall Damage | Off | Prevents the supported fall-damage operation. |
+| ✅ | Shroudtopia No Resource Cost | Off | Sets the supported crafting and building resource cost to zero. |
+| ✅ | Shroudtopia Infinite Item Use | Off | Prevents the supported item-consumption operation. |
+| ✅ | Shroudtopia Unlock Blueprints | Off | Unlocks recipes through the Asset API. |
+| ✅ | Shroudtopia Infinite Item Split | Off | Prevents the supported deduction when splitting stacks. |
 
-Each mod can be enabled or customized via the `shroudtopia.json` config file. Here’s an example configuration:
+Runtime patches activate only when their signature matches the running game build.
 
-```json
-{
-    "active": true,
-    "bootDelay": 3000,
-    "enableLogging": true,
-    "logLevel": "INFO",
-    "mods": {
-        "basics": {
-            "active": true,
-            "no_stamina_loss": true,
-            "no_fall_damage": true,
-            "no_resource_cost": true,
-            "inf_item_use": true,
-            "unlock_blueprints": true,
-            "inf_item_split": true
-        },
-        "Flight Mod": {
-            "active": true
-        },
-        "FirstPersonView": {
-            "active": true
-        }
-    },
-    "updateDelay": 500
-}
+## Platform capabilities
+
+| Status | Area |
+|:---:|---|
+| ✅ | Lifecycle, discovery, services, events, commands, and settings |
+| ✅ | Owner-tagged logging, current-log reading, and native text UI |
+| ✅ | Capabilities, permissions, ownership, and cleanup |
+| ✅ | Runtime patches and detours |
+| ✅ | Typed KFC3 Asset API |
+| 🧪 | World API contract and ShroudEdit test provider |
+| 🚧 | Targeting, live World provider, game-thread jobs, and world overlay |
+
+## Develop Shroudtopia
+
+```powershell
+git clone --recurse-submodules <repository-url>
+cd shroudtopia
+.\build.ps1
 ```
 
-Mods are free to expose configuration options.
+The build produces the loader, asset engine, bundled mods, automated checks, and one
+installable archive under `build/`.
 
-## Roadmap
+## Create mods
 
-<p align="center">
-<img alt="Flight Mod" src="https://github.com/s0t7x/shroudtopia/blob/main/roadmap_2025.png">
-</p>
+Mods include `api/include`, export `ShroudtopiaCreateModV1`, and ship with a
+`mod.json`. The public C API is the only binary contract between mods and the loader.
 
-## Example Mods
+- API entry point: [api/include/shroudtopia/api.h](api/include/shroudtopia/api.h)
+- Documentation: [Shroudtopia API](https://bonsaibauer.github.io/shroudtopia/)
+- Local book: [docs/src/SUMMARY.md](docs/src/SUMMARY.md)
+- Complete reference mod: [Shroudtopia Flight](mods/native/flight)
 
-### Basics Mod
-Some may have no fun with fall damage. Others may just want to have kind of a creative mode. You can selectively activate essential basic mods in the configuration file.
+## Versioning
 
-Configuration options:
-```json
-"basics": {
-    "active": true,
-    "no_stamina_loss": true,
-    "no_fall_damage": true,
-    "no_resource_cost": true,
-    "inf_item_use": true,
-    "unlock_blueprints": true,
-    "inf_item_split": true
-}
-```
+`VERSION` is the single product-version source. Branches use `MAJOR.MINOR.PATCH`,
+release tags use `vMAJOR.MINOR.PATCH`, and CI assigns the independent build number.
 
-### Flight Mod
-
-<p align="center">
-<img alt="Flight Mod" src="https://github.com/s0t7x/shroudtopia/blob/main/example-mods/flight_mod/demo_crop.gif">
-</p>
-
-Enjoy full flight capabilities with the glider. **No more losing height!**
-
-Configuration options:
-```json
-"Flight Mod": {
-    "active": true
-}
-```
-
-
-### First Person View
-Play Enshrouded from **another persepctive**. Example for client-only mod.
-
-<p align="center">
-<img alt="Flight Mod" src="https://github.com/s0t7x/shroudtopia/blob/main/example-mods/first_person_view/demo_crop.gif">
-</p>
-
-Configuration options:
-```json
-"FirstPersionView": {
-    "active": true
-}
-```
-
-# Creating Mods
-Mods for Shroudtopia are written as dynamic libraries (DLLs) and need to include `shroudtopia.h` from `./shroudtopia/`.
-They must implement the `Mod` interface and provide the factory function `extern "C" __declspec(dllexport) Mod* CreateModInstance()`.
-
-Here’s an example factory function:
-```cpp
-extern "C" __declspec(dllexport) Mod* CreateModInstance() {
-    return new BasicsMod();
-}
-```
-
-## Mod Interface
-Every mod must implement the following functions to integrate with the modloader:
-```cpp
-class Mod {
-public:
-    virtual ~Mod() {}
-    virtual ModMetaData GetMetaData() = 0;
-    virtual void Load(ModContext* modContext) = 0;
-    virtual void Unload(ModContext* modContext) = 0;
-    virtual void Activate(ModContext* modContext) = 0;
-    virtual void Deactivate(ModContext* modContext) = 0;
-    virtual void Update(ModContext* modContext) = 0;
-};
-```
-
-`ModMetaData` contains essential information about the mod:
-```cpp
-struct ModMetaData {
-    std::string name;
-    std::string description;
-    std::string version;
-    std::string author;
-    std::string targetShroudtopiaVersion;
-    bool hasClientSupport;
-    bool hasServerSupport;
-};
-```
-
-## ModContext
-The `ModContext` is passed to each mod and provides access to core functionality, such as configuration, logging, and mod management. For example, the mod can retrieve config values via:
-```cpp
-bool enabled = modContext->config.GetBool("modName", "feature_name", false);
-```
-
-# Contributing
-Currently no really game specific functions are implemented in the modContext. This is first try. Anyways, contributions are welcome! Fork the repository, add improvements, and submit pull requests. I would be happy to see more mods for this around.
-
-
-# License
-This project is licensed under the [MIT License](https://github.com/s0t7x/shroudtopia/blob/0.1-stable/LICENSE).
-
-<a href="https://www.dmca.com/Protection/Status.aspx?id=f9dcfb4f-6a12-4640-9ae3-e2b3e5ae4c7b&refurl=https%3a%2f%2fgithub.com%2fs0t7x%2fshroudtopia&rlo=true">
-<img alt="Shroudtopia" src="https://github.com/user-attachments/assets/11ab9970-c8b3-4137-99d6-7a9892459d02">
-</a>
-<hr />
-
-Let's make Enshrouded even more exciting with **Shroudtopia**! 🌟
-
-Special thanks to the following folks. Their work gave me a headstart implementing most features:
-
-- cfemen
-- Turk
-- Atamg
-- ndoa
+The loader and public API use the [MIT license](LICENSE). The internal KFC3 engine
+and parser submodule use GPL-3.0-or-later. See [src/engine/NOTICE.md](src/engine/NOTICE.md).

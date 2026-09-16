@@ -1,0 +1,20 @@
+{
+  "id": "mod.no-fall-damage",
+  "name": "Shroudtopia No Fall Damage",
+  "version": "1.0.0",
+  "requires": {
+    "capabilities": [
+      "shroudtopia.runtime.patches"
+    ]
+  },
+  "shroudtopia": {
+    "abi": "1.0",
+    "entrypoint": "ShroudtopiaCreateModV1",
+    "binary": "shroudtopia-no-fall-damage.dll",
+    "target": "both",
+    "default": {
+      "active": false
+    }
+  },
+  "description": "Replaces the known fall damage operation when the signature matches."
+}

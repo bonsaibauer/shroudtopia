@@ -1,0 +1,20 @@
+{
+  "id": "mod.infinite-item-split",
+  "name": "Shroudtopia Infinite Item Split",
+  "version": "1.0.0",
+  "requires": {
+    "capabilities": [
+      "shroudtopia.runtime.patches"
+    ]
+  },
+  "shroudtopia": {
+    "abi": "1.0",
+    "entrypoint": "ShroudtopiaCreateModV1",
+    "binary": "shroudtopia-infinite-item-split.dll",
+    "target": "both",
+    "default": {
+      "active": false
+    }
+  },
+  "description": "Prevents the known item split subtraction when the signature matches."
+}

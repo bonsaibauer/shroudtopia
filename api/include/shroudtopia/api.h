@@ -1,0 +1,17 @@
+#pragma once
+
+#include "shroudtopia/api/base.h"
+#include "shroudtopia/api/services.h"
+#include "shroudtopia/api/events.h"
+#include "shroudtopia/api/commands.h"
+#include "shroudtopia/api/settings.h"
+#include "shroudtopia/api/capabilities.h"
+#include "shroudtopia/api/logging.h"
+#include "shroudtopia/api/ui.h"
+#include "shroudtopia/api/host.h"
+#include "shroudtopia/api/lifecycle.h"
+#include "shroudtopia/api/runtime.h"
+#include "shroudtopia/api/assets.h"
+#include "shroudtopia/api/world.h"
+#include "shroudtopia/api/world_grid.h"
+#include "shroudtopia/capabilities.h"
