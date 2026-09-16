@@ -2,6 +2,12 @@ name: Publish stable release
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Version branch to release (for example 1.0.0)"
+        required: true
+        default: "1.0.0"
+        type: string
 
 permissions:
   contents: write
@@ -12,6 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref }}
           submodules: recursive
           fetch-depth: 0
       - name: Validate version and release tag
@@ -20,7 +27,7 @@ jobs:
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
           if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "VERSION must use MAJOR.MINOR.PATCH: $version" }
-          if ("${{ github.ref_name }}" -ne $version) { throw "Release branch '${{ github.ref_name }}' must match VERSION '$version'." }
+          if ("${{ inputs.ref }}" -ne $version) { throw "Release branch '${{ inputs.ref }}' must match VERSION '$version'." }
 
           $tag = "v$version"
           $commit = git rev-parse HEAD
