@@ -54,7 +54,7 @@
 
 # Tools and examples
 
-- [API Explorer](./api-explorer.md)
+- [API documentation](./api-docs.md)
 - [Complete minimal mod](./examples/minimal-mod.md)
 - [Glossary](./glossary.md)
 - [Status](./status.md)

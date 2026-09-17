@@ -14,6 +14,8 @@ if (!locales.includes("en")) throw new Error("docs/content/en/SUMMARY.md is requ
 
 run("node", ["docs/tools/generate-reference.mjs"]);
 run("node", ["docs/tools/validate-api.mjs"]);
+run("node", ["docs/tools/build-api-docs.mjs"]);
+await rm(path.join("docs", ".build"), { recursive: true, force: true });
 await rm("site", { recursive: true, force: true });
 await mkdir("site", { recursive: true });
 for (const locale of locales) {
@@ -26,8 +28,7 @@ for (const locale of locales) {
   });
   const assets = path.join("site", locale, "assets");
   await mkdir(assets, { recursive: true });
-  await cp(path.join("docs", "generated", "api-model.json"), path.join(assets, "api-model.json"));
-  await cp(path.join("docs", "generated", "playground-schema.json"), path.join(assets, "playground-schema.json"));
+  await cp(path.join("docs", "generated", "api", locale), path.join("site", locale, "api"), { recursive: true });
   const uiFile = path.join(contentRoot, locale, "_ui.json");
   if (existsSync(uiFile)) await cp(uiFile, path.join(assets, "ui.json"));
 }

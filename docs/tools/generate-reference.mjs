@@ -179,5 +179,4 @@ for (const language of ["en", "de"]) {
 
 const publicModel = { schemaVersion: 1, apiVersion: "1.1", generatedFrom: "api/shroudtopia.h", services: services.map(({ headers, header: _header, extra_headers: _extra, ...service }) => ({ ...service, headers: headers.map(({ source, ...header }) => header) })), results: resultRows.map(([name, meaning, handling]) => ({ name, meaning, handling })) };
 await writeFile(path.join(generatedRoot, "api-model.json"), `${JSON.stringify(publicModel, null, 2)}\n`);
-await writeFile(path.join(generatedRoot, "playground-schema.json"), `${JSON.stringify({ $schema: "https://json-schema.org/draft/2020-12/schema", title: "Shroudtopia API Explorer invocation", type: "object", required: ["service", "function", "arguments"], properties: { service: { type: "string", enum: services.map((service) => service.slug) }, function: { type: "string" }, arguments: { type: "object" }, mode: { enum: ["validate", "sandbox", "live-local"], default: "validate" } }, additionalProperties: false }, null, 2)}\n`);
-console.log(`Generated ${services.length} English and German service references and the API Explorer model.`);
+console.log(`Generated ${services.length} English and German service references and the static API model.`);

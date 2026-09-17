@@ -5,16 +5,5 @@
   "stable": "Stabil",
   "experimental": "Experimentell",
   "copied": "Kopiert",
-  "dataTable": "Datentabelle",
-  "service": "Service",
-  "function": "Funktion",
-  "arguments": "Argumente (JSON)",
-  "validate": "Validieren",
-  "execute": "Lokal ausführen",
-  "valid": "Eingabe ist gültig.",
-  "invalid": "Ungültige Eingabe",
-  "result": "Vollständiges Ergebnis",
-  "localHelp": "Die echte Ausführung benötigt den lokalen Host. Schreibzugriffe benötigen --allow-write und save_assets.",
-  "code": "Erzeugtes C++-Muster",
-  "loadError": "API Explorer konnte nicht geladen werden"
+  "dataTable": "Datentabelle"
 }

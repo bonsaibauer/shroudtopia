@@ -64,7 +64,7 @@ fn response(code: i32, outputs: Value) -> Value {
 
 fn invoke(function: &str, args: &Value, allow_write: bool) -> Result<Value, String> {
     let write = matches!(function, "update_asset" | "set_asset_field" | "create_asset" | "reset_assets" | "save_assets");
-    if write && !allow_write { return Ok(response(5, json!({ "message": "Restart the local host with --allow-write." }))); }
+    if write && !allow_write { return Ok(response(5, json!({ "message": "Start the inspector with --allow-write." }))); }
     let value = unsafe { match function {
         "list_assets" => {
             let type_name = text_arg(args, "type_name")?;

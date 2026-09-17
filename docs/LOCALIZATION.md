@@ -1,6 +1,6 @@
 # Documentation localization
 
-English files under `docs/content/en` are the Crowdin source. Translations keep the same relative path under `docs/content/%two_letters_code%`; `_ui.json` contains the interface text used by the language selector and API Explorer.
+English files under `docs/content/en` are the Crowdin source. Translations keep the same relative path under `docs/content/%two_letters_code%`; `_ui.json` contains the interface text used by the language selector and generated reference pages.
 
 Configure Crowdin as a file-based project with the GitHub integration in **Source and translation files** mode. Connect branch `1.1.0`, use the repository-root `crowdin.yml`, import existing translations once, leave **Push Sources** disabled, and let Crowdin maintain its localization branch and pull request. Credentials and project IDs stay in Crowdin/GitHub and are never committed.
 
