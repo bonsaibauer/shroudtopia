@@ -3,6 +3,7 @@ build/
 site/
 x64/
 target/
+node_modules/
 
 # Visual Studio
 .vs/
@@ -15,5 +16,4 @@ target/
 
 # Runtime output
 *.log
-
 docs/.build/

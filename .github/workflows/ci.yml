@@ -7,17 +7,19 @@ on:
       - "**"
   pull_request:
 
-permissions:
-  contents: write
-
 jobs:
   documentation:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
+      - name: Install documentation dependencies
+        run: npm ci
       - name: Install mdBook
         uses: peaceiris/actions-mdbook@v2
         with:
@@ -25,7 +27,12 @@ jobs:
       - name: Validate and build documentation
         run: npm run docs:check
 
+      - name: Verify generated documentation is current
+        run: git diff --exit-code -- docs/content/en/reference docs/content/de/reference docs/generated
+
   windows:
+    permissions:
+      contents: write
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

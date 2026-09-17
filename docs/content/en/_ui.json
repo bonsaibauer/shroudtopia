@@ -1,0 +1,20 @@
+{
+  "chooseLanguage": "Choose language",
+  "filterFunctions": "Filter functions …",
+  "allStatuses": "All statuses",
+  "stable": "Stable",
+  "experimental": "Experimental",
+  "copied": "Copied",
+  "dataTable": "Data table",
+  "service": "Service",
+  "function": "Function",
+  "arguments": "Arguments (JSON)",
+  "validate": "Validate",
+  "execute": "Execute locally",
+  "valid": "Input is valid.",
+  "invalid": "Invalid input",
+  "result": "Complete result",
+  "localHelp": "Real execution requires the local host. Writes require --allow-write and save_assets.",
+  "code": "Generated C++ pattern",
+  "loadError": "Could not load API Explorer"
+}

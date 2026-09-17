@@ -5,8 +5,7 @@
 #include "assets_engine.h"
 #include "utils.h"
 #include "ui_text.h"
-#include "shroudtopia/api.h"
-#include "shroudtopia/capabilities.h"
+#include "shroudtopia.h"
 
 #include <algorithm>
 #include <atomic>
@@ -64,14 +63,6 @@ namespace {
         ActionState state;
     };
 
-    struct ModSettingsEntry {
-        Registration handle;
-        std::string owner;
-        std::string modSettingsId;
-        std::string schema;
-        std::string defaults;
-    };
-
     struct CapabilityEntry {
         uint32_t major;
         uint32_t minor;
@@ -91,7 +82,8 @@ namespace {
             std::scoped_lock lock(mutex_);
             const auto contract = Copy(descriptor->contract_id);
             const auto duplicate = std::find_if(services_.begin(), services_.end(), [&](const auto& pair) {
-                return pair.second.contract == contract && pair.second.major == descriptor->version_major;
+                return pair.second.contract == contract && pair.second.major == descriptor->version_major &&
+                    pair.second.minor == descriptor->version_minor;
             });
             if (duplicate != services_.end()) return RESULT_CONFLICT;
 
@@ -111,16 +103,14 @@ namespace {
             *interfacePointer = nullptr;
             std::scoped_lock lock(mutex_);
             const auto contract = Copy(request->contract_id);
-            const ServiceEntry* best = nullptr;
             for (const auto& [handle, service] : services_) {
                 if (service.contract == contract && service.major == request->version_major &&
-                    service.minor >= request->minimum_minor && (best == nullptr || service.minor > best->minor)) {
-                    best = &service;
+                    service.minor == request->version_minor) {
+                    *interfacePointer = service.interfacePointer;
+                    return RESULT_OK;
                 }
             }
-            if (best == nullptr) return RESULT_NOT_FOUND;
-            *interfacePointer = best->interfacePointer;
-            return RESULT_OK;
+            return RESULT_NOT_FOUND;
         }
 
         Result SubscribeEvent(StringView owner, const EventSubscription* subscription, Registration* registration) {
@@ -267,32 +257,11 @@ namespace {
             return RESULT_OK;
         }
 
-        Result RegisterModSettings(StringView owner, const ModSettingsDescriptor* descriptor, Registration* registration) {
-            if (!Valid(owner) || descriptor == nullptr || registration == nullptr ||
-                descriptor->struct_size < sizeof(ModSettingsDescriptor) || !Valid(descriptor->mod_settings_id) ||
-                !Valid(descriptor->schema_json) || !Valid(descriptor->defaults_json)) {
-                return RESULT_INVALID_ARGUMENT;
-            }
-
-            std::scoped_lock lock(mutex_);
-            const auto modSettingsId = Copy(descriptor->mod_settings_id);
-            const auto duplicate = std::find_if(mod_settings_.begin(), mod_settings_.end(), [&](const auto& pair) {
-                return pair.second.modSettingsId == modSettingsId;
-            });
-            if (duplicate != mod_settings_.end()) return RESULT_CONFLICT;
-
-            const auto handle = NextHandle();
-            mod_settings_.emplace(handle, ModSettingsEntry{handle, Copy(owner), modSettingsId, Copy(descriptor->schema_json),
-                Copy(descriptor->defaults_json)});
-            *registration = handle;
-            return RESULT_OK;
-        }
-
         Result Release(Registration registration) {
             if (registration == 0) return RESULT_INVALID_ARGUMENT;
             std::scoped_lock lock(mutex_);
             const auto removed = services_.erase(registration) + events_.erase(registration) +
-                commands_.erase(registration) + actions_.erase(registration) + mod_settings_.erase(registration);
+                commands_.erase(registration) + actions_.erase(registration);
             return removed == 0 ? RESULT_NOT_FOUND : RESULT_OK;
         }
 
@@ -306,7 +275,6 @@ namespace {
             EraseOwner(events_, ownerId);
             EraseOwner(commands_, ownerId);
             EraseOwner(actions_, ownerId);
-            EraseOwner(mod_settings_, ownerId);
             permissions_.erase(ownerId);
             return RESULT_OK;
         }
@@ -318,8 +286,8 @@ namespace {
 
             const auto capability = Copy(capabilityId);
             if (capability == CAPABILITY_ASSETS_READ || capability == CAPABILITY_ASSETS_WRITE) {
-                information->version_major = 2;
-                information->version_minor = 0;
+                information->version_major = 1;
+                information->version_minor = 1;
                 information->flags = 0;
                 information->available = AssetsEngine::Available() ? 1 : 0;
                 std::fill(std::begin(information->reserved), std::end(information->reserved), 0);
@@ -327,18 +295,11 @@ namespace {
             }
 
             static const std::unordered_map<std::string, CapabilityEntry> capabilities{
-                {CAPABILITY_LIFECYCLE_NATIVE, {2, 0, 0, true}},
-                {CAPABILITY_REGISTRY_SERVICES, {2, 0, 0, true}},
-                {CAPABILITY_REGISTRY_EVENTS, {2, 0, 0, true}},
-                {CAPABILITY_REGISTRY_COMMANDS, {2, 0, 0, true}},
-                {CAPABILITY_REGISTRY_SETTINGS, {2, 0, 0, true}},
-                {CAPABILITY_RUNTIME_PATCHES, {2, 0, 0, true}},
-                {CAPABILITY_GAME_TARGETING, {2, 0, 0, false}},
-                {CAPABILITY_WORLD_ENTITIES_READ, {2, 0, 0, false}},
-                {CAPABILITY_WORLD_ENTITIES_WRITE, {2, 0, 0, false}},
-                {CAPABILITY_WORLD_VOXELS_READ, {2, 0, 0, false}},
-                {CAPABILITY_WORLD_VOXELS_WRITE, {2, 0, 0, false}},
-                {CAPABILITY_UI_OVERLAY, {2, 0, 0, false}}
+                {CAPABILITY_LIFECYCLE_NATIVE, {1, 1, 0, true}},
+                {CAPABILITY_REGISTRY_SERVICES, {1, 1, 0, true}},
+                {CAPABILITY_REGISTRY_EVENTS, {1, 1, 0, true}},
+                {CAPABILITY_REGISTRY_COMMANDS, {1, 1, 0, true}},
+                {CAPABILITY_RUNTIME_PATCHES, {1, 1, 0, true}},
             };
 
             const auto entry = capabilities.find(capability);
@@ -384,7 +345,6 @@ namespace {
         std::unordered_map<Registration, EventEntry> events_;
         std::unordered_map<Registration, CommandEntry> commands_;
         std::unordered_map<Registration, ActionEntry> actions_;
-        std::unordered_map<Registration, ModSettingsEntry> mod_settings_;
         std::unordered_map<std::string, std::unordered_set<std::string>> permissions_;
     };
 
@@ -415,11 +375,7 @@ namespace {
     Result CALL GetActionState(StringView actionId, ActionState* state) {
         return registry.GetActionState(actionId, state);
     }
-    Result CALL RegisterModSettings(StringView owner, const ModSettingsDescriptor* descriptor, Registration* registration) {
-        return registry.RegisterModSettings(owner, descriptor, registration);
-    }
     Result CALL ReleaseRegistration(Registration registration) { return registry.Release(registration); }
-    Result CALL ReleaseOwner(StringView owner) { UiText::ReleaseOwner(owner); return registry.ReleaseOwner(owner); }
     Result CALL QueryCapability(StringView capabilityId, CapabilityInfo* information) {
         return registry.QueryCapability(capabilityId, information);
     }
@@ -439,8 +395,8 @@ namespace {
         if (!HasRuntimePatchPermission(owner)) return RESULT_PERMISSION_DENIED;
         const auto ownerId = Copy(owner);
         const auto result = RuntimePatches::Create(ownerId, descriptor, patch);
-        Utils::Log(Utils::DEBUG, "Runtime patch create: owner=%s result=%d handle=%llu kind=%d overwrite=%zu payload=%zu",
-            ownerId.c_str(), static_cast<int>(result), static_cast<unsigned long long>(patch ? *patch : 0),
+        Utils::LogAs(LOG_DEBUG, ownerId.c_str(), "Patch created: result=%d handle=%llu kind=%d overwrite=%zu payload=%zu",
+            static_cast<int>(result), static_cast<unsigned long long>(patch ? *patch : 0),
             descriptor ? static_cast<int>(descriptor->kind) : -1,
             descriptor ? descriptor->overwrite_size : 0, descriptor ? descriptor->payload_size : 0);
         return result;
@@ -450,8 +406,8 @@ namespace {
         if (!HasRuntimePatchPermission(owner)) return RESULT_PERMISSION_DENIED;
         const auto ownerId = Copy(owner);
         const auto result = RuntimePatches::SetEnabled(ownerId, patch, enabled != 0);
-        Utils::Log(Utils::DEBUG, "Runtime patch state: owner=%s handle=%llu enabled=%u result=%d",
-            ownerId.c_str(), static_cast<unsigned long long>(patch), enabled != 0, static_cast<int>(result));
+        Utils::LogAs(LOG_DEBUG, ownerId.c_str(), "Patch state: handle=%llu enabled=%u result=%d",
+            static_cast<unsigned long long>(patch), enabled != 0, static_cast<int>(result));
         return result;
     }
     Result CALL GetRuntimePatchState(
@@ -463,18 +419,10 @@ namespace {
         if (!Valid(owner)) return RESULT_INVALID_ARGUMENT;
         const auto ownerId = Copy(owner);
         const auto result = RuntimePatches::Release(ownerId, patch);
-        Utils::Log(Utils::DEBUG, "Runtime patch release: owner=%s handle=%llu result=%d",
-            ownerId.c_str(), static_cast<unsigned long long>(patch), static_cast<int>(result));
+        Utils::LogAs(LOG_DEBUG, ownerId.c_str(), "Patch released: handle=%llu result=%d",
+            static_cast<unsigned long long>(patch), static_cast<int>(result));
         return result;
     }
-    const PatchesApi patches_api{
-        sizeof(PatchesApi),
-        CreateRuntimePatch,
-        SetRuntimePatchEnabled,
-        GetRuntimePatchState,
-        ReleaseRuntimePatch
-    };
-
     bool HasPermission(StringView owner, const char* capability) {
         uint8_t allowed = 0;
         return Valid(owner) && registry.CheckPermission(owner,
@@ -524,25 +472,15 @@ namespace {
         if (!HasPermission(owner, CAPABILITY_ASSETS_WRITE)) return RESULT_PERMISSION_DENIED;
         return AssetsEngine::Save();
     }
-    const AssetsApi assets_api{
-        sizeof(AssetsApi),
-        ListAssets,
-        GetAsset,
-        UpdateAsset,
-        CreateAsset,
-        ResetAssets,
-        SaveAssets,
-        SetAssetField
-    };
     Result CALL Log(StringView owner, LogLevel level, StringView message) {
         if (!Valid(owner) || (message.size != 0 && message.data == nullptr)) return RESULT_INVALID_ARGUMENT;
         const auto ownerId = Copy(owner);
         const auto text = Copy(message);
-        Utils::Log(level >= LOG_ERROR ? Utils::ERRR :
-            level == LOG_WARNING ? Utils::WARN :
-            level == LOG_DEBUG ? Utils::DEBUG :
-            level == LOG_TRACE ? Utils::VERBOSE : Utils::INFO,
-            "[%s] %s", ownerId.c_str(), text.c_str());
+        Utils::LogAs(level >= LOG_ERROR ? LOG_ERROR :
+            level == LOG_WARNING ? LOG_WARNING :
+            level == LOG_DEBUG ? LOG_DEBUG :
+            level == LOG_TRACE ? LOG_TRACE : LOG_INFO,
+            ownerId.c_str(), "%s", text.c_str());
         return RESULT_OK;
     }
     Result CALL GetModSettingBool(StringView owner, StringView key, uint8_t fallback, uint8_t* value) {
@@ -561,70 +499,34 @@ namespace {
         *value = result;
         return RESULT_OK;
     }
-    Result CALL StageGameSetting(StringView key, StringView valueJson) {
-        if (!Valid(key) || !Valid(valueJson)) return RESULT_INVALID_ARGUMENT;
-        try {
-            const auto value = json::parse(valueJson.data, valueJson.data + valueJson.size);
-            if (!Config::jConfig.contains("pendingGameSettings") ||
-                !Config::jConfig["pendingGameSettings"].is_object()) {
-                Config::jConfig["pendingGameSettings"] = json::object();
-            }
-            Config::jConfig["pendingGameSettings"][Copy(key)] = value;
-            Config::writeFile();
-            return RESULT_OK;
-        } catch (...) { return RESULT_INVALID_ARGUMENT; }
-    }
-    Result CALL GetGameSetting(StringView key, char* buffer, size_t capacity, size_t* requiredSize) {
-        if (!Valid(key) || requiredSize == nullptr || (capacity != 0 && buffer == nullptr)) {
-            return RESULT_INVALID_ARGUMENT;
-        }
-        if (!Config::jConfig.contains("gameSettings") || !Config::jConfig["gameSettings"].is_object()) {
-            return RESULT_NOT_FOUND;
-        }
-        const auto setting = Config::jConfig["gameSettings"].find(Copy(key));
-        if (setting == Config::jConfig["gameSettings"].end()) return RESULT_NOT_FOUND;
-        const auto jsonText = setting->dump();
-        *requiredSize = jsonText.size();
-        if (capacity == 0) return RESULT_OK;
-        if (capacity < jsonText.size()) return RESULT_INVALID_ARGUMENT;
-        std::memcpy(buffer, jsonText.data(), jsonText.size());
-        return RESULT_OK;
-    }
-    Result CALL ResetGameSetting(StringView key) {
-        if (!Valid(key)) return RESULT_INVALID_ARGUMENT;
-        if (!Config::jConfig.contains("pendingGameSettings") ||
-            !Config::jConfig["pendingGameSettings"].is_object()) return RESULT_NOT_FOUND;
-        if (Config::jConfig["pendingGameSettings"].erase(Copy(key)) == 0) return RESULT_NOT_FOUND;
-        Config::writeFile();
-        return RESULT_OK;
-    }
-    const LogApi log_api{sizeof(log_api), API_VERSION, Utils::ReadLogTail};
     Api api{
         sizeof(Api), API_VERSION,
-        &assets_api, &patches_api, nullptr, &log_api,
         RegisterService, FindService,
         SubscribeEvent, PublishEvent,
         RegisterCommand, InvokeCommand,
-        RegisterModSettings,
         RegisterAction, InvokeAction, GetActionState,
-        ReleaseRegistration, ReleaseOwner,
+        ReleaseRegistration,
         QueryCapability, CheckPermission,
-        Log,
+        Log, Utils::ReadLogTail,
         GetModSettingBool,
         GetModSettingNumber,
-        GetGameSetting,
-        StageGameSetting,
-        ResetGameSetting
+        CreateRuntimePatch, SetRuntimePatchEnabled, GetRuntimePatchState, ReleaseRuntimePatch,
+        ListAssets, GetAsset, UpdateAsset, CreateAsset, ResetAssets, SaveAssets, SetAssetField,
+        UiText::Create, UiText::SetText, UiText::Status, UiText::Destroy
     };
 }
 
 namespace PlatformApi {
-void Initialize() {
-    api.ui = UiText::Api();
-}
+void Initialize() {}
 
 void GrantCapabilities(const std::string& owner, const std::vector<std::string>& capabilities) {
     registry.GrantCapabilities(owner, capabilities);
+}
+
+void ReleaseOwner(const std::string& owner) {
+    const StringView view{owner.data(), owner.size()};
+    UiText::ReleaseOwner(view);
+    registry.ReleaseOwner(view);
 }
 
 void Shutdown() {

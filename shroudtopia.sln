@@ -3,29 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia", "src\loader\shroudtopia.vcxproj", "{7031243F-7A42-4DA4-B1CD-1EF3603463D6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B} = {6FCED408-75B2-4EF9-9E5F-3EC58B19249B}
-	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bootstrap", "src\bootstrap\winmm.vcxproj", "{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-commands", "mods\commands\shroudtopia-commands.vcxproj", "{69DF9DE1-AEE5-4644-A1CE-C5C66D9C29D8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-commands", "mods\native\commands\shroudtopia-commands.vcxproj", "{69DF9DE1-AEE5-4644-A1CE-C5C66D9C29D8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-flight", "mods\flight\shroudtopia-flight.vcxproj", "{F0FE2FDE-FDB4-4E5A-BBF1-FCCBD0D429A8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-flight", "mods\native\flight\shroudtopia-flight.vcxproj", "{F0FE2FDE-FDB4-4E5A-BBF1-FCCBD0D429A8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-no-stamina-loss", "mods\no-stamina-loss\shroudtopia-no-stamina-loss.vcxproj", "{D440C050-96B3-468F-9FE1-2E90F8619465}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-no-stamina-loss", "mods\native\no-stamina-loss\shroudtopia-no-stamina-loss.vcxproj", "{D440C050-96B3-468F-9FE1-2E90F8619465}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-no-fall-damage", "mods\no-fall-damage\shroudtopia-no-fall-damage.vcxproj", "{3D6D206E-C101-4CA5-8B4E-502FEF29EA28}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-no-fall-damage", "mods\native\no-fall-damage\shroudtopia-no-fall-damage.vcxproj", "{3D6D206E-C101-4CA5-8B4E-502FEF29EA28}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-no-resource-cost", "mods\no-resource-cost\shroudtopia-no-resource-cost.vcxproj", "{6068E262-240B-43A8-803F-F107F25D9EB3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-no-resource-cost", "mods\native\no-resource-cost\shroudtopia-no-resource-cost.vcxproj", "{6068E262-240B-43A8-803F-F107F25D9EB3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-infinite-item-use", "mods\infinite-item-use\shroudtopia-infinite-item-use.vcxproj", "{4B0D35A7-EAB0-42C0-99D8-73D1A7E3C11E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-infinite-item-use", "mods\native\infinite-item-use\shroudtopia-infinite-item-use.vcxproj", "{4B0D35A7-EAB0-42C0-99D8-73D1A7E3C11E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-unlock-blueprints", "mods\unlock-blueprints\shroudtopia-unlock-blueprints.vcxproj", "{42F48488-4A1E-430B-A8EB-D1AB66234D67}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-unlock-blueprints", "mods\native\unlock-blueprints\shroudtopia-unlock-blueprints.vcxproj", "{42F48488-4A1E-430B-A8EB-D1AB66234D67}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-infinite-item-split", "mods\infinite-item-split\shroudtopia-infinite-item-split.vcxproj", "{1282012F-0329-4210-82C4-D36988787C22}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-infinite-item-split", "mods\native\infinite-item-split\shroudtopia-infinite-item-split.vcxproj", "{1282012F-0329-4210-82C4-D36988787C22}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-debug-console", "mods\native\debug-console\shroudtopia-debug-console.vcxproj", "{DE649EAD-D93E-4EFB-A167-64437C84F53C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shroudtopia-debug-console", "mods\debug-console\shroudtopia-debug-console.vcxproj", "{DE649EAD-D93E-4EFB-A167-64437C84F53C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +36,6 @@ Global
 		{7031243F-7A42-4DA4-B1CD-1EF3603463D6}.Debug|x64.Build.0 = Debug|x64
 		{7031243F-7A42-4DA4-B1CD-1EF3603463D6}.Release|x64.ActiveCfg = Release|x64
 		{7031243F-7A42-4DA4-B1CD-1EF3603463D6}.Release|x64.Build.0 = Release|x64
-		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Debug|x64.ActiveCfg = Debug|x64
-		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Debug|x64.Build.0 = Debug|x64
-		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Release|x64.ActiveCfg = Release|x64
-		{6FCED408-75B2-4EF9-9E5F-3EC58B19249B}.Release|x64.Build.0 = Release|x64
 		{69DF9DE1-AEE5-4644-A1CE-C5C66D9C29D8}.Debug|x64.ActiveCfg = Debug|x64
 		{69DF9DE1-AEE5-4644-A1CE-C5C66D9C29D8}.Debug|x64.Build.0 = Debug|x64
 		{69DF9DE1-AEE5-4644-A1CE-C5C66D9C29D8}.Release|x64.ActiveCfg = Release|x64

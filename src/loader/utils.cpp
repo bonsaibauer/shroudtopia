@@ -13,20 +13,57 @@
 #include <iostream>
 #include <mutex>
 #include <cstring>
+#include <algorithm>
+#include <cctype>
 
 namespace {
 std::mutex log_mutex;
+auto session_started = std::chrono::steady_clock::now();
 
-const char* level_name(Utils::LogLevel level) {
+char level_name(LogLevel level) {
     switch (level) {
-    case Utils::VERBOSE: return "TRACE";
-    case Utils::DEBUG: return "DEBUG";
-    case Utils::INFO: return "INFO";
-    case Utils::WARN: return "WARN";
-    case Utils::ERRR: return "ERROR";
-    default: return "NONE";
+    case LOG_TRACE: return 'T';
+    case LOG_DEBUG: return 'D';
+    case LOG_INFO: return 'I';
+    case LOG_WARNING: return 'W';
+    case LOG_ERROR: return 'E';
+    default: return '?';
     }
 }
+
+void Write(LogLevel level, const char* source, const char* format, va_list arguments) {
+    if ((Utils::LogLevelMask() & (1u << static_cast<unsigned>(level))) == 0) return;
+    char message[2048]{};
+    vsnprintf(message, sizeof(message), format, arguments);
+    const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - session_started).count();
+    const auto hours = elapsed / 3600000;
+    const auto minutes = (elapsed / 60000) % 60;
+    const auto seconds = (elapsed / 1000) % 60;
+    const auto milliseconds = elapsed % 1000;
+    char prefix[128]{};
+    std::snprintf(prefix, sizeof(prefix), "[%c %02lld:%02lld:%02lld,%03lld] [%s] ",
+        level_name(level), hours, minutes, seconds, milliseconds,
+        source && *source ? source : "shroudtopia");
+    std::scoped_lock lock(log_mutex);
+    std::ofstream file(SHROUDTOPIA_LOG_FILE, std::ios::app);
+    file << prefix << message << '\n';
+    std::cout << prefix << message << std::endl;
+}
+}
+
+uint8_t Utils::LogLevelMask() {
+    if (!Config::get<bool>("enableLogging", true)) return 0;
+    auto configured = Config::get<std::string>("logLevel", "INFO");
+    std::transform(configured.begin(), configured.end(), configured.begin(), [](unsigned char value) {
+        return static_cast<char>(std::toupper(value));
+    });
+    if (configured == "ALL") return 0x1f;
+    if (configured == "TRACE") return 1u << LOG_TRACE;
+    if (configured == "DEBUG") return 1u << LOG_DEBUG;
+    if (configured == "WARNING" || configured == "WARN") return 1u << LOG_WARNING;
+    if (configured == "ERROR") return 1u << LOG_ERROR;
+    return 1u << LOG_INFO;
 }
 
 void Utils::BeginLogSession(const char* target) {
@@ -49,30 +86,24 @@ void Utils::BeginLogSession(const char* target) {
             fs::rename(current, destination);
         }
         std::ofstream fresh(current, std::ios::trunc);
+        session_started = std::chrono::steady_clock::now();
     } catch (...) {
         // Logging remains available in append mode when archival is unavailable.
     }
 }
 
 void Utils::Log(LogLevel level, const char* format, ...) {
-    if (!Config::get<bool>("enableLogging", true) || level == NONE) return;
-
-    char message[2048]{};
     va_list arguments;
     va_start(arguments, format);
-    vsnprintf(message, sizeof(message), format, arguments);
+    Write(level, "shroudtopia", format, arguments);
     va_end(arguments);
+}
 
-    const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    std::tm utc{};
-    gmtime_s(&utc, &now);
-    char timestamp[32]{};
-    std::strftime(timestamp, sizeof(timestamp), "%FT%TZ", &utc);
-
-    std::scoped_lock lock(log_mutex);
-    std::ofstream file(SHROUDTOPIA_LOG_FILE, std::ios::app);
-    file << '[' << timestamp << "][shroudtopia][" << level_name(level) << "] " << message << '\n';
-    std::cout << "[shroudtopia][" << level_name(level) << "] " << message << std::endl;
+void Utils::LogAs(LogLevel level, const char* source, const char* format, ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    Write(level, source, format, arguments);
+    va_end(arguments);
 }
 
 Result CALL Utils::ReadLogTail(LogSource source, char* buffer, size_t capacity, size_t* written) {

@@ -69,10 +69,10 @@ std::string Utf8(const std::filesystem::path& path) {
 }
 
 void InitializeOnce() {
-    const auto libraryPath = ModulePath().parent_path() / L"shroudtopia-assets.dll";
+    const auto libraryPath = ModulePath().parent_path() / L"shroudtopia.dll";
     functions.module = LoadLibraryW(libraryPath.c_str());
     if (functions.module == nullptr) {
-        Utils::Log(Utils::DEBUG, "Asset engine library unavailable: %s", Utf8(libraryPath).c_str());
+        Utils::Log(LOG_DEBUG, "Asset engine library unavailable: %s", Utf8(libraryPath).c_str());
         return;
     }
     functions.open = Function<OpenFn>("ShroudtopiaAssetsOpen");
@@ -87,7 +87,7 @@ void InitializeOnce() {
     if (functions.open == nullptr || functions.close == nullptr || functions.list == nullptr ||
         functions.get == nullptr || functions.update == nullptr || functions.create == nullptr ||
         functions.reset == nullptr || functions.save == nullptr || functions.set == nullptr) {
-        Utils::Log(Utils::DEBUG, "Asset engine rejected: required exports are incomplete");
+        Utils::Log(LOG_DEBUG, "Asset engine rejected: required exports are incomplete");
         return;
     }
 
@@ -95,7 +95,7 @@ void InitializeOnce() {
     const auto directory = Utf8(executable.parent_path());
     const auto stem = Utf8(executable.stem());
     functions.available = functions.open(View(directory), View(stem)) == RESULT_OK;
-    Utils::Log(Utils::DEBUG, "Asset engine initialize: executable=%s available=%s",
+    Utils::Log(LOG_DEBUG, "Asset engine initialize: executable=%s available=%s",
         Utf8(executable).c_str(), functions.available ? "true" : "false");
 }
 }

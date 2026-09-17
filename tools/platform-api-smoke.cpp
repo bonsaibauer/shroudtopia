@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "shroudtopia/api.h"
+#include "shroudtopia.h"
 
 namespace {
     StringView View(const char* value) {
@@ -78,9 +78,9 @@ namespace {
 }
 
 int main() {
-    HMODULE module = LoadLibraryW(L"shroudtopia.dll");
+    HMODULE module = LoadLibraryW(L"winmm.dll");
     if (module == nullptr) {
-        std::cerr << "Could not load shroudtopia.dll: " << GetLastError() << '\n';
+        std::cerr << "Could not load winmm.dll: " << GetLastError() << '\n';
         return 1;
     }
 
@@ -106,29 +106,23 @@ int main() {
     capability = {sizeof(capability)};
     if (!Check(api->query_capability(View(CAPABILITY_RUNTIME_PATCHES), &capability), RESULT_OK, "query runtime patches capability") || capability.available != 1) return 4;
     capability = {sizeof(capability)};
-    if (!Check(api->query_capability(View("shroudtopia.world.voxels.write"), &capability), RESULT_OK, "query unavailable capability") || capability.available != 0) return 4;
-    capability = {sizeof(capability)};
     if (!Check(api->query_capability(View(CAPABILITY_ASSETS_READ), &capability), RESULT_OK,
         "query assets without game files") || capability.available != 0) return 4;
     uint8_t allowed = 1;
     if (!Check(api->check_permission(View("mod.smoke"), View("shroudtopia.world.voxels.write"), &allowed), RESULT_OK, "check permission") || allowed != 0) return 4;
 
-    const auto* runtime = api->patches;
-    if (runtime == nullptr) return 4;
     RuntimePatch deniedPatch = 0;
     RuntimePatchOptions deniedDescriptor{sizeof(deniedDescriptor), View("90"), 0, RUNTIME_PATCH_DIRECT, 1, nullptr, 0, nullptr, 0};
-    if (!Check(runtime->create(View("mod.smoke"), &deniedDescriptor, &deniedPatch), RESULT_PERMISSION_DENIED,
+    if (!Check(api->create_patch(View("mod.smoke"), &deniedDescriptor, &deniedPatch), RESULT_PERMISSION_DENIED,
         "reject runtime patch without manifest permission")) return 4;
 
     const auto owner = View("mod.smoke");
 
-    const auto* assets = api->assets;
-    if (assets == nullptr) return 4;
     size_t visitedAssets = 0;
-    if (!Check(assets->list(owner, View("keen::RecipeRegistryResource"), CountAsset, &visitedAssets),
+    if (!Check(api->list_assets(owner, View("keen::RecipeRegistryResource"), CountAsset, &visitedAssets),
         RESULT_PERMISSION_DENIED, "reject asset read without manifest permission")) return 4;
     const auto core = View("shroudtopia.core");
-    if (!Check(assets->list(core, View("keen::RecipeRegistryResource"), CountAsset, &visitedAssets),
+    if (!Check(api->list_assets(core, View("keen::RecipeRegistryResource"), CountAsset, &visitedAssets),
         RESULT_NOT_FOUND, "report unavailable internal asset engine")) return 4;
 
     std::int32_t serviceValue = 42;
@@ -137,8 +131,10 @@ int main() {
     if (!Check(api->register_service(owner, &service, &serviceHandle), RESULT_OK, "register_service")) return 4;
 
     const void* found = nullptr;
-    ServiceRequest request{sizeof(request), View("mod.smoke.echo"), 1, 1};
+    ServiceRequest request{sizeof(request), View("mod.smoke.echo"), 1, 2};
     if (!Check(api->find_service(&request, &found), RESULT_OK, "find_service") || found != &serviceValue) return 5;
+    request.version_minor = 1;
+    if (!Check(api->find_service(&request, &found), RESULT_NOT_FOUND, "reject different service version")) return 5;
 
     std::int32_t eventValue = 0;
     EventSubscription subscription{sizeof(subscription), View("mod.smoke.changed"), OnEvent, &eventValue};
@@ -154,10 +150,6 @@ int main() {
     if (!Check(api->register_command(owner, &command, &commandHandle), RESULT_OK, "register_command")) return 8;
     if (!Check(api->invoke_command(owner, View("mod.smoke.run"), View("abc")), RESULT_OK, "invoke_command") || argumentLength != 3) return 9;
 
-    ModSettingsDescriptor settings{sizeof(settings), View("mod.smoke.settings"), View("{\"type\":\"object\"}"), View("{}")};
-    Registration settingsHandle = 0;
-    if (!Check(api->register_mod_settings(owner, &settings, &settingsHandle), RESULT_OK, "register_mod_settings")) return 10;
-
     size_t actionInputLength = 0;
     Action action{sizeof(action), View("mod.smoke.toggle"), View("Toggle smoke feature"),
         View("Exercises the shared in-game action registry."), View("{\"type\":\"object\"}"),
@@ -169,11 +161,6 @@ int main() {
         "get_action_state") || actionState != ACTION_AVAILABLE) return 10;
     if (!Check(api->invoke_action(owner, View("mod.smoke.toggle"), View("{}")), RESULT_OK,
         "invoke_action") || actionInputLength != 2) return 10;
-
-    if (!Check(api->stage_game_setting(View("smoke.profile"), View("\"test\"")), RESULT_OK,
-        "stage_game_setting")) return 10;
-    if (!Check(api->reset_game_setting(View("smoke.profile")), RESULT_OK,
-        "reset_game_setting")) return 10;
 
     Result commandsResult = RESULT_NOT_FOUND;
     for (int attempt = 0; attempt < 60 && commandsResult == RESULT_NOT_FOUND; ++attempt) {
@@ -213,7 +200,7 @@ int main() {
     }
     if (!Check(commandsResult, RESULT_OK, "reactivate mods with global loader switch")) return 11;
 
-    if (!Check(api->release_owner(owner), RESULT_OK, "release_owner")) return 13;
+    if (!Check(api->release_registration(serviceHandle), RESULT_OK, "release service")) return 13;
     if (!Check(api->find_service(&request, &found), RESULT_NOT_FOUND, "find_service after release")) return 14;
 
     if (!stop(10000)) return 15;

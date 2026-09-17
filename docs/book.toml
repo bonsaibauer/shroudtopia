@@ -2,7 +2,7 @@
 authors = ["Shroudtopia contributors"]
 language = "en"
 multilingual = false
-src = ".build/en"
+src = "content/en"
 title = "Shroudtopia API Documentation"
 
 [build]
@@ -13,7 +13,7 @@ preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/bonsaibauer/shroudtopia"
 site-url = "/shroudtopia/en/"
 additional-css = ["theme/shroudtopia.css"]
-additional-js = ["theme/generated/shroudtopia.js"]
+additional-js = ["theme/shroudtopia.js"]
 
 [output.html.search]
 enable = true

@@ -97,7 +97,7 @@ std::uintptr_t FindSignature(std::string_view text) {
     if (nt->Signature != IMAGE_NT_SIGNATURE) return 0;
 
     std::uintptr_t found = 0;
-    const auto sections = IMAGE_FIRSECTION(nt);
+    const auto sections = IMAGE_FIRST_SECTION(nt);
     for (WORD index = 0; index < nt->FileHeader.NumberOfSections; ++index) {
         const auto& section = sections[index];
         if ((section.Characteristics & IMAGE_SCN_MEM_EXECUTE) == 0 ||

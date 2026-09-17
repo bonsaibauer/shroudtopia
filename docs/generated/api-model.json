@@ -1,0 +1,2118 @@
+{
+  "schemaVersion": 1,
+  "apiVersion": "1.1",
+  "generatedFrom": "api/shroudtopia.h",
+  "services": [
+    {
+      "slug": "actions",
+      "title": "Actions",
+      "title_de": "Actions",
+      "summary": "Exposes discoverable operations with JSON Schema inputs and observable state.",
+      "summary_de": "Stellt auffindbare Operationen mit JSON-Schema-Eingaben und beobachtbarem Status bereit.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "Main thread",
+      "capabilities": [
+        "shroudtopia.registry.services"
+      ],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "register_action",
+              "returnType": "Result",
+              "signature": "Result (CALL* register_action)(StringView owner_id, const Action* action, Registration* registration);",
+              "kind": "method",
+              "summary": "Register action.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "action",
+                  "type": "const Action*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for action."
+                },
+                {
+                  "name": "registration",
+                  "type": "Registration*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Receives or identifies an ownership-bound registration."
+                }
+              ]
+            },
+            {
+              "name": "invoke_action",
+              "returnType": "Result",
+              "signature": "Result (CALL* invoke_action)(StringView owner_id, StringView action_id, StringView input_json);",
+              "kind": "method",
+              "summary": "Invoke action.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "action_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for action id."
+                },
+                {
+                  "name": "input_json",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "UTF-8 JSON input validated against the action schema."
+                }
+              ]
+            },
+            {
+              "name": "get_action_state",
+              "returnType": "Result",
+              "signature": "Result (CALL* get_action_state)(StringView action_id, ActionState* state);",
+              "kind": "method",
+              "summary": "Read action state.",
+              "parameters": [
+                {
+                  "name": "action_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for action id."
+                },
+                {
+                  "name": "state",
+                  "type": "ActionState*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Value for state."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "Action",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "id",
+                  "type": "StringView"
+                },
+                {
+                  "name": "title",
+                  "type": "StringView"
+                },
+                {
+                  "name": "description",
+                  "type": "StringView"
+                },
+                {
+                  "name": "input_schema_json",
+                  "type": "StringView"
+                },
+                {
+                  "name": "invoke",
+                  "type": "ActionHandler"
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*"
+                }
+              ]
+            }
+          ],
+          "enums": []
+        }
+      ]
+    },
+    {
+      "slug": "api",
+      "title": "API",
+      "title_de": "API",
+      "summary": "Negotiates and exposes the single flat Shroudtopia interface used by every native mod.",
+      "summary_de": "Handelt die einzige flache Shroudtopia-Schnittstelle aus, die jede native Mod verwendet.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "Main thread unless an operation states otherwise",
+      "capabilities": [],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "ShroudtopiaGetApi",
+              "returnType": "Result",
+              "signature": "API_EXPORT Result CALL ShroudtopiaGetApi(uint32_t requested_api_version, const Api** api);",
+              "kind": "export",
+              "summary": "Negotiate the requested ABI version and return the process-wide host API.",
+              "parameters": [
+                {
+                  "name": "requested_api_version",
+                  "type": "uint32_t",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for requested api version."
+                },
+                {
+                  "name": "api",
+                  "type": "const Api**",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for api."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "Api",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "api_version",
+                  "type": "uint32_t"
+                }
+              ]
+            }
+          ],
+          "enums": []
+        }
+      ]
+    },
+    {
+      "slug": "assets",
+      "title": "Assets",
+      "title_de": "Assets",
+      "summary": "Lists, reads, creates, updates, patches, saves, and resets structured game assets.",
+      "summary_de": "Listet, liest, erstellt, ändert, patcht, speichert und verwirft strukturierte Spiel-Assets.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "Main thread",
+      "capabilities": [
+        "shroudtopia.assets.read",
+        "shroudtopia.assets.write"
+      ],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "AssetVisitor",
+              "returnType": "Result",
+              "signature": "Result (CALL* AssetVisitor)(const AssetId* asset, void* user_data);",
+              "kind": "callback",
+              "summary": "Execute .",
+              "parameters": [
+                {
+                  "name": "asset",
+                  "type": "const AssetId*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for asset."
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Opaque context forwarded unchanged to the callback."
+                }
+              ]
+            },
+            {
+              "name": "list_assets",
+              "returnType": "Result",
+              "signature": "Result (CALL* list_assets)(StringView owner_id, StringView type_name, AssetVisitor visitor, void* user_data);",
+              "kind": "method",
+              "summary": "List assets.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "type_name",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for type name."
+                },
+                {
+                  "name": "visitor",
+                  "type": "AssetVisitor",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for visitor."
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Opaque context forwarded unchanged to the callback."
+                }
+              ]
+            },
+            {
+              "name": "get_asset",
+              "returnType": "Result",
+              "signature": "Result (CALL* get_asset)(StringView owner_id, const AssetId* asset, char* buffer, size_t capacity, size_t* required_size);",
+              "kind": "method",
+              "summary": "Read asset.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "asset",
+                  "type": "const AssetId*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for asset."
+                },
+                {
+                  "name": "buffer",
+                  "type": "char*",
+                  "direction": "in",
+                  "required": "conditional",
+                  "nullable": "yes, for capacity query",
+                  "ownership": "borrowed",
+                  "description": "Caller-owned output buffer; may be null for a size query."
+                },
+                {
+                  "name": "capacity",
+                  "type": "size_t",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Elements or bytes available in the output buffer."
+                },
+                {
+                  "name": "required_size",
+                  "type": "size_t*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Receives the required buffer size."
+                }
+              ]
+            },
+            {
+              "name": "update_asset",
+              "returnType": "Result",
+              "signature": "Result (CALL* update_asset)(StringView owner_id, const AssetId* asset, StringView json);",
+              "kind": "method",
+              "summary": "Update asset.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "asset",
+                  "type": "const AssetId*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for asset."
+                },
+                {
+                  "name": "json",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "UTF-8 JSON representation of the resource."
+                }
+              ]
+            },
+            {
+              "name": "create_asset",
+              "returnType": "Result",
+              "signature": "Result (CALL* create_asset)(StringView owner_id, StringView type_name, StringView json, AssetVisitor visitor, void* user_data);",
+              "kind": "method",
+              "summary": "Create asset.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "type_name",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for type name."
+                },
+                {
+                  "name": "json",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "UTF-8 JSON representation of the resource."
+                },
+                {
+                  "name": "visitor",
+                  "type": "AssetVisitor",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for visitor."
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Opaque context forwarded unchanged to the callback."
+                }
+              ]
+            },
+            {
+              "name": "reset_assets",
+              "returnType": "Result",
+              "signature": "Result (CALL* reset_assets)(StringView owner_id);",
+              "kind": "method",
+              "summary": "Reset assets.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                }
+              ]
+            },
+            {
+              "name": "save_assets",
+              "returnType": "Result",
+              "signature": "Result (CALL* save_assets)(StringView owner_id);",
+              "kind": "method",
+              "summary": "Persist assets.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                }
+              ]
+            },
+            {
+              "name": "set_asset_field",
+              "returnType": "Result",
+              "signature": "Result (CALL* set_asset_field)(StringView owner_id, const AssetId* asset, StringView path, StringView json);",
+              "kind": "method",
+              "summary": "Set asset field.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "asset",
+                  "type": "const AssetId*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for asset."
+                },
+                {
+                  "name": "path",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for path."
+                },
+                {
+                  "name": "json",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "UTF-8 JSON representation of the resource."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "AssetId",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "guid",
+                  "type": "StringView"
+                },
+                {
+                  "name": "type_name",
+                  "type": "StringView"
+                },
+                {
+                  "name": "part",
+                  "type": "uint32_t"
+                }
+              ]
+            }
+          ],
+          "enums": []
+        }
+      ]
+    },
+    {
+      "slug": "capabilities",
+      "title": "Capability information",
+      "title_de": "Capability-Informationen",
+      "summary": "Describes the negotiated version and availability of a capability.",
+      "summary_de": "Beschreibt ausgehandelte Version und Verfügbarkeit einer Capability.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "See query_capability",
+      "capabilities": [],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "query_capability",
+              "returnType": "Result",
+              "signature": "Result (CALL* query_capability)(StringView capability_id, CapabilityInfo* information);",
+              "kind": "method",
+              "summary": "Read availability and version information for a capability.",
+              "parameters": [
+                {
+                  "name": "capability_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for capability id."
+                },
+                {
+                  "name": "information",
+                  "type": "CapabilityInfo*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Value for information."
+                }
+              ]
+            },
+            {
+              "name": "check_permission",
+              "returnType": "Result",
+              "signature": "Result (CALL* check_permission)(StringView owner_id, StringView permission_id, uint8_t* allowed);",
+              "kind": "method",
+              "summary": "Check whether an owner may use a permission.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "permission_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for permission id."
+                },
+                {
+                  "name": "allowed",
+                  "type": "uint8_t*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Value for allowed."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "CapabilityInfo",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "version_major",
+                  "type": "uint32_t"
+                },
+                {
+                  "name": "version_minor",
+                  "type": "uint32_t"
+                },
+                {
+                  "name": "flags",
+                  "type": "uint64_t"
+                },
+                {
+                  "name": "available",
+                  "type": "uint8_t"
+                },
+                {
+                  "name": "reserved",
+                  "type": "uint8_t"
+                }
+              ]
+            }
+          ],
+          "enums": []
+        }
+      ]
+    },
+    {
+      "slug": "commands",
+      "title": "Commands",
+      "title_de": "Commands",
+      "summary": "Registers named commands with descriptions and callbacks.",
+      "summary_de": "Registriert benannte Commands mit Beschreibungen und Callbacks.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "Main thread; callbacks are synchronous",
+      "capabilities": [
+        "shroudtopia.registry.commands"
+      ],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "CommandCallback",
+              "returnType": "Result",
+              "signature": "Result (CALL* CommandCallback)(StringView arguments, void* user_data);",
+              "kind": "callback",
+              "summary": "Execute .",
+              "parameters": [
+                {
+                  "name": "arguments",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for arguments."
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Opaque context forwarded unchanged to the callback."
+                }
+              ]
+            },
+            {
+              "name": "register_command",
+              "returnType": "Result",
+              "signature": "Result (CALL* register_command)(StringView owner_id, const CommandDescriptor* descriptor, Registration* registration);",
+              "kind": "method",
+              "summary": "Register command.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "descriptor",
+                  "type": "const CommandDescriptor*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for descriptor."
+                },
+                {
+                  "name": "registration",
+                  "type": "Registration*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Receives or identifies an ownership-bound registration."
+                }
+              ]
+            },
+            {
+              "name": "invoke_command",
+              "returnType": "Result",
+              "signature": "Result (CALL* invoke_command)(StringView owner_id, StringView command_id, StringView arguments);",
+              "kind": "method",
+              "summary": "Invoke command.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "command_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for command id."
+                },
+                {
+                  "name": "arguments",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for arguments."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "CommandDescriptor",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "command_id",
+                  "type": "StringView"
+                },
+                {
+                  "name": "description",
+                  "type": "StringView"
+                },
+                {
+                  "name": "callback",
+                  "type": "CommandCallback"
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*"
+                }
+              ]
+            }
+          ],
+          "enums": []
+        }
+      ]
+    },
+    {
+      "slug": "core",
+      "title": "Core API",
+      "title_de": "Core API",
+      "summary": "Defines the ABI version, common string and registration handles, and the Result error model.",
+      "summary_de": "Definiert ABI-Version, gemeinsame String- und Registrierungs-Handles sowie das Result-Fehlermodell.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "See each operation",
+      "capabilities": [],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [],
+          "structs": [
+            {
+              "name": "StringView",
+              "fields": [
+                {
+                  "name": "data",
+                  "type": "const char*"
+                },
+                {
+                  "name": "size",
+                  "type": "size_t"
+                }
+              ]
+            }
+          ],
+          "enums": [
+            {
+              "name": "Result",
+              "values": [
+                {
+                  "name": "RESULT_OK",
+                  "value": "0"
+                },
+                {
+                  "name": "RESULT_INVALID_ARGUMENT",
+                  "value": "1"
+                },
+                {
+                  "name": "RESULT_CONFLICT",
+                  "value": "2"
+                },
+                {
+                  "name": "RESULT_NOT_FOUND",
+                  "value": "3"
+                },
+                {
+                  "name": "RESULT_VERSION_MISMATCH",
+                  "value": "4"
+                },
+                {
+                  "name": "RESULT_PERMISSION_DENIED",
+                  "value": "5"
+                },
+                {
+                  "name": "RESULT_NOT_AVAILABLE",
+                  "value": "6"
+                },
+                {
+                  "name": "RESULT_CALLBACK_FAILED",
+                  "value": "7"
+                },
+                {
+                  "name": "RESULT_INTERNAL_ERROR",
+                  "value": "8"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "events",
+      "title": "Events",
+      "title_de": "Events",
+      "summary": "Publishes typed event payloads and manages event subscriptions.",
+      "summary_de": "Veröffentlicht typisierte Event-Payloads und verwaltet Event-Abonnements.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "Publisher thread; callbacks are synchronous",
+      "capabilities": [
+        "shroudtopia.registry.events"
+      ],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "EventCallback",
+              "returnType": "Result",
+              "signature": "Result (CALL* EventCallback)(const Event* event_data, void* user_data);",
+              "kind": "callback",
+              "summary": "Execute .",
+              "parameters": [
+                {
+                  "name": "event_data",
+                  "type": "const Event*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for event data."
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Opaque context forwarded unchanged to the callback."
+                }
+              ]
+            },
+            {
+              "name": "subscribe_event",
+              "returnType": "Result",
+              "signature": "Result (CALL* subscribe_event)(StringView owner_id, const EventSubscription* subscription, Registration* registration);",
+              "kind": "method",
+              "summary": "Subscribe to event.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "subscription",
+                  "type": "const EventSubscription*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for subscription."
+                },
+                {
+                  "name": "registration",
+                  "type": "Registration*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Receives or identifies an ownership-bound registration."
+                }
+              ]
+            },
+            {
+              "name": "publish_event",
+              "returnType": "Result",
+              "signature": "Result (CALL* publish_event)(StringView owner_id, const Event* event_data);",
+              "kind": "method",
+              "summary": "Publish event.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "event_data",
+                  "type": "const Event*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for event data."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "Event",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "event_id",
+                  "type": "StringView"
+                },
+                {
+                  "name": "payload",
+                  "type": "const void*"
+                },
+                {
+                  "name": "payload_size",
+                  "type": "size_t"
+                }
+              ]
+            },
+            {
+              "name": "EventSubscription",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "event_id",
+                  "type": "StringView"
+                },
+                {
+                  "name": "callback",
+                  "type": "EventCallback"
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*"
+                }
+              ]
+            }
+          ],
+          "enums": []
+        }
+      ]
+    },
+    {
+      "slug": "lifecycle",
+      "title": "Mod lifecycle",
+      "title_de": "Mod-Lebenszyklus",
+      "summary": "Declares a mod and its load, activation, update, deactivation, and unload callbacks.",
+      "summary_de": "Deklariert eine Mod und ihre Callbacks für Laden, Aktivierung, Update, Deaktivierung und Entladen.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "Loader-controlled lifecycle thread",
+      "capabilities": [
+        "shroudtopia.lifecycle.native"
+      ],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "ModLifecycleCallback",
+              "returnType": "Result",
+              "signature": "Result (CALL* ModLifecycleCallback)(const Api* api, void* user_data);",
+              "kind": "callback",
+              "summary": "Execute .",
+              "parameters": [
+                {
+                  "name": "api",
+                  "type": "const Api*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for api."
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Opaque context forwarded unchanged to the callback."
+                }
+              ]
+            },
+            {
+              "name": "ModUpdateCallback",
+              "returnType": "Result",
+              "signature": "Result (CALL* ModUpdateCallback)(const Api* api, void* user_data, double delta_seconds);",
+              "kind": "callback",
+              "summary": "Execute .",
+              "parameters": [
+                {
+                  "name": "api",
+                  "type": "const Api*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for api."
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Opaque context forwarded unchanged to the callback."
+                },
+                {
+                  "name": "delta_seconds",
+                  "type": "double",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for delta seconds."
+                }
+              ]
+            },
+            {
+              "name": "CreateModFunction",
+              "returnType": "Result",
+              "signature": "Result (CALL* CreateModFunction)(uint32_t requested_api_version, ModDescriptor* descriptor);",
+              "kind": "callback",
+              "summary": "Execute .",
+              "parameters": [
+                {
+                  "name": "requested_api_version",
+                  "type": "uint32_t",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for requested api version."
+                },
+                {
+                  "name": "descriptor",
+                  "type": "ModDescriptor*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for descriptor."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "ModDescriptor",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "mod_id",
+                  "type": "StringView"
+                },
+                {
+                  "name": "user_data",
+                  "type": "void*"
+                },
+                {
+                  "name": "on_load",
+                  "type": "ModLifecycleCallback"
+                },
+                {
+                  "name": "on_activate",
+                  "type": "ModLifecycleCallback"
+                },
+                {
+                  "name": "on_update",
+                  "type": "ModUpdateCallback"
+                },
+                {
+                  "name": "on_deactivate",
+                  "type": "ModLifecycleCallback"
+                },
+                {
+                  "name": "on_unload",
+                  "type": "ModLifecycleCallback"
+                }
+              ]
+            }
+          ],
+          "enums": []
+        }
+      ]
+    },
+    {
+      "slug": "logging",
+      "title": "Logging",
+      "title_de": "Logging",
+      "summary": "Writes structured loader messages and reads bounded tails of loader or game logs.",
+      "summary_de": "Schreibt strukturierte Loader-Meldungen und liest begrenzte Ausschnitte aus Loader- oder Game-Logs.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "Thread-safe where stated",
+      "capabilities": [],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "log",
+              "returnType": "Result",
+              "signature": "Result (CALL* log)(StringView owner_id, LogLevel level, StringView message);",
+              "kind": "method",
+              "summary": "Write .",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "level",
+                  "type": "LogLevel",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for level."
+                },
+                {
+                  "name": "message",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for message."
+                }
+              ]
+            },
+            {
+              "name": "read_log_tail",
+              "returnType": "Result",
+              "signature": "Result (CALL* read_log_tail)(LogSource source, char* buffer, size_t capacity, size_t* written);",
+              "kind": "method",
+              "summary": "Execute log tail.",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": "LogSource",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for source."
+                },
+                {
+                  "name": "buffer",
+                  "type": "char*",
+                  "direction": "in",
+                  "required": "conditional",
+                  "nullable": "yes, for capacity query",
+                  "ownership": "borrowed",
+                  "description": "Caller-owned output buffer; may be null for a size query."
+                },
+                {
+                  "name": "capacity",
+                  "type": "size_t",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Elements or bytes available in the output buffer."
+                },
+                {
+                  "name": "written",
+                  "type": "size_t*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Value for written."
+                }
+              ]
+            }
+          ],
+          "structs": [],
+          "enums": [
+            {
+              "name": "LogLevel",
+              "values": [
+                {
+                  "name": "LOG_TRACE",
+                  "value": "0"
+                },
+                {
+                  "name": "LOG_DEBUG",
+                  "value": "1"
+                },
+                {
+                  "name": "LOG_INFO",
+                  "value": "2"
+                },
+                {
+                  "name": "LOG_WARNING",
+                  "value": "3"
+                },
+                {
+                  "name": "LOG_ERROR",
+                  "value": "4"
+                }
+              ]
+            },
+            {
+              "name": "LogSource",
+              "values": [
+                {
+                  "name": "LOG_SOURCE_LOADER",
+                  "value": "0"
+                },
+                {
+                  "name": "LOG_SOURCE_GAME",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "runtime-patches",
+      "title": "Runtime patches",
+      "title_de": "Runtime Patches",
+      "summary": "Creates and controls ownership-scoped direct or detour runtime patches.",
+      "summary_de": "Erstellt und steuert besitzergebundene direkte oder Detour-Runtime-Patches.",
+      "status": "experimental",
+      "since": "1.1",
+      "threading": "Main thread",
+      "capabilities": [
+        "shroudtopia.runtime.patches"
+      ],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "create_patch",
+              "returnType": "Result",
+              "signature": "Result (CALL* create_patch)(StringView owner_id, const RuntimePatchOptions* options, RuntimePatch* patch);",
+              "kind": "method",
+              "summary": "Create patch.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "options",
+                  "type": "const RuntimePatchOptions*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for options."
+                },
+                {
+                  "name": "patch",
+                  "type": "RuntimePatch*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Value for patch."
+                }
+              ]
+            },
+            {
+              "name": "set_patch_enabled",
+              "returnType": "Result",
+              "signature": "Result (CALL* set_patch_enabled)(StringView owner_id, RuntimePatch patch, uint8_t enabled);",
+              "kind": "method",
+              "summary": "Set patch enabled.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "patch",
+                  "type": "RuntimePatch",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for patch."
+                },
+                {
+                  "name": "enabled",
+                  "type": "uint8_t",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for enabled."
+                }
+              ]
+            },
+            {
+              "name": "get_patch_state",
+              "returnType": "Result",
+              "signature": "Result (CALL* get_patch_state)(StringView owner_id, RuntimePatch patch, RuntimePatchState* state);",
+              "kind": "method",
+              "summary": "Read patch state.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "patch",
+                  "type": "RuntimePatch",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for patch."
+                },
+                {
+                  "name": "state",
+                  "type": "RuntimePatchState*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Value for state."
+                }
+              ]
+            },
+            {
+              "name": "release_patch",
+              "returnType": "Result",
+              "signature": "Result (CALL* release_patch)(StringView owner_id, RuntimePatch patch);",
+              "kind": "method",
+              "summary": "Release patch.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "patch",
+                  "type": "RuntimePatch",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for patch."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "RuntimeRelocation",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "payload_offset",
+                  "type": "size_t"
+                },
+                {
+                  "name": "kind",
+                  "type": "RuntimeRelocationKind"
+                }
+              ]
+            },
+            {
+              "name": "RuntimePatchOptions",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "signature",
+                  "type": "StringView"
+                },
+                {
+                  "name": "match_offset",
+                  "type": "int64_t"
+                },
+                {
+                  "name": "kind",
+                  "type": "RuntimePatchKind"
+                },
+                {
+                  "name": "overwrite_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "payload",
+                  "type": "const uint8_t*"
+                },
+                {
+                  "name": "payload_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "relocations",
+                  "type": "const RuntimeRelocation*"
+                },
+                {
+                  "name": "relocation_count",
+                  "type": "size_t"
+                }
+              ]
+            },
+            {
+              "name": "RuntimePatchState",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "enabled",
+                  "type": "uint8_t"
+                },
+                {
+                  "name": "reserved",
+                  "type": "uint8_t"
+                }
+              ]
+            }
+          ],
+          "enums": [
+            {
+              "name": "RuntimePatchKind",
+              "values": [
+                {
+                  "name": "RUNTIME_PATCH_DIRECT",
+                  "value": "0"
+                },
+                {
+                  "name": "RUNTIME_PATCH_DETOUR",
+                  "value": "1"
+                }
+              ]
+            },
+            {
+              "name": "RuntimeRelocationKind",
+              "values": [
+                {
+                  "name": "RUNTIME_RELOCATION_REL32_RETURN",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "services",
+      "title": "Service discovery",
+      "title_de": "Service Discovery",
+      "summary": "Publishes extension contracts and resolves providers by exact contract version.",
+      "summary_de": "Veröffentlicht Erweiterungsverträge und ermittelt Provider anhand der exakten Contract-Version.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "Main thread",
+      "capabilities": [
+        "shroudtopia.registry.services"
+      ],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "register_service",
+              "returnType": "Result",
+              "signature": "Result (CALL* register_service)(StringView owner_id, const ServiceDescriptor* descriptor, Registration* registration);",
+              "kind": "method",
+              "summary": "Publish a versioned service implementation owned by the calling mod.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "descriptor",
+                  "type": "const ServiceDescriptor*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for descriptor."
+                },
+                {
+                  "name": "registration",
+                  "type": "Registration*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Receives or identifies an ownership-bound registration."
+                }
+              ]
+            },
+            {
+              "name": "find_service",
+              "returnType": "Result",
+              "signature": "Result (CALL* find_service)(const ServiceRequest* request, const void** interface_pointer);",
+              "kind": "method",
+              "summary": "Resolve a service implementation by its exact contract version.",
+              "parameters": [
+                {
+                  "name": "request",
+                  "type": "const ServiceRequest*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for request."
+                },
+                {
+                  "name": "interface_pointer",
+                  "type": "const void**",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Value for interface pointer."
+                }
+              ]
+            },
+            {
+              "name": "release_registration",
+              "returnType": "Result",
+              "signature": "Result (CALL* release_registration)(Registration registration);",
+              "kind": "method",
+              "summary": "Release one registration handle.",
+              "parameters": [
+                {
+                  "name": "registration",
+                  "type": "Registration",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Receives or identifies an ownership-bound registration."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "ServiceDescriptor",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "contract_id",
+                  "type": "StringView"
+                },
+                {
+                  "name": "version_major",
+                  "type": "uint32_t"
+                },
+                {
+                  "name": "version_minor",
+                  "type": "uint32_t"
+                },
+                {
+                  "name": "interface_pointer",
+                  "type": "const void*"
+                }
+              ]
+            },
+            {
+              "name": "ServiceRequest",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "contract_id",
+                  "type": "StringView"
+                },
+                {
+                  "name": "version_major",
+                  "type": "uint32_t"
+                },
+                {
+                  "name": "version_minor",
+                  "type": "uint32_t"
+                }
+              ]
+            }
+          ],
+          "enums": []
+        }
+      ]
+    },
+    {
+      "slug": "settings",
+      "title": "Settings",
+      "title_de": "Settings",
+      "summary": "Reads typed values from the calling mod's configuration.",
+      "summary_de": "Liest typisierte Werte aus der Konfiguration der aufrufenden Mod.",
+      "status": "stable",
+      "since": "1.1",
+      "threading": "Main thread",
+      "capabilities": [],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "get_mod_setting_bool",
+              "returnType": "Result",
+              "signature": "Result (CALL* get_mod_setting_bool)(StringView owner_id, StringView key, uint8_t fallback, uint8_t* value);",
+              "kind": "method",
+              "summary": "Read mod setting bool.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "key",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for key."
+                },
+                {
+                  "name": "fallback",
+                  "type": "uint8_t",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for fallback."
+                },
+                {
+                  "name": "value",
+                  "type": "uint8_t*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Value for value."
+                }
+              ]
+            },
+            {
+              "name": "get_mod_setting_number",
+              "returnType": "Result",
+              "signature": "Result (CALL* get_mod_setting_number)(StringView owner_id, StringView key, double fallback, double* value);",
+              "kind": "method",
+              "summary": "Read mod setting number.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "key",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for key."
+                },
+                {
+                  "name": "fallback",
+                  "type": "double",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for fallback."
+                },
+                {
+                  "name": "value",
+                  "type": "double*",
+                  "direction": "out",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "caller-owned",
+                  "description": "Value for value."
+                }
+              ]
+            }
+          ],
+          "structs": [],
+          "enums": []
+        }
+      ]
+    },
+    {
+      "slug": "ui",
+      "title": "Text UI",
+      "title_de": "Text UI",
+      "summary": "Creates native text windows, updates tab snapshots, observes readiness, and destroys windows.",
+      "summary_de": "Erstellt native Textfenster, aktualisiert Tab-Inhalte, beobachtet die Bereitschaft und zerstört Fenster.",
+      "status": "experimental",
+      "since": "1.1",
+      "threading": "Creation and destruction coordinate a UI thread",
+      "capabilities": [
+        "shroudtopia.ui.overlay"
+      ],
+      "headers": [
+        {
+          "name": "shroudtopia.h",
+          "functions": [
+            {
+              "name": "create_text_window",
+              "returnType": "Result",
+              "signature": "Result (CALL* create_text_window)(StringView owner_id, const TextWindowOptions* options, TextWindow* window);",
+              "kind": "method",
+              "summary": "Create text window.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "options",
+                  "type": "const TextWindowOptions*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for options."
+                },
+                {
+                  "name": "window",
+                  "type": "TextWindow*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for window."
+                }
+              ]
+            },
+            {
+              "name": "set_text_window_text",
+              "returnType": "Result",
+              "signature": "Result (CALL* set_text_window_text)(StringView owner_id, TextWindow window, size_t tab, StringView text);",
+              "kind": "method",
+              "summary": "Set text window text.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "window",
+                  "type": "TextWindow",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for window."
+                },
+                {
+                  "name": "tab",
+                  "type": "size_t",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for tab."
+                },
+                {
+                  "name": "text",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Value for text."
+                }
+              ]
+            },
+            {
+              "name": "get_text_window_status",
+              "returnType": "Result",
+              "signature": "Result (CALL* get_text_window_status)(StringView owner_id, TextWindow window, TextWindowStatus* status);",
+              "kind": "method",
+              "summary": "Read text window status.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "window",
+                  "type": "TextWindow",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for window."
+                },
+                {
+                  "name": "status",
+                  "type": "TextWindowStatus*",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "no",
+                  "ownership": "borrowed",
+                  "description": "Value for status."
+                }
+              ]
+            },
+            {
+              "name": "destroy_text_window",
+              "returnType": "Result",
+              "signature": "Result (CALL* destroy_text_window)(StringView owner_id, TextWindow window);",
+              "kind": "method",
+              "summary": "Destroy text window.",
+              "parameters": [
+                {
+                  "name": "owner_id",
+                  "type": "StringView",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "borrowed",
+                  "description": "Stable identifier of the calling mod."
+                },
+                {
+                  "name": "window",
+                  "type": "TextWindow",
+                  "direction": "in",
+                  "required": "yes",
+                  "nullable": "–",
+                  "ownership": "value",
+                  "description": "Value for window."
+                }
+              ]
+            }
+          ],
+          "structs": [
+            {
+              "name": "TextWindowOptions",
+              "fields": [
+                {
+                  "name": "struct_size",
+                  "type": "size_t"
+                },
+                {
+                  "name": "title",
+                  "type": "StringView"
+                },
+                {
+                  "name": "tabs",
+                  "type": "const StringView*"
+                },
+                {
+                  "name": "tab_count",
+                  "type": "size_t"
+                },
+                {
+                  "name": "toggle_key",
+                  "type": "uint32_t"
+                }
+              ]
+            }
+          ],
+          "enums": [
+            {
+              "name": "TextWindowStatus",
+              "values": [
+                {
+                  "name": "TEXT_PENDING",
+                  "value": "0"
+                },
+                {
+                  "name": "TEXT_READY",
+                  "value": "1"
+                },
+                {
+                  "name": "TEXT_FAILED",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "name": "RESULT_OK",
+      "meaning": "The operation completed successfully.",
+      "handling": "Continue with the returned value."
+    },
+    {
+      "name": "RESULT_INVALID_ARGUMENT",
+      "meaning": "A pointer, structure size, value, or JSON document is invalid.",
+      "handling": "Correct the call; do not retry unchanged."
+    },
+    {
+      "name": "RESULT_CONFLICT",
+      "meaning": "The requested ownership or mutation conflicts with existing state.",
+      "handling": "Resolve the competing owner or operation."
+    },
+    {
+      "name": "RESULT_NOT_FOUND",
+      "meaning": "The requested resource or provider does not exist.",
+      "handling": "Check identifiers and availability."
+    },
+    {
+      "name": "RESULT_VERSION_MISMATCH",
+      "meaning": "The requested API version does not match API 1.1.",
+      "handling": "Request API 1.1."
+    },
+    {
+      "name": "RESULT_PERMISSION_DENIED",
+      "meaning": "The owner lacks the required permission.",
+      "handling": "Declare and obtain the required permission."
+    },
+    {
+      "name": "RESULT_NOT_AVAILABLE",
+      "meaning": "The feature is unavailable in the current runtime state.",
+      "handling": "Wait for the required state or degrade gracefully."
+    },
+    {
+      "name": "RESULT_CALLBACK_FAILED",
+      "meaning": "A consumer callback returned a failure.",
+      "handling": "Inspect the callback and its user data."
+    },
+    {
+      "name": "RESULT_INTERNAL_ERROR",
+      "meaning": "The loader could not complete an otherwise valid operation.",
+      "handling": "Log context and fail safely."
+    }
+  ]
+}

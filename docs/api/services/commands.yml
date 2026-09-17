@@ -1,0 +1,1 @@
+{"slug":"commands","header":"shroudtopia.h","title":"Commands","title_de":"Commands","summary":"Registers named commands with descriptions and callbacks.","summary_de":"Registriert benannte Commands mit Beschreibungen und Callbacks.","status":"stable","since":"1.1","threading":"Main thread; callbacks are synchronous","capabilities":["shroudtopia.registry.commands"]}

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cwctype>
 #include <cstring>
+#include <iterator>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -86,6 +87,19 @@ const wchar_t* LevelName(size_t level) {
     static constexpr const wchar_t* names[]{L"Level: All", L"Level: Trace", L"Level: Debug", L"Level: Info", L"Level: Warning", L"Level: Error"};
     return names[level < std::size(names) ? level : 0];
 }
+std::vector<size_t> AvailableLevels() {
+    std::vector<size_t> levels{0};
+    const auto mask = Utils::LogLevelMask();
+    for (size_t level = 1; level <= 5; ++level)
+        if ((mask & (1u << (level - 1))) != 0) levels.push_back(level);
+    return levels;
+}
+bool SynchronizeLevel(Panel* panel) {
+    const auto levels = AvailableLevels();
+    if (std::find(levels.begin(), levels.end(), panel->level) != levels.end()) return false;
+    panel->level = 0;
+    return true;
+}
 bool MatchesLevel(const std::wstring& line, size_t level) {
     if (level == 0) return true;
     const wchar_t* markers[][3]{
@@ -114,6 +128,7 @@ bool CopyVisibleLog(Panel* p) {
     return success;
 }
 void Paint(Panel* p) {
+    SynchronizeLevel(p);
     PAINTSTRUCT ps{}; HDC dc = BeginPaint(p->window, &ps);
     RECT r{}; GetClientRect(p->window, &r); FillRect(dc, &r, p->background);
     HBRUSH border = CreateSolidBrush(Gold); FrameRect(dc, &r, border);
@@ -135,6 +150,7 @@ void Paint(Panel* p) {
 }
 void RefreshText(Panel* p) {
     if (p->paused) return;
+    if (SynchronizeLevel(p)) { p->dirty = true; InvalidateRect(p->window, nullptr, FALSE); }
     std::wstring source;
     { std::scoped_lock lock(p->mutex); source = p->pending[p->tab]; }
     wchar_t query[256]{}; GetWindowTextW(p->search, query, 256);
@@ -213,7 +229,11 @@ LRESULT CALLBACK WindowProc(HWND w, UINT m, WPARAM wp, LPARAM lp) {
             if (x > r.right-55) PostMessageW(w, WM_CLOSE, 0, 0);
             else { ReleaseCapture(); SendMessageW(w, WM_NCLBUTTONDOWN, HTCAPTION, 0); }
         } else if (y >= 65 && y <= 97) {
-            if (x >= r.right-475 && x < r.right-355) p->level = (p->level + 1) % 6;
+            if (x >= r.right-475 && x < r.right-355) {
+                const auto levels = AvailableLevels();
+                const auto current = std::find(levels.begin(), levels.end(), p->level);
+                p->level = current == levels.end() || std::next(current) == levels.end() ? levels.front() : *std::next(current);
+            }
             else if (x >= r.right-345 && x < r.right-255) {
                 if (CopyVisibleLog(p)) p->copiedUntil = GetTickCount64() + 1500;
             } else if (x >= r.right-245 && x < r.right-155) p->paused = !p->paused;
@@ -249,7 +269,7 @@ void Run(Panel* p) {
     }
     if (!p->window || !p->edit || !p->search || !SetTimer(p->window,1,100,nullptr)) {
         p->status = TEXT_FAILED;
-        Utils::Log(Utils::ERRR,"Native UI creation failed for %s (Win32 %lu)",p->owner.c_str(),GetLastError());
+        Utils::LogAs(LOG_ERROR, p->owner.c_str(), "Native UI creation failed: win32=%lu", GetLastError());
     } else {
         SendMessageW(p->edit,WM_SETFONT,reinterpret_cast<WPARAM>(p->mono),TRUE);
         SendMessageW(p->edit,EM_SETLIMITTEXT,2*1024*1024,0);
@@ -257,8 +277,8 @@ void Run(Panel* p) {
         SendMessageW(p->search,EM_SETLIMITTEXT,255,0);
         if (p->key) {
             p->hotkeyRegistered = RegisterHotKey(p->window, 1, MOD_NOREPEAT, p->key) != FALSE;
-            Utils::Log(Utils::DEBUG, "Native text window hotkey: owner=%s key=%u registered=%s",
-                p->owner.c_str(), p->key, p->hotkeyRegistered ? "true" : "false (polling fallback)");
+            Utils::LogAs(LOG_DEBUG, p->owner.c_str(), "Native text window hotkey: key=%u registered=%s",
+                p->key, p->hotkeyRegistered ? "true" : "false (polling fallback)");
         }
         Layout(p); p->status = TEXT_READY;
         MSG message{};
@@ -306,10 +326,18 @@ Result CALL Destroy(StringView owner, TextWindow id) {
       p = it->second; panels.erase(it); }
     p->stop = true; if (p->thread.joinable()) p->thread.join(); return RESULT_OK;
 }
-const UiApi api{sizeof(api),API_VERSION,Create,SetText,Status,Destroy};
 }
 namespace UiText {
-const UiApi* Api() { return &api; }
+Result Create(StringView owner, const TextWindowOptions* options, TextWindow* window) {
+    return ::Create(owner, options, window);
+}
+Result SetText(StringView owner, TextWindow window, size_t tab, StringView text) {
+    return ::SetText(owner, window, tab, text);
+}
+Result Status(StringView owner, TextWindow window, TextWindowStatus* status) {
+    return ::Status(owner, window, status);
+}
+Result Destroy(StringView owner, TextWindow window) { return ::Destroy(owner, window); }
 void ReleaseOwner(StringView owner) {
     if (!Valid(owner,256)) return;
     for (;;) {

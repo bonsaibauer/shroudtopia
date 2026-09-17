@@ -1,9 +1,18 @@
-# English Markdown is the source; Crowdin writes the matching German file beside it.
+preserve_hierarchy: true
+
+pull_request_title: "docs(i18n): update translations from Crowdin"
+
+pull_request_labels:
+  - documentation
+  - localization
+
+# File-based GitHub integration, "Source and translation files" mode.
+# Credentials belong to Crowdin/GitHub, never in this repository.
 files:
-  - source: /docs/src/**/*_en.md
-    translation: /docs/src/**/%original_file_name%
-    languages_mapping:
-      two_letters_code:
-        de: de
-    translation_replace:
-      _en.md: _%two_letters_code%.md
+  - source: /docs/content/en/**/*.md
+    translation: /docs/content/%two_letters_code%/**/%original_file_name%
+    update_option: update_as_unapproved
+    content_segmentation: 1
+  - source: /docs/content/en/_ui.json
+    translation: /docs/content/%two_letters_code%/_ui.json
+    update_option: update_as_unapproved

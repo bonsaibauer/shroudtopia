@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "shroudtopia/api.h"
+#include "shroudtopia.h"
 
 namespace {
 std::string Copy(StringView value) {
@@ -79,9 +79,6 @@ Result CALL ReadLog(LogSource source, char* buffer, size_t capacity, size_t* wri
     if (capacity < text.size()) return RESULT_INVALID_ARGUMENT;
     std::memcpy(buffer, text.data(), text.size()); *written = text.size(); return RESULT_OK;
 }
-const UiApi TextApi{sizeof(TextApi), API_VERSION, TextCreate, TextSet, TextStatus, TextDestroy};
-const LogApi LogApi{sizeof(LogApi), API_VERSION, ReadLog};
-
 Result CALL PatchCreate(StringView owner, const RuntimePatchOptions* descriptor, RuntimePatch* patch) {
     if (Copy(owner) != state.expected_owner || descriptor == nullptr || patch == nullptr) return RESULT_INVALID_ARGUMENT;
     if (SimulateMissingSignature) {
@@ -120,10 +117,6 @@ Result CALL PatchRelease(StringView owner, RuntimePatch patch) {
     state.enabled = false;
     return RESULT_OK;
 }
-
-const PatchesApi RuntimeApi{
-    sizeof(RuntimeApi), PatchCreate, PatchEnable, PatchState, PatchRelease
-};
 
 Result CALL ListAssets(StringView owner, StringView typeName,
     AssetVisitor visitor, void* userData) {
@@ -165,21 +158,13 @@ Result CALL SaveAssets(StringView owner) {
     ++state.assets_saved;
     return RESULT_OK;
 }
-const AssetsApi AssetsApi{
-    sizeof(AssetsApi), ListAssets, GetAsset, UpdateAsset,
-    CreateAsset, ResetAssets, SaveAssets
-};
+Result CALL SetAssetField(StringView, const AssetId*, StringView, StringView) { return RESULT_OK; }
 
 Result CALL RegisterService(StringView, const ServiceDescriptor*, Registration*) { return RESULT_OK; }
 Result CALL FindService(const ServiceRequest* request, const void** service) {
     if (request == nullptr || service == nullptr) return RESULT_INVALID_ARGUMENT;
-    const auto contract = Copy(request->contract_id);
-    if (contract == RUNTIME_PATCHES_SERVICE_ID) *service = &RuntimeApi;
-    else if (contract == ASSETS_SERVICE_ID) *service = &AssetsApi;
-    else if (contract == UI_TEXT_SERVICE_ID && !SimulateMissingSignature) *service = &TextApi;
-    else if (contract == LOG_READ_SERVICE_ID && !SimulateMissingSignature) *service = &LogApi;
-    else return RESULT_NOT_FOUND;
-    return RESULT_OK;
+    *service = nullptr;
+    return RESULT_NOT_FOUND;
 }
 Result CALL SubscribeEvent(StringView, const EventSubscription*, Registration*) { return RESULT_OK; }
 Result CALL PublishEvent(StringView, const Event*) { return RESULT_OK; }
@@ -195,12 +180,6 @@ Result CALL InvokeCommand(StringView owner, StringView command, StringView argum
     state.executed_arguments = Copy(arguments);
     return RESULT_OK;
 }
-Result CALL RegisterModSettings(StringView owner, const ModSettingsDescriptor*, Registration* registration) {
-    if (Copy(owner) != state.expected_owner || registration == nullptr) return RESULT_INVALID_ARGUMENT;
-    *registration = 90;
-    ++state.mod_settings_registered;
-    return RESULT_OK;
-}
 Result CALL RegisterAction(StringView, const Action*, Registration* registration) {
     if (registration == nullptr) return RESULT_INVALID_ARGUMENT;
     *registration = 91;
@@ -212,15 +191,7 @@ Result CALL GetActionState(StringView, ActionState* actionState) {
     *actionState = ACTION_AVAILABLE;
     return RESULT_OK;
 }
-Result CALL StageGameSetting(StringView, StringView) { return RESULT_OK; }
-Result CALL ResetGameSetting(StringView) { return RESULT_OK; }
-Result CALL GetGameSetting(StringView, char*, size_t, size_t*) { return RESULT_NOT_FOUND; }
 Result CALL ReleaseRegistration(Registration) { ++state.registrations_released; return RESULT_OK; }
-Result CALL ReleaseOwner(StringView owner) {
-    if (Copy(owner) != state.expected_owner) return RESULT_INVALID_ARGUMENT;
-    state.owner_released = true;
-    return RESULT_OK;
-}
 Result CALL QueryCapability(StringView, CapabilityInfo*) { return RESULT_NOT_FOUND; }
 Result CALL CheckPermission(StringView, StringView, std::uint8_t* allowed) {
     if (allowed != nullptr) *allowed = 1;
@@ -236,16 +207,21 @@ Result CALL GetModSettingBool(StringView, StringView, std::uint8_t fallback, std
     *value = fallback;
     return RESULT_OK;
 }
+Result CALL GetModSettingNumber(StringView, StringView, double fallback, double* value) {
+    if (value == nullptr) return RESULT_INVALID_ARGUMENT;
+    *value = fallback;
+    return RESULT_OK;
+}
 
-const Api Api{
+const Api TestApi{
     sizeof(Api), API_VERSION,
-    &AssetsApi, &RuntimeApi, &TextApi, &LogApi,
     RegisterService, FindService, SubscribeEvent, PublishEvent,
-    RegisterCommand, InvokeCommand, RegisterModSettings,
-    RegisterAction, InvokeAction, GetActionState,
-    ReleaseRegistration, ReleaseOwner, QueryCapability, CheckPermission,
-    Log, GetModSettingBool, nullptr,
-    GetGameSetting, StageGameSetting, ResetGameSetting
+    RegisterCommand, InvokeCommand, RegisterAction, InvokeAction, GetActionState,
+    ReleaseRegistration, QueryCapability, CheckPermission,
+    Log, ReadLog, GetModSettingBool, GetModSettingNumber,
+    PatchCreate, PatchEnable, PatchState, PatchRelease,
+    ListAssets, GetAsset, UpdateAsset, CreateAsset, ResetAssets, SaveAssets, SetAssetField,
+    TextCreate, TextSet, TextStatus, TextDestroy
 };
 
 bool SamePatch(const ExpectedPatch& actual, const ExpectedPatch& expected) {
@@ -270,6 +246,12 @@ int wmain(int argc, wchar_t** argv) {
     id.pop_back();
     state.expected_owner = id;
     SimulateMissingSignature = argc == 4 && std::wstring_view(argv[3]) == L"missing";
+    Api effectiveApi = TestApi;
+    if (SimulateMissingSignature && id == "mod.debug-console") {
+        effectiveApi.create_text_window = nullptr;
+        effectiveApi.read_log_tail = nullptr;
+    }
+    const Api* hostApi = &effectiveApi;
 
     HMODULE module = LoadLibraryW(dll.c_str());
     if (module == nullptr) return Fail("could not load mod DLL");
@@ -277,33 +259,32 @@ int wmain(int argc, wchar_t** argv) {
     if (create == nullptr) return Fail("entrypoint is missing");
     ModDescriptor descriptor{sizeof(descriptor)};
     if (create(API_VERSION, &descriptor) != RESULT_OK || Copy(descriptor.mod_id) != id) return Fail("descriptor ID mismatch");
-    if (descriptor.on_load == nullptr || descriptor.on_activate == nullptr || descriptor.on_update == nullptr ||
+    if (descriptor.on_load == nullptr || descriptor.on_activate == nullptr ||
         descriptor.on_deactivate == nullptr || descriptor.on_unload == nullptr) return Fail("lifecycle callback is missing");
-    if (descriptor.on_load(&Api, descriptor.user_data) != RESULT_OK) return Fail("load failed");
+    if (descriptor.on_load(hostApi, descriptor.user_data) != RESULT_OK) return Fail("load failed");
 
     if (id == "mod.commands") {
-        if (state.mod_settings_registered != 1) return Fail("Commands settings registration missing");
-        if (descriptor.on_activate(&Api, descriptor.user_data) != RESULT_OK || state.commands.size() != 2) return Fail("Commands activation failed");
+        if (descriptor.on_activate(hostApi, descriptor.user_data) != RESULT_OK || state.commands.size() != 2) return Fail("Commands activation failed");
         const auto execute = state.commands[0];
         const char input[] = "mod.test payload";
         if (execute.callback({input, sizeof(input) - 1}, execute.user_data) != RESULT_OK ||
             state.executed_owner != id || state.executed_command != "mod.test" || state.executed_arguments != "payload") {
             return Fail("Commands routing failed");
         }
-        if (descriptor.on_update(&Api, descriptor.user_data, 0.5) != RESULT_OK) return Fail("Commands update failed");
-        if (descriptor.on_deactivate(&Api, descriptor.user_data) != RESULT_OK || state.registrations_released != 2) return Fail("Commands deactivation failed");
+        if (descriptor.on_update && descriptor.on_update(hostApi, descriptor.user_data, 0.5) != RESULT_OK) return Fail("Commands update failed");
+        if (descriptor.on_deactivate(hostApi, descriptor.user_data) != RESULT_OK || state.registrations_released != 2) return Fail("Commands deactivation failed");
     } else if (id == "mod.debug-console") {
-        const auto activation = descriptor.on_activate(&Api, nullptr);
+        const auto activation = descriptor.on_activate(hostApi, nullptr);
         if (SimulateMissingSignature) {
             if (activation != RESULT_NOT_FOUND || textWindow) return Fail("missing UI service not handled");
         } else {
             if (activation != RESULT_OK || !textWindow) return Fail("debug window not created");
-            if (descriptor.on_update(&Api, nullptr, 0.5) != RESULT_OK || textUpdates != 2) return Fail("log sources not forwarded");
-            if (descriptor.on_deactivate(&Api, nullptr) != RESULT_OK || textWindow) return Fail("debug window not destroyed");
-            if (descriptor.on_activate(&Api, nullptr) != RESULT_OK || !textWindow) return Fail("debug window not recreated");
+            if (descriptor.on_update(hostApi, nullptr, 0.5) != RESULT_OK || textUpdates != 2) return Fail("log sources not forwarded");
+            if (descriptor.on_deactivate(hostApi, nullptr) != RESULT_OK || textWindow) return Fail("debug window not destroyed");
+            if (descriptor.on_activate(hostApi, nullptr) != RESULT_OK || !textWindow) return Fail("debug window not recreated");
         }
     } else if (id == "mod.unlock-blueprints") {
-        const auto activation = descriptor.on_activate(&Api, descriptor.user_data);
+        const auto activation = descriptor.on_activate(hostApi, descriptor.user_data);
         if (SimulateMissingSignature) {
             if (activation != RESULT_NOT_FOUND || state.log_count != 0 || state.assets_replaced != 0) {
                 return Fail("unavailable asset system was not reported");
@@ -315,8 +296,8 @@ int wmain(int argc, wchar_t** argv) {
                 return Fail("Unlock Blueprints asset transformation failed");
             }
         }
-        if (descriptor.on_update(&Api, descriptor.user_data, 0.5) != RESULT_OK) return Fail("asset mod update failed");
-        if (descriptor.on_deactivate(&Api, descriptor.user_data) != RESULT_OK) return Fail("asset mod deactivation failed");
+        if (descriptor.on_update && descriptor.on_update(hostApi, descriptor.user_data, 0.5) != RESULT_OK) return Fail("asset mod update failed");
+        if (descriptor.on_deactivate(hostApi, descriptor.user_data) != RESULT_OK) return Fail("asset mod deactivation failed");
         if (!SimulateMissingSignature && (state.assets_discarded != 1 || state.assets_saved != 2)) {
             return Fail("asset changes were not discarded");
         }
@@ -325,15 +306,15 @@ int wmain(int argc, wchar_t** argv) {
         if (expected == ExpectedPatches.end()) return Fail("unknown bundled mod");
         if (SimulateMissingSignature) {
             if (state.patch_created || state.log_count != 1) return Fail("missing signature was not reported");
-            if (descriptor.on_activate(&Api, descriptor.user_data) != RESULT_NOT_FOUND) return Fail("unavailable patch activated successfully");
+            if (descriptor.on_activate(hostApi, descriptor.user_data) != RESULT_NOT_FOUND) return Fail("unavailable patch activated successfully");
         } else {
             if (!state.patch_created || !SamePatch(state.captured_patch, expected->second)) return Fail("patch contract mismatch");
-            if (descriptor.on_activate(&Api, descriptor.user_data) != RESULT_OK || !state.enabled) return Fail("patch activation failed");
+            if (descriptor.on_activate(hostApi, descriptor.user_data) != RESULT_OK || !state.enabled) return Fail("patch activation failed");
         }
-        if (descriptor.on_update(&Api, descriptor.user_data, 0.5) != RESULT_OK) return Fail("patch update failed");
-        if (descriptor.on_deactivate(&Api, descriptor.user_data) != RESULT_OK || state.enabled) return Fail("patch deactivation failed");
+        if (descriptor.on_update && descriptor.on_update(hostApi, descriptor.user_data, 0.5) != RESULT_OK) return Fail("patch update failed");
+        if (descriptor.on_deactivate(hostApi, descriptor.user_data) != RESULT_OK || state.enabled) return Fail("patch deactivation failed");
     }
-    if (descriptor.on_unload(&Api, descriptor.user_data) != RESULT_OK || !state.owner_released) return Fail("unload failed");
+    if (descriptor.on_unload(hostApi, descriptor.user_data) != RESULT_OK) return Fail("unload failed");
     if (textWindow) return Fail("debug window leaked on unload");
     if (id != "mod.commands" && id != "mod.unlock-blueprints" && id != "mod.debug-console" &&
         state.patch_released == SimulateMissingSignature) return Fail("patch release state is invalid");

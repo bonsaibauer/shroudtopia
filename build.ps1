@@ -27,23 +27,24 @@ New-Item -ItemType Directory -Force -Path $output | Out-Null
 & $msbuild (Join-Path $root 'shroudtopia.sln') /m /t:Build /p:Configuration=Release /p:Platform=x64 /p:OutDir="$output\" /p:ShroudtopiaVersion=$version /p:ShroudtopiaBuildNumber=$BuildNumber
 if ($LASTEXITCODE -ne 0) { throw "MSBuild failed with exit code $LASTEXITCODE." }
 
-$engineRoot = Join-Path $root 'src\engine'
-& cargo test --manifest-path (Join-Path $engineRoot 'Cargo.toml') --release -p shroudtopia-assets --lib
+$engineRoot = Join-Path $root 'src\assets'
+& cargo test --manifest-path (Join-Path $engineRoot 'Cargo.toml') --release -p shroudtopia --lib
 if ($LASTEXITCODE -ne 0) { throw 'Shroudtopia asset engine tests failed.' }
-& cargo build --manifest-path (Join-Path $engineRoot 'Cargo.toml') --release -p shroudtopia-assets
+& cargo build --manifest-path (Join-Path $engineRoot 'Cargo.toml') --release -p shroudtopia
 if ($LASTEXITCODE -ne 0) { throw "Shroudtopia asset engine build failed with exit code $LASTEXITCODE." }
-$engineBinary = Join-Path $engineRoot 'target\release\shroudtopia_assets.dll'
+$engineBinary = Join-Path $engineRoot 'target\release\shroudtopia.dll'
 if (-not (Test-Path -LiteralPath $engineBinary)) { throw "Shroudtopia asset engine binary missing: $engineBinary" }
-Copy-Item -LiteralPath $engineBinary -Destination (Join-Path $output 'shroudtopia-assets.dll') -Force
+Copy-Item -LiteralPath $engineBinary -Destination (Join-Path $output 'shroudtopia.dll') -Force
 
 $smokeSource = Join-Path $root 'tools\platform-api-smoke.cpp'
 $smokeExecutable = Join-Path $output 'platform-api-smoke.exe'
 $nativeModSmokeSource = Join-Path $root 'tools\native-mod-smoke.cpp'
 $nativeModSmokeExecutable = Join-Path $output 'native-mod-smoke.exe'
+$docsExampleSource = Join-Path $root 'docs\api\examples\reference.cpp'
 $runtimePatchSmokeSource = Join-Path $root 'tools\runtime-patches-smoke.cpp'
 $runtimePatchSmokeExecutable = Join-Path $output 'runtime-patches-smoke.exe'
 $compileCommand = Join-Path $output 'compile-smoke.cmd'
-$includeDirectory = Join-Path $root 'api\include'
+$includeDirectory = Join-Path $root 'api'
 $loaderDirectory = Join-Path $root 'src\loader'
 $jsonDirectory = Join-Path $root 'third-party\nlohmann-json\include'
 Set-Content -LiteralPath $compileCommand -Encoding Ascii -Value @"
@@ -53,6 +54,8 @@ if errorlevel 1 exit /b %errorlevel%
 cl.exe /nologo /std:c++20 /EHsc /W4 /I"$includeDirectory" "$smokeSource" /Fo:"$output\platform-api-smoke.obj" /Fe:"$smokeExecutable"
 if errorlevel 1 exit /b %errorlevel%
 cl.exe /nologo /std:c++20 /EHsc /W4 /I"$includeDirectory" "$nativeModSmokeSource" /Fo:"$output\native-mod-smoke.obj" /Fe:"$nativeModSmokeExecutable"
+if errorlevel 1 exit /b %errorlevel%
+cl.exe /nologo /std:c++20 /EHsc /W4 /c /I"$includeDirectory" "$docsExampleSource" /Fo:"$output\api-docs-examples.obj"
 if errorlevel 1 exit /b %errorlevel%
 cl.exe /nologo /std:c++20 /EHsc /W4 /Y- /I"$includeDirectory" /I"$loaderDirectory" /I"$jsonDirectory" "$runtimePatchSmokeSource" "$loaderDirectory\runtime_patches.cpp" /Fo:"$output\\" /Fe:"$runtimePatchSmokeExecutable"
 if errorlevel 1 exit /b %errorlevel%
@@ -69,7 +72,7 @@ finally {
 }
 
 function Copy-BundledMods([string]$Destination) {
-    Get-ChildItem -LiteralPath (Join-Path $root 'mods\native') -Directory | ForEach-Object {
+    Get-ChildItem -LiteralPath (Join-Path $root 'mods') -Directory | ForEach-Object {
         $manifestPath = Join-Path $_.FullName 'mod.json'
         if (-not (Test-Path -LiteralPath $manifestPath)) { return }
         $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
@@ -95,7 +98,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Runtime patch smoke test failed with exit code $LASTEXITCODE." }
     & (Join-Path $output 'log-reader-smoke.exe')
     if ($LASTEXITCODE -ne 0) { throw 'Log reader / native UI smoke test failed.' }
-    Get-ChildItem -LiteralPath (Join-Path $root 'mods\native') -Directory | ForEach-Object {
+    Get-ChildItem -LiteralPath (Join-Path $root 'mods') -Directory | ForEach-Object {
         $manifestPath = Join-Path $_.FullName 'mod.json'
         if (-not (Test-Path -LiteralPath $manifestPath)) { return }
         $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
@@ -132,12 +135,12 @@ Remove-Item -LiteralPath $package -Recurse -Force -ErrorAction SilentlyContinue
 # Keep build/ deterministic: one current package instead of an accumulating archive history.
 Get-ChildItem -LiteralPath (Join-Path $root 'build') -Filter "shroudtopia-$version-*.zip" -File -ErrorAction SilentlyContinue |
     Remove-Item -Force
-New-Item -ItemType Directory -Force -Path $package | Out-Null
-Copy-Item -LiteralPath (Join-Path $output 'winmm.dll'),(Join-Path $output 'shroudtopia.dll'),(Join-Path $output 'shroudtopia-assets.dll'),(Join-Path $root 'VERSION') -Destination $package
-Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination (Join-Path $package 'LOADER-LICENSE.txt')
-Copy-Item -LiteralPath (Join-Path $root 'src\engine\NOTICE.md') -Destination (Join-Path $package 'ENGINE-NOTICE.md')
-Copy-Item -LiteralPath (Join-Path $root 'third-party\kfc-parser\LICENSE') -Destination (Join-Path $package 'ASSET-ENGINE-LICENSE.txt')
-Copy-BundledMods (Join-Path $package 'mods')
+New-Item -ItemType Directory -Force -Path (Join-Path $package 'game'),(Join-Path $package 'licenses') | Out-Null
+Copy-Item -LiteralPath (Join-Path $output 'winmm.dll'),(Join-Path $output 'shroudtopia.dll') -Destination (Join-Path $package 'game')
+Copy-BundledMods (Join-Path $package 'game\mods')
+Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination (Join-Path $package 'licenses\Shroudtopia.txt')
+Copy-Item -LiteralPath (Join-Path $root 'src\assets\NOTICE.md') -Destination (Join-Path $package 'licenses\NOTICE.md')
+Copy-Item -LiteralPath (Join-Path $root 'third-party\kfc-parser\LICENSE') -Destination (Join-Path $package 'licenses\kfc-parser.txt')
 Compress-Archive -Path "$package\*" -DestinationPath $archive
 Remove-Item -LiteralPath $package -Recurse -Force
 

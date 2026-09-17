@@ -4,8 +4,11 @@ on:
   push:
     paths:
       - "docs/**"
-      - "api/include/shroudtopia/**"
-      - "mods/native/**"
+      - "api/**"
+      - "mods/**"
+      - "package.json"
+      - "package-lock.json"
+      - "crowdin.yml"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -26,12 +29,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
+      - name: Install documentation dependencies
+        run: npm ci
       - name: Install mdBook
         uses: peaceiris/actions-mdbook@v2
         with:
           mdbook-version: "0.4.52"
       - name: Build documentation
         run: npm run docs:check
+      - name: Verify generated documentation is current
+        run: git diff --exit-code -- docs/content/en/reference docs/content/de/reference docs/generated
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

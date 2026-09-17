@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shroudtopia/api/patches.h"
+#include "shroudtopia.h"
 
 #include <string>
 

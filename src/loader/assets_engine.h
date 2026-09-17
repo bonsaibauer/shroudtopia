@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shroudtopia/api/assets.h"
+#include "shroudtopia.h"
 
 namespace AssetsEngine {
 bool Initialize();
