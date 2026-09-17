@@ -109,6 +109,8 @@
     <ClCompile Include="platform_api.cpp" />
     <ClCompile Include="runtime.cpp" />
     <ClCompile Include="runtime_patches.cpp" />
+    <ClCompile Include="world_diagnostic.cpp" />
+    <ClCompile Include="world_engine.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="ui_text.cpp" />
     <ClCompile Include="winmm_proxy.cpp">

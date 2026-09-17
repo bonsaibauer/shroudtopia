@@ -197,7 +197,11 @@ void Refresh(Panel* p) {
     if (focused && p->game && down && !p->keyDown) { p->shown = !p->shown; if (!p->shown) SetForegroundWindow(p->game); }
     p->keyDown = down;
     const bool visible = p->shown && focused && p->game && !IsIconic(p->game);
-    if (visible != (IsWindowVisible(p->window) != FALSE)) ShowWindow(p->window, visible ? SW_SHOWNOACTIVATE : SW_HIDE);
+    if (visible != (IsWindowVisible(p->window) != FALSE)) {
+        if (visible) SetWindowPos(p->window,HWND_TOPMOST,0,0,0,0,
+            SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE|SWP_SHOWWINDOW);
+        else ShowWindow(p->window,SW_HIDE);
+    }
     if (visible) RefreshText(p);
 }
 LRESULT CALLBACK WindowProc(HWND w, UINT m, WPARAM wp, LPARAM lp) {
@@ -260,7 +264,7 @@ void Run(Panel* p) {
     p->mono = CreateFontW(-14,0,0,0,FW_NORMAL,FALSE,FALSE,FALSE,DEFAULT_CHARSET,0,0,CLEARTYPE_QUALITY,0,L"Consolas");
     WNDCLASSW wc{}; wc.lpfnWndProc = WindowProc; wc.hInstance = Instance(); wc.lpszClassName = ClassName;
     wc.hCursor = LoadCursorW(nullptr, MAKEINTRESOURCEW(32512)); RegisterClassW(&wc);
-    p->window = CreateWindowExW(WS_EX_TOOLWINDOW, ClassName, p->title.c_str(), WS_POPUP | WS_THICKFRAME | WS_CLIPCHILDREN,
+    p->window = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_TOPMOST, ClassName, p->title.c_str(), WS_POPUP | WS_THICKFRAME | WS_CLIPCHILDREN,
         80,80,960,580,nullptr,nullptr,Instance(),p);
     if (p->window) {
         p->edit = CreateWindowExW(0,L"EDIT",L"",WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_READONLY | ES_AUTOHSCROLL | ES_AUTOVSCROLL,

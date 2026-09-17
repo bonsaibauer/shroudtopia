@@ -58,12 +58,11 @@ uint8_t Utils::LogLevelMask() {
     std::transform(configured.begin(), configured.end(), configured.begin(), [](unsigned char value) {
         return static_cast<char>(std::toupper(value));
     });
-    if (configured == "ALL") return 0x1f;
-    if (configured == "TRACE") return 1u << LOG_TRACE;
-    if (configured == "DEBUG") return 1u << LOG_DEBUG;
-    if (configured == "WARNING" || configured == "WARN") return 1u << LOG_WARNING;
+    if (configured == "ALL" || configured == "TRACE") return 0x1f;
+    if (configured == "DEBUG") return 0x1e;
+    if (configured == "WARNING" || configured == "WARN") return 0x18;
     if (configured == "ERROR") return 1u << LOG_ERROR;
-    return 1u << LOG_INFO;
+    return 0x1c;
 }
 
 void Utils::BeginLogSession(const char* target) {

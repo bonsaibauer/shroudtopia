@@ -6,6 +6,8 @@
 #include "platform_api.h"
 #include "utils.h"
 #include "shroudtopia.h"
+#include "world_diagnostic.h"
+#include "world_engine.h"
 
 #include <algorithm>
 #include <chrono>
@@ -293,12 +295,16 @@ DWORD WINAPI run(LPVOID) {
     Utils::Log(LOG_DEBUG, "Runtime initialized: process=%s updateDelay=%dms modsDirectory=%s",
         target_name(current_target()), Config::get<int>("updateDelay", 500), SHROUDTOPIA_MOD_FOLDER);
     Utils::Log(LOG_DEBUG, "API ready: version=1.1");
+    const auto worldResult=WorldEngine::Initialize(api);
+    if (worldResult!=RESULT_OK) Utils::Log(LOG_WARNING,"Native world service unavailable: result=%d",static_cast<int>(worldResult));
+    WorldDiagnostic::Start(Config::get<bool>("worldDiagnostic",false));
 
     while (WaitForSingleObject(stop_event, 0) != WAIT_OBJECT_0) {
         if (Config::reloadIfChanged()) {
             Utils::Log(LOG_DEBUG, "Configuration reloaded from %s", SHROUDTOPIA_CONFIG_FILE);
         }
         const int update_delay = (std::max)(Config::get<int>("updateDelay", 500), 1);
+        WorldDiagnostic::Tick(Config::get<bool>("worldDiagnostic",false) && Config::get<bool>("active",true));
         if (Config::get<bool>("active", true)) {
             discover_mods();
             update_mods(static_cast<double>(update_delay) / 1000.0);
@@ -308,7 +314,9 @@ DWORD WINAPI run(LPVOID) {
         if (WaitForSingleObject(stop_event, static_cast<DWORD>(update_delay)) == WAIT_OBJECT_0) break;
     }
 
+    WorldDiagnostic::Tick(false);
     unload_mods();
+    WorldEngine::Shutdown(api);
     Utils::Log(LOG_DEBUG, "Runtime shutdown: all mods unloaded");
     PlatformApi::Shutdown();
     api = nullptr;

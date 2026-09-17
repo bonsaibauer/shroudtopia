@@ -32,7 +32,11 @@ Result CALL Activate(const Api* api, void*) {
     TextWindowOptions descriptor{sizeof(descriptor), View("Shroudtopia | Debug Console"), tabs, 2, static_cast<uint32_t>(key)};
     elapsed = 1; failureReported = false;
     result = api->create_text_window(View(Owner), &descriptor, &window);
-    if (result == RESULT_OK) api->log(View(Owner), LOG_INFO, View("Debug Console loaded. Default hotkey F10; reads existing log files through the API."));
+    if (result == RESULT_OK) {
+        const auto message = "Debug Console loaded. Configured virtual-key code: " +
+            std::to_string(static_cast<uint32_t>(key)) + ". Reads existing log files through the API.";
+        api->log(View(Owner), LOG_INFO, {message.data(), message.size()});
+    }
     return result;
 }
 Result CALL Update(const Api* api, void*, double delta) {

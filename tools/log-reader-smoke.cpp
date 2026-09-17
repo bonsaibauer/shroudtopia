@@ -22,6 +22,7 @@ int main() {
         { std::ofstream file("shroudtopia.log", std::ios::binary); file << "previous session\n"; }
         Utils::BeginLogSession("client");
         Config::jConfig = {{"enableLogging", true}, {"logLevel", "ALL"}};
+        check(Utils::LogLevelMask() == 0x1f);
         check(fs::exists("shroudtopia.log") && fs::file_size("shroudtopia.log") == 0);
         size_t archives = 0;
         for (const auto& entry : fs::directory_iterator("shroudtopia_logs")) {
@@ -44,6 +45,7 @@ int main() {
         check(Utils::ReadLogTail(LOG_SOURCE_LOADER, buffer, sizeof(buffer), &size) == RESULT_OK);
         check(std::string(buffer, size).find("] [shroudtopia] debug level marker") != std::string::npos);
         Config::jConfig["logLevel"] = "INFO";
+        check(Utils::LogLevelMask() == 0x1c);
         Utils::Log(LOG_DEBUG, "filtered debug marker");
         Utils::Log(LOG_INFO, "visible info marker");
         check(Utils::ReadLogTail(LOG_SOURCE_LOADER, buffer, sizeof(buffer), &size) == RESULT_OK);
