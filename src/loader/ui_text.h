@@ -1,7 +1,7 @@
 #pragma once
 #include "shroudtopia/api/ui.h"
 namespace UiText {
-const ST_UiTextApiV1* Api();
-void ReleaseOwner(ST_StringView owner);
+const UiApi* Api();
+void ReleaseOwner(StringView owner);
 void Shutdown();
 }

@@ -7,34 +7,34 @@
 #include <string>
 
 namespace {
-using OpenFn = ST_Result (ST_CALL*)(ST_StringView, ST_StringView);
-using CloseFn = void (ST_CALL*)();
-using VisitFn = ST_Result (ST_CALL*)(ST_StringView, ST_AssetResourceVisitorV1, void*);
-using ReadFn = ST_Result (ST_CALL*)(ST_StringView, const ST_AssetResourceKeyV1*, char*, size_t, size_t*);
-using ReplaceFn = ST_Result (ST_CALL*)(ST_StringView, const ST_AssetResourceKeyV1*, ST_StringView);
-using SetFieldFn = ST_Result (ST_CALL*)(ST_StringView, const ST_AssetResourceKeyV1*, ST_StringView, ST_StringView);
-using CreateFn = ST_Result (ST_CALL*)(ST_StringView, ST_StringView, ST_StringView, ST_AssetResourceVisitorV1, void*);
-using DiscardFn = ST_Result (ST_CALL*)(ST_StringView);
-using FlushFn = ST_Result (ST_CALL*)();
+using OpenFn = Result (CALL*)(StringView, StringView);
+using CloseFn = void (CALL*)();
+using ListFn = Result (CALL*)(StringView, AssetVisitor, void*);
+using GetFn = Result (CALL*)(StringView, const AssetId*, char*, size_t, size_t*);
+using UpdateFn = Result (CALL*)(StringView, const AssetId*, StringView);
+using SetFn = Result (CALL*)(StringView, const AssetId*, StringView, StringView);
+using CreateFn = Result (CALL*)(StringView, StringView, StringView, AssetVisitor, void*);
+using ResetFn = Result (CALL*)(StringView);
+using SaveFn = Result (CALL*)();
 
 struct Functions {
     HMODULE module{};
     OpenFn open{};
     CloseFn close{};
-    VisitFn visit{};
-    ReadFn read{};
-    ReplaceFn replace{};
+    ListFn list{};
+    GetFn get{};
+    UpdateFn update{};
     CreateFn create{};
-    SetFieldFn setField{};
-    DiscardFn discard{};
-    FlushFn flush{};
+    SetFn set{};
+    ResetFn reset{};
+    SaveFn save{};
     bool available{};
 };
 
 Functions functions;
 std::once_flag initializeOnce;
 
-ST_StringView View(const std::string& value) { return {value.data(), value.size()}; }
+StringView View(const std::string& value) { return {value.data(), value.size()}; }
 
 template <typename T>
 T Function(const char* name) {
@@ -77,16 +77,16 @@ void InitializeOnce() {
     }
     functions.open = Function<OpenFn>("ShroudtopiaAssetsOpen");
     functions.close = Function<CloseFn>("ShroudtopiaAssetsClose");
-    functions.visit = Function<VisitFn>("ShroudtopiaAssetsVisit");
-    functions.read = Function<ReadFn>("ShroudtopiaAssetsReadJson");
-    functions.replace = Function<ReplaceFn>("ShroudtopiaAssetsReplaceJson");
-    functions.setField = Function<SetFieldFn>("ShroudtopiaAssetsSetFieldJson");
-    functions.create = Function<CreateFn>("ShroudtopiaAssetsCreateJson");
-    functions.discard = Function<DiscardFn>("ShroudtopiaAssetsDiscard");
-    functions.flush = Function<FlushFn>("ShroudtopiaAssetsFlush");
-    if (functions.open == nullptr || functions.close == nullptr || functions.visit == nullptr ||
-        functions.read == nullptr || functions.replace == nullptr || functions.create == nullptr ||
-        functions.discard == nullptr || functions.flush == nullptr || functions.setField == nullptr) {
+    functions.list = Function<ListFn>("ShroudtopiaListAssets");
+    functions.get = Function<GetFn>("ShroudtopiaGetAssetJson");
+    functions.update = Function<UpdateFn>("ShroudtopiaUpdateAssetJson");
+    functions.set = Function<SetFn>("ShroudtopiaSetAssetFieldJson");
+    functions.create = Function<CreateFn>("ShroudtopiaCreateAssetJson");
+    functions.reset = Function<ResetFn>("ShroudtopiaResetAssets");
+    functions.save = Function<SaveFn>("ShroudtopiaSaveAssets");
+    if (functions.open == nullptr || functions.close == nullptr || functions.list == nullptr ||
+        functions.get == nullptr || functions.update == nullptr || functions.create == nullptr ||
+        functions.reset == nullptr || functions.save == nullptr || functions.set == nullptr) {
         Utils::Log(Utils::DEBUG, "Asset engine rejected: required exports are incomplete");
         return;
     }
@@ -94,7 +94,7 @@ void InitializeOnce() {
     const auto executable = ProcessPath();
     const auto directory = Utf8(executable.parent_path());
     const auto stem = Utf8(executable.stem());
-    functions.available = functions.open(View(directory), View(stem)) == ST_RESULT_OK;
+    functions.available = functions.open(View(directory), View(stem)) == RESULT_OK;
     Utils::Log(Utils::DEBUG, "Asset engine initialize: executable=%s available=%s",
         Utf8(executable).c_str(), functions.available ? "true" : "false");
 }
@@ -117,25 +117,25 @@ void Shutdown() {
     }
 }
 
-ST_Result Visit(ST_StringView typeName, ST_AssetResourceVisitorV1 visitor, void* userData) {
-    return Available() ? functions.visit(typeName, visitor, userData) : ST_RESULT_NOT_FOUND;
+Result List(StringView typeName, AssetVisitor visitor, void* userData) {
+    return Available() ? functions.list(typeName, visitor, userData) : RESULT_NOT_FOUND;
 }
-ST_Result ReadJson(ST_StringView owner, const ST_AssetResourceKeyV1* resource,
+Result Get(StringView owner, const AssetId* asset,
     char* buffer, size_t capacity, size_t* requiredSize) {
-    return Available() ? functions.read(owner, resource, buffer, capacity, requiredSize) : ST_RESULT_NOT_FOUND;
+    return Available() ? functions.get(owner, asset, buffer, capacity, requiredSize) : RESULT_NOT_FOUND;
 }
-ST_Result ReplaceJson(ST_StringView owner, const ST_AssetResourceKeyV1* resource, ST_StringView json) {
-    return Available() ? functions.replace(owner, resource, json) : ST_RESULT_NOT_FOUND;
+Result Update(StringView owner, const AssetId* asset, StringView json) {
+    return Available() ? functions.update(owner, asset, json) : RESULT_NOT_FOUND;
 }
-ST_Result SetFieldJson(ST_StringView owner, const ST_AssetResourceKeyV1* resource, ST_StringView path, ST_StringView json) {
-    return Available() ? functions.setField(owner, resource, path, json) : ST_RESULT_NOT_FOUND;
+Result Set(StringView owner, const AssetId* asset, StringView path, StringView json) {
+    return Available() ? functions.set(owner, asset, path, json) : RESULT_NOT_FOUND;
 }
-ST_Result CreateJson(ST_StringView owner, ST_StringView typeName, ST_StringView json,
-    ST_AssetResourceVisitorV1 visitor, void* userData) {
-    return Available() ? functions.create(owner, typeName, json, visitor, userData) : ST_RESULT_NOT_FOUND;
+Result Create(StringView owner, StringView typeName, StringView json,
+    AssetVisitor visitor, void* userData) {
+    return Available() ? functions.create(owner, typeName, json, visitor, userData) : RESULT_NOT_FOUND;
 }
-ST_Result Discard(ST_StringView owner) {
-    return Available() ? functions.discard(owner) : ST_RESULT_NOT_FOUND;
+Result Reset(StringView owner) {
+    return Available() ? functions.reset(owner) : RESULT_NOT_FOUND;
 }
-ST_Result Flush() { return Available() ? functions.flush() : ST_RESULT_NOT_FOUND; }
+Result Save() { return Available() ? functions.save() : RESULT_NOT_FOUND; }
 }

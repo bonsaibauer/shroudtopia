@@ -1,25 +1,25 @@
 #pragma once
 
-#include "shroudtopia/api/base.h"
+#include "shroudtopia/api/result.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct ST_ServiceDescriptor {
+typedef struct ServiceDescriptor {
     size_t struct_size;
-    ST_StringView contract_id;
+    StringView contract_id;
     uint32_t version_major;
     uint32_t version_minor;
     const void* interface_pointer;
-} ST_ServiceDescriptor;
+} ServiceDescriptor;
 
-typedef struct ST_ServiceRequest {
+typedef struct ServiceRequest {
     size_t struct_size;
-    ST_StringView contract_id;
+    StringView contract_id;
     uint32_t version_major;
     uint32_t minimum_minor;
-} ST_ServiceRequest;
+} ServiceRequest;
 
 #ifdef __cplusplus
 }

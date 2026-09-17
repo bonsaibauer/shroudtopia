@@ -1,0 +1,11 @@
+{
+  "name": "shroudtopia-documentation",
+  "private": true,
+  "scripts": {
+    "docs:validate": "node docs/tools/validate-api.mjs",
+    "docs:generate": "node docs/tools/generate-reference.mjs",
+    "docs:typescript": "tsc -p docs/tsconfig.json",
+    "docs:build": "node docs/tools/build-docs.mjs",
+    "docs:check": "npm run docs:generate && npm run docs:validate && npm run docs:build"
+  }
+}

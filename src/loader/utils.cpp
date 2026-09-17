@@ -75,16 +75,16 @@ void Utils::Log(LogLevel level, const char* format, ...) {
     std::cout << "[shroudtopia][" << level_name(level) << "] " << message << std::endl;
 }
 
-ST_Result ST_CALL Utils::ReadLogTail(ST_LogSourceV1 source, char* buffer, size_t capacity, size_t* written) {
+Result CALL Utils::ReadLogTail(LogSource source, char* buffer, size_t capacity, size_t* written) {
     if (written) *written = 0;
     if (!buffer || !written || capacity == 0 || capacity > 1024 * 1024 ||
-        (source != ST_LOG_SOURCE_LOADER && source != ST_LOG_SOURCE_GAME)) return ST_RESULT_INVALID_ARGUMENT;
+        (source != LOG_SOURCE_LOADER && source != LOG_SOURCE_GAME)) return RESULT_INVALID_ARGUMENT;
     try {
         std::scoped_lock lock(log_mutex);
-        std::ifstream file(source == ST_LOG_SOURCE_LOADER ? SHROUDTOPIA_LOG_FILE : "enshrouded.log", std::ios::binary | std::ios::ate);
-        if (!file) return ST_RESULT_NOT_FOUND;
+        std::ifstream file(source == LOG_SOURCE_LOADER ? SHROUDTOPIA_LOG_FILE : "enshrouded.log", std::ios::binary | std::ios::ate);
+        if (!file) return RESULT_NOT_FOUND;
         const auto end = file.tellg();
-        if (end < 0) return ST_RESULT_INTERNAL_ERROR;
+        if (end < 0) return RESULT_INTERNAL_ERROR;
         const auto count = (std::min)(static_cast<size_t>(end), capacity);
         const auto start = end - static_cast<std::streamoff>(count);
         bool partial = false;
@@ -102,6 +102,6 @@ ST_Result ST_CALL Utils::ReadLogTail(ST_LogSourceV1 source, char* buffer, size_t
             } else length = 0;
         }
         *written = length;
-        return ST_RESULT_OK;
-    } catch (...) { return ST_RESULT_INTERNAL_ERROR; }
+        return RESULT_OK;
+    } catch (...) { return RESULT_INTERNAL_ERROR; }
 }

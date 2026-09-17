@@ -23,7 +23,7 @@ struct Panel {
     std::mutex mutex;
     std::thread thread;
     std::atomic<bool> stop{false};
-    std::atomic<ST_TextWindowStatusV1> status{ST_TEXT_PENDING};
+    std::atomic<TextWindowStatus> status{TEXT_PENDING};
     HWND window = nullptr, game = nullptr, edit = nullptr, search = nullptr;
     HFONT heading = nullptr, font = nullptr, mono = nullptr;
     HBRUSH background = nullptr, surface = nullptr;
@@ -46,14 +46,14 @@ HMODULE Instance() {
         reinterpret_cast<LPCWSTR>(&Instance), &module);
     return module;
 }
-std::wstring Wide(ST_StringView value) {
+std::wstring Wide(StringView value) {
     if (!value.size) return {};
     const int size = MultiByteToWideChar(CP_UTF8, 0, value.data, static_cast<int>(value.size), nullptr, 0);
     std::wstring result(size, L'\0');
     MultiByteToWideChar(CP_UTF8, 0, value.data, static_cast<int>(value.size), result.data(), size);
     return result;
 }
-bool Valid(ST_StringView v, size_t max, bool empty = false) {
+bool Valid(StringView v, size_t max, bool empty = false) {
     return v.size <= max && (empty ? (!v.size || v.data) : (v.data && v.size));
 }
 BOOL CALLBACK FindGame(HWND w, LPARAM target) {
@@ -227,7 +227,7 @@ LRESULT CALLBACK WindowProc(HWND w, UINT m, WPARAM wp, LPARAM lp) {
     }
     case WM_TIMER:
         if (p->stop) { DestroyWindow(w); return 0; }
-        try { Refresh(p); } catch (...) { p->status = ST_TEXT_FAILED; DestroyWindow(w); }
+        try { Refresh(p); } catch (...) { p->status = TEXT_FAILED; DestroyWindow(w); }
         return 0;
     case WM_DESTROY: PostQuitMessage(0); return 0;
     }
@@ -248,7 +248,7 @@ void Run(Panel* p) {
         p->search = CreateWindowExW(0,L"EDIT",L"",WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,0,0,0,0,p->window,nullptr,Instance(),nullptr);
     }
     if (!p->window || !p->edit || !p->search || !SetTimer(p->window,1,100,nullptr)) {
-        p->status = ST_TEXT_FAILED;
+        p->status = TEXT_FAILED;
         Utils::Log(Utils::ERRR,"Native UI creation failed for %s (Win32 %lu)",p->owner.c_str(),GetLastError());
     } else {
         SendMessageW(p->edit,WM_SETFONT,reinterpret_cast<WPARAM>(p->mono),TRUE);
@@ -260,7 +260,7 @@ void Run(Panel* p) {
             Utils::Log(Utils::DEBUG, "Native text window hotkey: owner=%s key=%u registered=%s",
                 p->owner.c_str(), p->key, p->hotkeyRegistered ? "true" : "false (polling fallback)");
         }
-        Layout(p); p->status = ST_TEXT_READY;
+        Layout(p); p->status = TEXT_READY;
         MSG message{};
         while (GetMessageW(&message,nullptr,0,0) > 0) {
             TranslateMessage(&message); DispatchMessageW(&message);
@@ -269,48 +269,48 @@ void Run(Panel* p) {
     if (p->hotkeyRegistered) UnregisterHotKey(p->window, 1);
     if (IsWindow(p->window)) DestroyWindow(p->window);
 }
-ST_Result ST_CALL Create(ST_StringView owner, const ST_TextWindowDescriptorV1* d, ST_TextWindow* out) {
+Result CALL Create(StringView owner, const TextWindowOptions* d, TextWindow* out) {
     if (out) *out = 0;
     if (!out || !Valid(owner,256) || !d || d->struct_size < sizeof(*d) || !Valid(d->title,128) ||
-        !d->tabs || !d->tab_count || d->tab_count > 8 || d->toggle_key > 255) return ST_RESULT_INVALID_ARGUMENT;
+        !d->tabs || !d->tab_count || d->tab_count > 8 || d->toggle_key > 255) return RESULT_INVALID_ARGUMENT;
     try {
         auto p = std::make_shared<Panel>(); p->owner.assign(owner.data,owner.size); p->title = Wide(d->title); p->key = d->toggle_key;
-        for (size_t i=0; i<d->tab_count; ++i) { if (!Valid(d->tabs[i],128)) return ST_RESULT_INVALID_ARGUMENT; p->labels.push_back(Wide(d->tabs[i])); }
+        for (size_t i=0; i<d->tab_count; ++i) { if (!Valid(d->tabs[i],128)) return RESULT_INVALID_ARGUMENT; p->labels.push_back(Wide(d->tabs[i])); }
         p->pending.resize(d->tab_count);
         std::scoped_lock lock(panelsMutex); const auto id = nextId++; panels.emplace(id,p);
         try { p->thread = std::thread([p] { Run(p.get()); }); }
-        catch (...) { panels.erase(id); return ST_RESULT_INTERNAL_ERROR; }
-        *out = id; return ST_RESULT_OK;
-    } catch (...) { return ST_RESULT_INTERNAL_ERROR; }
+        catch (...) { panels.erase(id); return RESULT_INTERNAL_ERROR; }
+        *out = id; return RESULT_OK;
+    } catch (...) { return RESULT_INTERNAL_ERROR; }
 }
-ST_Result ST_CALL SetText(ST_StringView owner, ST_TextWindow id, size_t tab, ST_StringView text) {
-    if (!Valid(owner,256) || !Valid(text,1024*1024,true)) return ST_RESULT_INVALID_ARGUMENT;
+Result CALL SetText(StringView owner, TextWindow id, size_t tab, StringView text) {
+    if (!Valid(owner,256) || !Valid(text,1024*1024,true)) return RESULT_INVALID_ARGUMENT;
     try {
-        std::scoped_lock all(panelsMutex); const auto it = panels.find(id); if (it == panels.end()) return ST_RESULT_NOT_FOUND;
-        auto& p = *it->second; if (p.owner.compare(0,std::string::npos,owner.data,owner.size) != 0) return ST_RESULT_PERMISSION_DENIED;
-        if (tab >= p.pending.size()) return ST_RESULT_INVALID_ARGUMENT;
-        auto value = Wide(text); std::scoped_lock lock(p.mutex); p.pending[tab] = std::move(value); return ST_RESULT_OK;
-    } catch (...) { return ST_RESULT_INTERNAL_ERROR; }
+        std::scoped_lock all(panelsMutex); const auto it = panels.find(id); if (it == panels.end()) return RESULT_NOT_FOUND;
+        auto& p = *it->second; if (p.owner.compare(0,std::string::npos,owner.data,owner.size) != 0) return RESULT_PERMISSION_DENIED;
+        if (tab >= p.pending.size()) return RESULT_INVALID_ARGUMENT;
+        auto value = Wide(text); std::scoped_lock lock(p.mutex); p.pending[tab] = std::move(value); return RESULT_OK;
+    } catch (...) { return RESULT_INTERNAL_ERROR; }
 }
-ST_Result ST_CALL Status(ST_StringView owner, ST_TextWindow id, ST_TextWindowStatusV1* out) {
-    if (!Valid(owner,256) || !out) return ST_RESULT_INVALID_ARGUMENT;
-    std::scoped_lock lock(panelsMutex); const auto it = panels.find(id); if (it == panels.end()) return ST_RESULT_NOT_FOUND;
-    if (it->second->owner.compare(0,std::string::npos,owner.data,owner.size) != 0) return ST_RESULT_PERMISSION_DENIED;
-    *out = it->second->status; return ST_RESULT_OK;
+Result CALL Status(StringView owner, TextWindow id, TextWindowStatus* out) {
+    if (!Valid(owner,256) || !out) return RESULT_INVALID_ARGUMENT;
+    std::scoped_lock lock(panelsMutex); const auto it = panels.find(id); if (it == panels.end()) return RESULT_NOT_FOUND;
+    if (it->second->owner.compare(0,std::string::npos,owner.data,owner.size) != 0) return RESULT_PERMISSION_DENIED;
+    *out = it->second->status; return RESULT_OK;
 }
-ST_Result ST_CALL Destroy(ST_StringView owner, ST_TextWindow id) {
-    if (!Valid(owner,256)) return ST_RESULT_INVALID_ARGUMENT;
+Result CALL Destroy(StringView owner, TextWindow id) {
+    if (!Valid(owner,256)) return RESULT_INVALID_ARGUMENT;
     std::shared_ptr<Panel> p;
-    { std::scoped_lock lock(panelsMutex); const auto it = panels.find(id); if (it == panels.end()) return ST_RESULT_NOT_FOUND;
-      if (it->second->owner.compare(0,std::string::npos,owner.data,owner.size) != 0) return ST_RESULT_PERMISSION_DENIED;
+    { std::scoped_lock lock(panelsMutex); const auto it = panels.find(id); if (it == panels.end()) return RESULT_NOT_FOUND;
+      if (it->second->owner.compare(0,std::string::npos,owner.data,owner.size) != 0) return RESULT_PERMISSION_DENIED;
       p = it->second; panels.erase(it); }
-    p->stop = true; if (p->thread.joinable()) p->thread.join(); return ST_RESULT_OK;
+    p->stop = true; if (p->thread.joinable()) p->thread.join(); return RESULT_OK;
 }
-const ST_UiTextApiV1 api{sizeof(api),ST_ABI_VERSION_1,Create,SetText,Status,Destroy};
+const UiApi api{sizeof(api),API_VERSION,Create,SetText,Status,Destroy};
 }
 namespace UiText {
-const ST_UiTextApiV1* Api() { return &api; }
-void ReleaseOwner(ST_StringView owner) {
+const UiApi* Api() { return &api; }
+void ReleaseOwner(StringView owner) {
     if (!Valid(owner,256)) return;
     for (;;) {
         uint64_t id = 0;

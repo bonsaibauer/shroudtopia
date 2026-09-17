@@ -1,15 +1,15 @@
 {
   "id": "mod.no-resource-cost",
   "name": "Shroudtopia No Resource Cost",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "requires": {
     "capabilities": [
       "shroudtopia.runtime.patches"
     ]
   },
   "shroudtopia": {
-    "abi": "1.0",
-    "entrypoint": "ShroudtopiaCreateModV1",
+    "api": "2.0",
+    "entrypoint": "CreateMod",
     "binary": "shroudtopia-no-resource-cost.dll",
     "target": "both",
     "default": {

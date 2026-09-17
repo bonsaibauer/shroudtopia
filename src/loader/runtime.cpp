@@ -31,7 +31,7 @@ std::filesystem::file_time_type Config::lastModifiedTime;
 namespace {
 struct LoadedMod {
     HMODULE module = nullptr;
-    ST_ModDescriptorV1 descriptor{};
+    ModDescriptor descriptor{};
     std::string id;
     std::string version;
     bool loaded = false;
@@ -41,7 +41,7 @@ struct LoadedMod {
 
 std::map<std::string, LoadedMod> mods;
 std::set<std::string> discovered_manifests;
-const ST_HostApiV1* host_api = nullptr;
+const Api* api = nullptr;
 HANDLE runtime_thread = nullptr;
 HANDLE stop_event = nullptr;
 
@@ -49,6 +49,8 @@ json default_config{
     {"active", true},
     {"updateDelay", 500},
     {"enableLogging", true},
+    {"gameSettings", json::object()},
+    {"pendingGameSettings", json::object()},
     {"mods", json::object()}
 };
 
@@ -84,16 +86,16 @@ bool supports_target(const std::string& target) {
         (target == "server" && process == ProcessTarget::Server);
 }
 
-ST_Result invoke(ST_ModLifecycleCallback callback, void* user_data) {
-    if (callback == nullptr) return ST_RESULT_OK;
-    try { return callback(host_api, user_data); }
-    catch (...) { return ST_RESULT_CALLBACK_FAILED; }
+Result invoke(ModLifecycleCallback callback, void* user_data) {
+    if (callback == nullptr) return RESULT_OK;
+    try { return callback(api, user_data); }
+    catch (...) { return RESULT_CALLBACK_FAILED; }
 }
 
-ST_Result invoke_update(ST_ModUpdateCallback callback, void* user_data, double delta_seconds) {
-    if (callback == nullptr) return ST_RESULT_OK;
-    try { return callback(host_api, user_data, delta_seconds); }
-    catch (...) { return ST_RESULT_CALLBACK_FAILED; }
+Result invoke_update(ModUpdateCallback callback, void* user_data, double delta_seconds) {
+    if (callback == nullptr) return RESULT_OK;
+    try { return callback(api, user_data, delta_seconds); }
+    catch (...) { return RESULT_CALLBACK_FAILED; }
 }
 
 void apply_manifest_defaults(const std::string& id, const json& manifest) {
@@ -107,6 +109,20 @@ void apply_manifest_defaults(const std::string& id, const json& manifest) {
     Config::writeFile();
 }
 
+void apply_pending_game_settings() {
+    if (!Config::jConfig.contains("pendingGameSettings") ||
+        !Config::jConfig["pendingGameSettings"].is_object() ||
+        Config::jConfig["pendingGameSettings"].empty()) return;
+    if (!Config::jConfig.contains("gameSettings") || !Config::jConfig["gameSettings"].is_object()) {
+        Config::jConfig["gameSettings"] = json::object();
+    }
+    for (const auto& [key, value] : Config::jConfig["pendingGameSettings"].items()) {
+        Config::jConfig["gameSettings"][key] = value;
+    }
+    Config::jConfig["pendingGameSettings"] = json::object();
+    Config::writeFile();
+}
+
 void load_mod(const fs::path& directory, const json& manifest) {
     const auto id = manifest.value("id", "");
     const auto version = manifest.value("version", "");
@@ -116,8 +132,8 @@ void load_mod(const fs::path& directory, const json& manifest) {
     }
 
     const auto& section = manifest["shroudtopia"];
-    if (section.value("abi", "") != "1.0" || section.value("entrypoint", "") != "ShroudtopiaCreateModV1") {
-        Utils::Log(Utils::ERRR, "Unsupported ABI or entrypoint for mod: %s", id.c_str());
+    if (section.value("api", "") != "2.0" || section.value("entrypoint", "") != "CreateMod") {
+        Utils::Log(Utils::ERRR, "Unsupported API or entrypoint for mod: %s", id.c_str());
         return;
     }
     const fs::path binary = section.value("binary", "");
@@ -144,22 +160,22 @@ void load_mod(const fs::path& directory, const json& manifest) {
         return;
     }
 
-    const auto create_mod = reinterpret_cast<ST_CreateModV1>(GetProcAddress(module, "ShroudtopiaCreateModV1"));
+    const auto create_mod = reinterpret_cast<CreateModFunction>(GetProcAddress(module, "CreateMod"));
     if (create_mod == nullptr) {
-        Utils::Log(Utils::ERRR, "ShroudtopiaCreateModV1 is missing: %s", key.c_str());
+        Utils::Log(Utils::ERRR, "CreateMod is missing: %s", key.c_str());
         FreeLibrary(module);
         return;
     }
 
-    ST_ModDescriptorV1 descriptor{};
+    ModDescriptor descriptor{};
     descriptor.struct_size = sizeof(descriptor);
-    ST_Result result = ST_RESULT_CALLBACK_FAILED;
-    try { result = create_mod(ST_ABI_VERSION_1, &descriptor); }
+    Result result = RESULT_CALLBACK_FAILED;
+    try { result = create_mod(API_VERSION, &descriptor); }
     catch (...) {}
 
-    if (result != ST_RESULT_OK || descriptor.struct_size < sizeof(descriptor) ||
+    if (result != RESULT_OK || descriptor.struct_size < sizeof(descriptor) ||
         descriptor.mod_id.data == nullptr) {
-        Utils::Log(Utils::ERRR, "Invalid API v1 descriptor: %s", key.c_str());
+        Utils::Log(Utils::ERRR, "Invalid API descriptor: %s", key.c_str());
         FreeLibrary(module);
         return;
     }
@@ -214,7 +230,7 @@ void update_mods(double delta_seconds) {
             const auto result = invoke(mod.descriptor.on_load, mod.descriptor.user_data);
             Utils::Log(Utils::DEBUG, "Lifecycle on_load: mod=%s result=%d duration=%.3fms",
                 mod.id.c_str(), static_cast<int>(result), elapsed_ms(started));
-            if (result != ST_RESULT_OK) {
+            if (result != RESULT_OK) {
                 Utils::Log(Utils::ERRR, "Load failed for %s: %d", mod.id.c_str(), static_cast<int>(result));
                 mod.failed = true;
                 continue;
@@ -229,7 +245,7 @@ void update_mods(double delta_seconds) {
             const auto result = invoke(mod.descriptor.on_activate, mod.descriptor.user_data);
             Utils::Log(Utils::DEBUG, "Lifecycle on_activate: mod=%s result=%d duration=%.3fms",
                 mod.id.c_str(), static_cast<int>(result), elapsed_ms(started));
-            if (result != ST_RESULT_OK) {
+            if (result != RESULT_OK) {
                 Utils::Log(Utils::ERRR, "Activation failed for %s: %d", mod.id.c_str(), static_cast<int>(result));
                 mod.failed = true;
                 continue;
@@ -241,7 +257,7 @@ void update_mods(double delta_seconds) {
             const auto result = invoke(mod.descriptor.on_deactivate, mod.descriptor.user_data);
             Utils::Log(Utils::DEBUG, "Lifecycle on_deactivate: mod=%s result=%d duration=%.3fms",
                 mod.id.c_str(), static_cast<int>(result), elapsed_ms(started));
-            if (result != ST_RESULT_OK) {
+            if (result != RESULT_OK) {
                 Utils::Log(Utils::ERRR, "Deactivation failed for %s: %d", mod.id.c_str(), static_cast<int>(result));
                 continue;
             }
@@ -251,7 +267,7 @@ void update_mods(double delta_seconds) {
 
         if (mod.active && mod.descriptor.on_update != nullptr) {
             const auto result = invoke_update(mod.descriptor.on_update, mod.descriptor.user_data, delta_seconds);
-            if (result != ST_RESULT_OK) Utils::Log(Utils::ERRR, "Update failed for %s: %d", mod.id.c_str(), static_cast<int>(result));
+            if (result != RESULT_OK) Utils::Log(Utils::ERRR, "Update failed for %s: %d", mod.id.c_str(), static_cast<int>(result));
         }
     }
 }
@@ -260,7 +276,7 @@ void deactivate_mods() {
     for (auto& [path, mod] : mods) {
         if (!mod.active) continue;
         const auto result = invoke(mod.descriptor.on_deactivate, mod.descriptor.user_data);
-        if (result != ST_RESULT_OK) {
+        if (result != RESULT_OK) {
             Utils::Log(Utils::ERRR, "Deactivation failed for %s: %d", mod.id.c_str(), static_cast<int>(result));
         }
         mod.active = false;
@@ -271,7 +287,7 @@ void unload_mods() {
     for (auto& [path, mod] : mods) {
         if (mod.active) invoke(mod.descriptor.on_deactivate, mod.descriptor.user_data);
         if (mod.loaded) invoke(mod.descriptor.on_unload, mod.descriptor.user_data);
-        if (host_api != nullptr) host_api->release_owner({mod.id.data(), mod.id.size()});
+        if (api != nullptr) api->release_owner({mod.id.data(), mod.id.size()});
         if (mod.module != nullptr) FreeLibrary(mod.module);
     }
     mods.clear();
@@ -280,17 +296,18 @@ void unload_mods() {
 
 DWORD WINAPI run(LPVOID) {
     Utils::BeginLogSession(target_name(current_target()));
-    if (ShroudtopiaGetApi(ST_ABI_VERSION_1, &host_api) != ST_RESULT_OK) return 1;
+    if (ShroudtopiaGetApi(API_VERSION, &api) != RESULT_OK) return 1;
     if (!Config::readFile()) {
         Config::setConfigFromJSON(default_config);
         Config::writeFile();
     } else if (Config::jConfig.erase("logLevel") != 0) {
         Config::writeFile();
     }
+    apply_pending_game_settings();
     Utils::Log(Utils::INFO, "Starting Shroudtopia %s-%s", SHROUDTOPIA_VERSION, SHROUDTOPIA_BUILD_NUMBER);
     Utils::Log(Utils::DEBUG, "Runtime initialized: process=%s updateDelay=%dms modsDirectory=%s",
         target_name(current_target()), Config::get<int>("updateDelay", 500), SHROUDTOPIA_MOD_FOLDER);
-    Utils::Log(Utils::DEBUG, "Core services ready: logging.read=1.0 ui.text=1.0 runtime.patches=1.0 assets=1.1");
+    Utils::Log(Utils::DEBUG, "Core services ready: logging.read=2.0 ui.text=2.0 runtime.patches=2.0 assets=2.1");
 
     while (WaitForSingleObject(stop_event, 0) != WAIT_OBJECT_0) {
         if (Config::reloadIfChanged()) {
@@ -310,7 +327,7 @@ DWORD WINAPI run(LPVOID) {
     unload_mods();
     Utils::Log(Utils::DEBUG, "Runtime shutdown: all mods unloaded");
     PlatformApi::Shutdown();
-    host_api = nullptr;
+    api = nullptr;
     return 0;
 }
 }

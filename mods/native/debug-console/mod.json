@@ -1,11 +1,11 @@
 {
   "id": "mod.debug-console",
   "name": "Shroudtopia Debug Console",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "F10 opens the log window. Switch between the existing Enshrouded and Shroudtopia logs.",
   "shroudtopia": {
-    "abi": "1.0",
-    "entrypoint": "ShroudtopiaCreateModV1",
+    "api": "2.0",
+    "entrypoint": "CreateMod",
     "binary": "shroudtopia-debug-console.dll",
     "target": "client",
     "default": { "active": true, "toggleKey": 121 }

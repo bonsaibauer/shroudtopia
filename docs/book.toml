@@ -1,18 +1,19 @@
 [book]
 authors = ["Shroudtopia contributors"]
-language = "de"
+language = "en"
 multilingual = false
-src = "src"
-title = "Shroudtopia Handbuch"
+src = ".build/en"
+title = "Shroudtopia API Documentation"
 
 [build]
-build-dir = "../site"
+build-dir = "../site/en"
 
 [output.html]
 preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/bonsaibauer/shroudtopia"
-site-url = "/shroudtopia/"
+site-url = "/shroudtopia/en/"
 additional-css = ["theme/shroudtopia.css"]
+additional-js = ["theme/generated/shroudtopia.js"]
 
 [output.html.search]
 enable = true

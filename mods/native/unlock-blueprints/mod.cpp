@@ -13,25 +13,25 @@ constexpr char ModId[] = "mod.unlock-blueprints";
 constexpr char RecipeType[] = "keen::RecipeRegistryResource";
 constexpr std::int64_t UnlockKnowledgeId = 1715248921;
 
-const ST_AssetsApiV1* Assets = nullptr;
+const AssetsApi* Assets = nullptr;
 size_t Visited = 0;
 
-ST_StringView View(const char* value) { return {value, std::strlen(value)}; }
-ST_StringView View(const std::string& value) { return {value.data(), value.size()}; }
+StringView View(const char* value) { return {value, std::strlen(value)}; }
+StringView View(const std::string& value) { return {value.data(), value.size()}; }
 
-ST_Result ST_CALL UnlockRegistry(const ST_AssetResourceKeyV1* resource, void*) {
-    if (resource == nullptr || resource->struct_size < sizeof(ST_AssetResourceKeyV1)) return ST_RESULT_INVALID_ARGUMENT;
+Result CALL UnlockRegistry(const AssetId* asset, void*) {
+    if (asset == nullptr || asset->struct_size < sizeof(AssetId)) return RESULT_INVALID_ARGUMENT;
     ++Visited;
     size_t required = 0;
-    auto result = Assets->read_resource_json(View(ModId), resource, nullptr, 0, &required);
-    if (result != ST_RESULT_OK) return result;
+    auto result = Assets->get(View(ModId), asset, nullptr, 0, &required);
+    if (result != RESULT_OK) return result;
     std::vector<char> bytes(required);
-    result = Assets->read_resource_json(View(ModId), resource, bytes.data(), bytes.size(), &required);
-    if (result != ST_RESULT_OK) return result;
+    result = Assets->get(View(ModId), asset, bytes.data(), bytes.size(), &required);
+    if (result != RESULT_OK) return result;
 
     try {
         auto data = nlohmann::json::parse(bytes.begin(), bytes.end());
-        if (!data.contains("recipes") || !data["recipes"].is_array()) return ST_RESULT_OK;
+        if (!data.contains("recipes") || !data["recipes"].is_array()) return RESULT_OK;
         bool changed = false;
         for (auto& recipe : data["recipes"]) {
             if (!recipe.is_object() || !recipe.contains("knowledgeRequirement") ||
@@ -50,61 +50,55 @@ ST_Result ST_CALL UnlockRegistry(const ST_AssetResourceKeyV1* resource, void*) {
             changed = changed || requirement.value("isExplicitPlayerKnowledgeQuery", true);
             requirement["isExplicitPlayerKnowledgeQuery"] = false;
         }
-        if (!changed) return ST_RESULT_OK;
+        if (!changed) return RESULT_OK;
         const auto json = data.dump();
-        return Assets->replace_resource_json(View(ModId), resource, View(json));
+        return Assets->update(View(ModId), asset, View(json));
     } catch (...) {
-        return ST_RESULT_CALLBACK_FAILED;
+        return RESULT_CALLBACK_FAILED;
     }
 }
 
-ST_Result ST_CALL Load(const ST_HostApiV1* host, void*) {
-    if (host == nullptr || host->abi_version != ST_ABI_VERSION_1) return ST_RESULT_VERSION_MISMATCH;
-    const ST_ServiceRequest request{
-        sizeof(request), View(ST_ASSETS_SERVICE_ID),
-        ST_ASSETS_SERVICE_VERSION_MAJOR, ST_ASSETS_SERVICE_VERSION_MINOR
-    };
-    const void* service = nullptr;
-    const auto found = host->find_service(&request, &service);
-    if (found != ST_RESULT_OK) return found;
-    Assets = static_cast<const ST_AssetsApiV1*>(service);
-    return Assets != nullptr && Assets->struct_size >= sizeof(ST_AssetsApiV1)
-        ? ST_RESULT_OK : ST_RESULT_VERSION_MISMATCH;
+Result CALL Load(const Api* api, void*) {
+    if (api == nullptr || api->api_version != API_VERSION) return RESULT_VERSION_MISMATCH;
+    Assets = api->assets;
+    if (Assets == nullptr) return RESULT_NOT_FOUND;
+    return Assets != nullptr && Assets->struct_size >= sizeof(AssetsApi)
+        ? RESULT_OK : RESULT_VERSION_MISMATCH;
 }
 
-ST_Result ST_CALL Activate(const ST_HostApiV1* host, void*) {
-    if (Assets == nullptr || host == nullptr) return ST_RESULT_NOT_FOUND;
+Result CALL Activate(const Api* api, void*) {
+    if (Assets == nullptr || api == nullptr) return RESULT_NOT_FOUND;
     Visited = 0;
-    const auto result = Assets->visit_resources(View(ModId), View(RecipeType), UnlockRegistry, nullptr);
-    if (result != ST_RESULT_OK) return result;
-    if (Visited == 0) return ST_RESULT_NOT_FOUND;
-    return Assets->flush(View(ModId));
+    const auto result = Assets->list(View(ModId), View(RecipeType), UnlockRegistry, nullptr);
+    if (result != RESULT_OK) return result;
+    if (Visited == 0) return RESULT_NOT_FOUND;
+    return Assets->save(View(ModId));
 }
 
-ST_Result ST_CALL Update(const ST_HostApiV1*, void*, double) { return ST_RESULT_OK; }
+Result CALL Update(const Api*, void*, double) { return RESULT_OK; }
 
-ST_Result ST_CALL Deactivate(const ST_HostApiV1*, void*) {
-    if (Assets == nullptr) return ST_RESULT_OK;
-    const auto discarded = Assets->discard_changes(View(ModId));
-    if (discarded == ST_RESULT_NOT_FOUND) return ST_RESULT_OK;
-    if (discarded != ST_RESULT_OK) return discarded;
-    return Assets->flush(View(ModId));
+Result CALL Deactivate(const Api*, void*) {
+    if (Assets == nullptr) return RESULT_OK;
+    const auto discarded = Assets->reset(View(ModId));
+    if (discarded == RESULT_NOT_FOUND) return RESULT_OK;
+    if (discarded != RESULT_OK) return discarded;
+    return Assets->save(View(ModId));
 }
 
-ST_Result ST_CALL Unload(const ST_HostApiV1* host, void*) {
-    if (host == nullptr) return ST_RESULT_INVALID_ARGUMENT;
+Result CALL Unload(const Api* api, void*) {
+    if (api == nullptr) return RESULT_INVALID_ARGUMENT;
     Assets = nullptr;
-    return host->release_owner(View(ModId));
+    return api->release_owner(View(ModId));
 }
 }
 
-extern "C" __declspec(dllexport) ST_Result ST_CALL ShroudtopiaCreateModV1(
-    uint32_t abi, ST_ModDescriptorV1* descriptor) {
-    if (abi != ST_ABI_VERSION_1) return ST_RESULT_VERSION_MISMATCH;
-    if (descriptor == nullptr || descriptor->struct_size < sizeof(ST_ModDescriptorV1)) return ST_RESULT_INVALID_ARGUMENT;
-    *descriptor = {sizeof(ST_ModDescriptorV1), View(ModId), nullptr,
+extern "C" __declspec(dllexport) Result CALL CreateMod(
+    uint32_t api_version, ModDescriptor* descriptor) {
+    if (api_version != API_VERSION) return RESULT_VERSION_MISMATCH;
+    if (descriptor == nullptr || descriptor->struct_size < sizeof(ModDescriptor)) return RESULT_INVALID_ARGUMENT;
+    *descriptor = {sizeof(ModDescriptor), View(ModId), nullptr,
         Load, Activate, Update, Deactivate, Unload};
-    return ST_RESULT_OK;
+    return RESULT_OK;
 }
 
 BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID) {

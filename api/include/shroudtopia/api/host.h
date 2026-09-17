@@ -2,34 +2,48 @@
 
 #include "shroudtopia/api/capabilities.h"
 #include "shroudtopia/api/commands.h"
+#include "shroudtopia/api/actions.h"
 #include "shroudtopia/api/events.h"
-#include "shroudtopia/api/logging.h"
+#include "shroudtopia/api/log.h"
 #include "shroudtopia/api/services.h"
-#include "shroudtopia/api/settings.h"
+#include "shroudtopia/api/mod_settings.h"
+#include "shroudtopia/api/game_settings.h"
+#include "shroudtopia/api/assets.h"
+#include "shroudtopia/api/patches.h"
+#include "shroudtopia/api/ui.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct ST_HostApiV1 {
+typedef struct Api {
     size_t struct_size;
-    uint32_t abi_version;
-    ST_Result (ST_CALL* register_service)(ST_StringView owner_id, const ST_ServiceDescriptor* descriptor, ST_Registration* registration);
-    ST_Result (ST_CALL* find_service)(const ST_ServiceRequest* request, const void** interface_pointer);
-    ST_Result (ST_CALL* subscribe_event)(ST_StringView owner_id, const ST_EventSubscription* subscription, ST_Registration* registration);
-    ST_Result (ST_CALL* publish_event)(ST_StringView owner_id, const ST_Event* event_data);
-    ST_Result (ST_CALL* register_command)(ST_StringView owner_id, const ST_CommandDescriptor* descriptor, ST_Registration* registration);
-    ST_Result (ST_CALL* execute_command)(ST_StringView owner_id, ST_StringView command_id, ST_StringView arguments);
-    ST_Result (ST_CALL* register_settings)(ST_StringView owner_id, const ST_SettingsDescriptor* descriptor, ST_Registration* registration);
-    ST_Result (ST_CALL* release_registration)(ST_Registration registration);
-    ST_Result (ST_CALL* release_owner)(ST_StringView owner_id);
-    ST_Result (ST_CALL* query_capability)(ST_StringView capability_id, ST_CapabilityInfoV1* information);
-    ST_Result (ST_CALL* check_permission)(ST_StringView owner_id, ST_StringView permission_id, uint8_t* allowed);
-    ST_Result (ST_CALL* log)(ST_StringView owner_id, ST_LogLevel level, ST_StringView message);
-    ST_Result (ST_CALL* get_setting_bool)(ST_StringView owner_id, ST_StringView key, uint8_t fallback, uint8_t* value);
-    /* Optional tail; check struct_size before calling on an older loader. */
-    ST_Result (ST_CALL* get_setting_number)(ST_StringView owner_id, ST_StringView key, double fallback, double* value);
-} ST_HostApiV1;
+    uint32_t api_version;
+    const AssetsApi* assets;
+    const PatchesApi* patches;
+    const UiApi* ui;
+    const LogApi* logs;
+    Result (CALL* register_service)(StringView owner_id, const ServiceDescriptor* descriptor, Registration* registration);
+    Result (CALL* find_service)(const ServiceRequest* request, const void** interface_pointer);
+    Result (CALL* subscribe_event)(StringView owner_id, const EventSubscription* subscription, Registration* registration);
+    Result (CALL* publish_event)(StringView owner_id, const Event* event_data);
+    Result (CALL* register_command)(StringView owner_id, const CommandDescriptor* descriptor, Registration* registration);
+    Result (CALL* invoke_command)(StringView owner_id, StringView command_id, StringView arguments);
+    Result (CALL* register_mod_settings)(StringView owner_id, const ModSettingsDescriptor* descriptor, Registration* registration);
+    Result (CALL* register_action)(StringView owner_id, const Action* action, Registration* registration);
+    Result (CALL* invoke_action)(StringView owner_id, StringView action_id, StringView input_json);
+    Result (CALL* get_action_state)(StringView action_id, ActionState* state);
+    Result (CALL* release_registration)(Registration registration);
+    Result (CALL* release_owner)(StringView owner_id);
+    Result (CALL* query_capability)(StringView capability_id, CapabilityInfo* information);
+    Result (CALL* check_permission)(StringView owner_id, StringView permission_id, uint8_t* allowed);
+    Result (CALL* log)(StringView owner_id, LogLevel level, StringView message);
+    Result (CALL* get_mod_setting_bool)(StringView owner_id, StringView key, uint8_t fallback, uint8_t* value);
+    Result (CALL* get_mod_setting_number)(StringView owner_id, StringView key, double fallback, double* value);
+    Result (CALL* get_game_setting)(StringView key, char* buffer, size_t capacity, size_t* required_size);
+    Result (CALL* stage_game_setting)(StringView key, StringView value_json);
+    Result (CALL* reset_game_setting)(StringView key);
+} Api;
 
 #ifdef __cplusplus
 }

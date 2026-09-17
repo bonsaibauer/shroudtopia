@@ -1,42 +1,42 @@
 #pragma once
 
-#include "shroudtopia/api/base.h"
+#include "shroudtopia/api/result.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define ST_ASSETS_SERVICE_ID "shroudtopia.assets"
-#define ST_ASSETS_SERVICE_VERSION_MAJOR 1u
-#define ST_ASSETS_SERVICE_VERSION_MINOR 1u
+#define ASSETS_SERVICE_ID "shroudtopia.assets"
+#define ASSETS_SERVICE_VERSION_MAJOR 2u
+#define ASSETS_SERVICE_VERSION_MINOR 1u
 
-typedef struct ST_AssetResourceKeyV1 {
+typedef struct AssetId {
     size_t struct_size;
-    ST_StringView guid;
-    ST_StringView type_name;
+    StringView guid;
+    StringView type_name;
     uint32_t part;
-} ST_AssetResourceKeyV1;
+} AssetId;
 
-typedef ST_Result (ST_CALL* ST_AssetResourceVisitorV1)(
-    const ST_AssetResourceKeyV1* resource, void* user_data);
+typedef Result (CALL* AssetVisitor)(
+    const AssetId* asset, void* user_data);
 
-typedef struct ST_AssetsApiV1 {
+typedef struct AssetsApi {
     size_t struct_size;
-    ST_Result (ST_CALL* visit_resources)(ST_StringView owner_id, ST_StringView type_name,
-        ST_AssetResourceVisitorV1 visitor, void* user_data);
-    ST_Result (ST_CALL* read_resource_json)(ST_StringView owner_id,
-        const ST_AssetResourceKeyV1* resource, char* buffer, size_t capacity, size_t* required_size);
-    ST_Result (ST_CALL* replace_resource_json)(ST_StringView owner_id,
-        const ST_AssetResourceKeyV1* resource, ST_StringView json);
-    ST_Result (ST_CALL* create_resource_json)(ST_StringView owner_id, ST_StringView type_name,
-        ST_StringView json, ST_AssetResourceVisitorV1 visitor, void* user_data);
-    ST_Result (ST_CALL* discard_changes)(ST_StringView owner_id);
-    ST_Result (ST_CALL* flush)(ST_StringView owner_id);
-    /* Added in service 1.1. Existing JSON-pointer path, typed JSON value.
-       Disjoint fields compose; overlapping owners return ALREADY_EXISTS. */
-    ST_Result (ST_CALL* set_resource_field_json)(ST_StringView owner_id,
-        const ST_AssetResourceKeyV1* resource, ST_StringView path, ST_StringView json);
-} ST_AssetsApiV1;
+    Result (CALL* list)(StringView owner_id, StringView type_name,
+        AssetVisitor visitor, void* user_data);
+    Result (CALL* get)(StringView owner_id,
+        const AssetId* asset, char* buffer, size_t capacity, size_t* required_size);
+    Result (CALL* update)(StringView owner_id,
+        const AssetId* asset, StringView json);
+    Result (CALL* create)(StringView owner_id, StringView type_name,
+        StringView json, AssetVisitor visitor, void* user_data);
+    Result (CALL* reset)(StringView owner_id);
+    Result (CALL* save)(StringView owner_id);
+    /* Asset API 2.1. Existing JSON-pointer path, typed JSON value.
+       Disjoint fields compose; overlapping owners return CONFLICT. */
+    Result (CALL* set)(StringView owner_id,
+        const AssetId* asset, StringView path, StringView json);
+} AssetsApi;
 
 #ifdef __cplusplus
 }

@@ -192,7 +192,7 @@ pub extern "C" fn ShroudtopiaAssetsClose() {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn ShroudtopiaAssetsVisit(
+pub unsafe extern "C" fn ShroudtopiaListAssets(
     type_name: StringView, visitor: Option<Visitor>, user_data: *mut c_void,
 ) -> i32 {
     let type_name = match unsafe { text(type_name) } { Ok(v) => v, Err(e) => return e };
@@ -223,7 +223,7 @@ pub unsafe extern "C" fn ShroudtopiaAssetsVisit(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn ShroudtopiaAssetsReadJson(
+pub unsafe extern "C" fn ShroudtopiaGetAssetJson(
     owner: StringView, key: *const ResourceKey, buffer: *mut c_char,
     capacity: usize, required: *mut usize,
 ) -> i32 {
@@ -238,7 +238,7 @@ pub unsafe extern "C" fn ShroudtopiaAssetsReadJson(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn ShroudtopiaAssetsReplaceJson(
+pub unsafe extern "C" fn ShroudtopiaUpdateAssetJson(
     owner: StringView, key: *const ResourceKey, json: StringView,
 ) -> i32 {
     let owner = match unsafe { text(owner) } { Ok(v) => v, Err(e) => return e };
@@ -258,7 +258,7 @@ pub unsafe extern "C" fn ShroudtopiaAssetsReplaceJson(
     // Reject conflicts instead of silently discarding another mod's edits.
     if state.overlays.iter().any(|(other, values)| other != &owner && values.contains_key(&id))
         || state.fields.iter().any(|(other, values)| other != &owner && values.contains_key(&id)) {
-        return 2; // ST_RESULT_ALREADY_EXISTS
+        return 2; // RESULT_CONFLICT
     }
     if let Some(fields) = state.fields.get_mut(&owner) { fields.remove(&id); }
     state.overlays.entry(owner).or_default().insert(id, value);
@@ -267,7 +267,7 @@ pub unsafe extern "C" fn ShroudtopiaAssetsReplaceJson(
 
 /// Set an existing JSON-pointer field; no implicit creation or array append.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn ShroudtopiaAssetsSetFieldJson(
+pub unsafe extern "C" fn ShroudtopiaSetAssetFieldJson(
     owner: StringView, key: *const ResourceKey, path: StringView, json: StringView,
 ) -> i32 {
     let owner = match unsafe { text(owner) } { Ok(v) => v, Err(e) => return e };
@@ -301,7 +301,7 @@ pub unsafe extern "C" fn ShroudtopiaAssetsSetFieldJson(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn ShroudtopiaAssetsCreateJson(
+pub unsafe extern "C" fn ShroudtopiaCreateAssetJson(
     owner: StringView, type_name: StringView, json: StringView,
     visitor: Option<Visitor>, user_data: *mut c_void,
 ) -> i32 {
@@ -338,7 +338,7 @@ pub unsafe extern "C" fn ShroudtopiaAssetsCreateJson(
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn ShroudtopiaAssetsDiscard(owner: StringView) -> i32 {
+pub unsafe extern "C" fn ShroudtopiaResetAssets(owner: StringView) -> i32 {
     let owner = match unsafe { text(owner) } { Ok(v) => v, Err(e) => return e };
     let mut slot = match engine().lock() { Ok(v) => v, Err(_) => return INTERNAL_ERROR };
     let state = match slot.as_mut() { Some(v) => v, None => return NOT_FOUND };
@@ -348,7 +348,7 @@ pub unsafe extern "C" fn ShroudtopiaAssetsDiscard(owner: StringView) -> i32 {
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn ShroudtopiaAssetsFlush() -> i32 {
+pub extern "C" fn ShroudtopiaSaveAssets() -> i32 {
     let mut slot = match engine().lock() { Ok(v) => v, Err(_) => return INTERNAL_ERROR };
     let state = match slot.as_mut() { Some(v) => v, None => return NOT_FOUND };
     // Validate every resource before touching any active game file.

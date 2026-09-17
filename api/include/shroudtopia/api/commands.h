@@ -1,19 +1,19 @@
 #pragma once
 
-#include "shroudtopia/api/base.h"
+#include "shroudtopia/api/result.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef ST_Result (ST_CALL* ST_CommandCallback)(ST_StringView arguments, void* user_data);
-typedef struct ST_CommandDescriptor {
+typedef Result (CALL* CommandCallback)(StringView arguments, void* user_data);
+typedef struct CommandDescriptor {
     size_t struct_size;
-    ST_StringView command_id;
-    ST_StringView description;
-    ST_CommandCallback callback;
+    StringView command_id;
+    StringView description;
+    CommandCallback callback;
     void* user_data;
-} ST_CommandDescriptor;
+} CommandDescriptor;
 
 #ifdef __cplusplus
 }

@@ -7,14 +7,14 @@ bool Initialize();
 bool Available();
 void Shutdown();
 
-ST_Result Visit(ST_StringView typeName, ST_AssetResourceVisitorV1 visitor, void* userData);
-ST_Result ReadJson(ST_StringView owner, const ST_AssetResourceKeyV1* resource,
+Result List(StringView typeName, AssetVisitor visitor, void* userData);
+Result Get(StringView owner, const AssetId* asset,
     char* buffer, size_t capacity, size_t* requiredSize);
-ST_Result ReplaceJson(ST_StringView owner, const ST_AssetResourceKeyV1* resource, ST_StringView json);
-ST_Result SetFieldJson(ST_StringView owner, const ST_AssetResourceKeyV1* resource, ST_StringView path, ST_StringView json);
-ST_Result CreateJson(ST_StringView owner, ST_StringView typeName, ST_StringView json,
-    ST_AssetResourceVisitorV1 visitor, void* userData);
-ST_Result Discard(ST_StringView owner);
-ST_Result Flush();
+Result Update(StringView owner, const AssetId* asset, StringView json);
+Result Set(StringView owner, const AssetId* asset, StringView path, StringView json);
+Result Create(StringView owner, StringView typeName, StringView json,
+    AssetVisitor visitor, void* userData);
+Result Reset(StringView owner);
+Result Save();
 }
 

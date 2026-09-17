@@ -1,5 +1,5 @@
 #pragma once
-#include "shroudtopia/api/logging.h"
+#include "shroudtopia/api/log.h"
 
 namespace Utils {
 enum LogLevel {
@@ -13,5 +13,5 @@ enum LogLevel {
 
 void Log(LogLevel level, const char* format, ...);
 void BeginLogSession(const char* target);
-ST_Result ST_CALL ReadLogTail(ST_LogSourceV1 source, char* buffer, size_t capacity, size_t* written);
+Result CALL ReadLogTail(LogSource source, char* buffer, size_t capacity, size_t* written);
 }

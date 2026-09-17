@@ -76,12 +76,12 @@ installable archive under `build/`.
 
 ## Create mods
 
-Mods include `api/include`, export `ShroudtopiaCreateModV1`, and ship with a
-`mod.json`. The public C API is the only binary contract between mods and the loader.
+Mods include `api/include`, export `CreateMod`, and ship with a
+`mod.json`. The public Mod API is the only supported interface between Mods and the loader.
 
 - API entry point: [api/include/shroudtopia/api.h](api/include/shroudtopia/api.h)
 - Documentation: [Shroudtopia API](https://bonsaibauer.github.io/shroudtopia/)
-- Local book: [docs/src/SUMMARY.md](docs/src/SUMMARY.md)
+- Local books: [English](docs/src/SUMMARY_en.md) · [Deutsch](docs/src/SUMMARY_de.md)
 - Complete reference mod: [Shroudtopia Flight](mods/native/flight)
 
 ## Versioning

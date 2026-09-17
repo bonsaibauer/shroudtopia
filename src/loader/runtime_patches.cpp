@@ -97,7 +97,7 @@ std::uintptr_t FindSignature(std::string_view text) {
     if (nt->Signature != IMAGE_NT_SIGNATURE) return 0;
 
     std::uintptr_t found = 0;
-    const auto sections = IMAGE_FIRST_SECTION(nt);
+    const auto sections = IMAGE_FIRSECTION(nt);
     for (WORD index = 0; index < nt->FileHeader.NumberOfSections; ++index) {
         const auto& section = sections[index];
         if ((section.Characteristics & IMAGE_SCN_MEM_EXECUTE) == 0 ||
@@ -168,28 +168,28 @@ struct Entry {
 };
 
 std::mutex mutex;
-std::atomic<ST_RuntimePatch> nextHandle{1};
-std::unordered_map<ST_RuntimePatch, Entry> patches;
+std::atomic<RuntimePatch> nextHandle{1};
+std::unordered_map<RuntimePatch, Entry> patches;
 
-ST_Result BuildPatch(const ST_RuntimePatchDescriptorV1& descriptor, std::unique_ptr<Patch>& result) {
+Result BuildPatch(const RuntimePatchOptions& descriptor, std::unique_ptr<Patch>& result) {
     if (descriptor.signature.data == nullptr || descriptor.signature.size == 0 ||
         descriptor.payload == nullptr || descriptor.payload_size == 0 ||
         descriptor.payload_size > 4096 || descriptor.overwrite_size == 0 || descriptor.overwrite_size > 4096) {
-        return ST_RESULT_INVALID_ARGUMENT;
+        return RESULT_INVALID_ARGUMENT;
     }
     const std::string_view signature(descriptor.signature.data, descriptor.signature.size);
     const auto match = FindSignature(signature);
-    if (match == 0) return ST_RESULT_NOT_FOUND;
+    if (match == 0) return RESULT_NOT_FOUND;
     if (match > static_cast<std::uintptr_t>((std::numeric_limits<std::int64_t>::max)())) {
-        return ST_RESULT_INTERNAL_ERROR;
+        return RESULT_INTERNAL_ERROR;
     }
     const auto signedMatch = static_cast<std::int64_t>(match);
     if ((descriptor.match_offset > 0 && signedMatch > (std::numeric_limits<std::int64_t>::max)() - descriptor.match_offset) ||
         (descriptor.match_offset < 0 && signedMatch < (std::numeric_limits<std::int64_t>::min)() - descriptor.match_offset)) {
-        return ST_RESULT_INVALID_ARGUMENT;
+        return RESULT_INVALID_ARGUMENT;
     }
     const auto signedTarget = signedMatch + descriptor.match_offset;
-    if (signedTarget <= 0) return ST_RESULT_INVALID_ARGUMENT;
+    if (signedTarget <= 0) return RESULT_INVALID_ARGUMENT;
     const auto target = static_cast<std::uintptr_t>(signedTarget);
     MEMORY_BASIC_INFORMATION targetMemory{};
     if (VirtualQuery(reinterpret_cast<const void*>(target), &targetMemory, sizeof(targetMemory)) == 0 ||
@@ -197,41 +197,41 @@ ST_Result BuildPatch(const ST_RuntimePatchDescriptorV1& descriptor, std::unique_
         (targetMemory.Protect & (PAGE_GUARD | PAGE_NOACCESS)) != 0 ||
         target > (std::numeric_limits<std::uintptr_t>::max)() - descriptor.overwrite_size ||
         target + descriptor.overwrite_size > reinterpret_cast<std::uintptr_t>(targetMemory.BaseAddress) + targetMemory.RegionSize) {
-        return ST_RESULT_INVALID_ARGUMENT;
+        return RESULT_INVALID_ARGUMENT;
     }
 
-    if (descriptor.kind == ST_RUNTIME_PATCH_DIRECT) {
+    if (descriptor.kind == RUNTIME_PATCH_DIRECT) {
         if (descriptor.overwrite_size != descriptor.payload_size || descriptor.relocation_count != 0) {
-            return ST_RESULT_INVALID_ARGUMENT;
+            return RESULT_INVALID_ARGUMENT;
         }
         result = std::make_unique<Patch>(
             target, Bytes(descriptor.payload, descriptor.payload + descriptor.payload_size));
-        return ST_RESULT_OK;
+        return RESULT_OK;
     }
-    if (descriptor.kind != ST_RUNTIME_PATCH_DETOUR || descriptor.overwrite_size < 5) {
-        return ST_RESULT_INVALID_ARGUMENT;
+    if (descriptor.kind != RUNTIME_PATCH_DETOUR || descriptor.overwrite_size < 5) {
+        return RESULT_INVALID_ARGUMENT;
     }
 
     void* allocation = AllocateNear(target, descriptor.payload_size);
-    if (allocation == nullptr) return ST_RESULT_INTERNAL_ERROR;
+    if (allocation == nullptr) return RESULT_INTERNAL_ERROR;
     const auto shell = reinterpret_cast<std::uintptr_t>(allocation);
     Bytes payload(descriptor.payload, descriptor.payload + descriptor.payload_size);
     for (size_t index = 0; index < descriptor.relocation_count; ++index) {
         const auto& relocation = descriptor.relocations[index];
-        if (relocation.struct_size < sizeof(ST_RuntimeRelocationV1) ||
-            relocation.kind != ST_RUNTIME_RELOCATION_REL32_RETURN ||
+        if (relocation.struct_size < sizeof(RuntimeRelocation) ||
+            relocation.kind != RUNTIME_RELOCATION_REL32_RETURN ||
             relocation.payload_offset == 0 ||
             relocation.payload_offset + sizeof(std::int32_t) > payload.size() ||
             (payload[relocation.payload_offset - 1] != 0xE9 &&
              payload[relocation.payload_offset - 1] != 0xE8)) {
             VirtualFree(allocation, 0, MEM_RELEASE);
-            return ST_RESULT_INVALID_ARGUMENT;
+            return RESULT_INVALID_ARGUMENT;
         }
         std::int32_t relative = 0;
         if (!Relative(shell + relocation.payload_offset - 1,
             target + descriptor.overwrite_size, relative)) {
             VirtualFree(allocation, 0, MEM_RELEASE);
-            return ST_RESULT_INTERNAL_ERROR;
+            return RESULT_INTERNAL_ERROR;
         }
         std::memcpy(payload.data() + relocation.payload_offset, &relative, sizeof(relative));
     }
@@ -242,64 +242,64 @@ ST_Result BuildPatch(const ST_RuntimePatchDescriptorV1& descriptor, std::unique_
     std::int32_t relative = 0;
     if (!Relative(target, shell, relative)) {
         VirtualFree(allocation, 0, MEM_RELEASE);
-        return ST_RESULT_INTERNAL_ERROR;
+        return RESULT_INTERNAL_ERROR;
     }
     detour[0] = 0xE9;
     std::memcpy(detour.data() + 1, &relative, sizeof(relative));
     result = std::make_unique<Patch>(target, std::move(detour), allocation);
-    return ST_RESULT_OK;
+    return RESULT_OK;
 }
 }
 
 namespace RuntimePatches {
-ST_Result Create(const std::string& owner, const ST_RuntimePatchDescriptorV1* descriptor, ST_RuntimePatch* patch) {
+Result Create(const std::string& owner, const RuntimePatchOptions* descriptor, RuntimePatch* patch) {
     if (owner.empty() || descriptor == nullptr || patch == nullptr ||
-        descriptor->struct_size < sizeof(ST_RuntimePatchDescriptorV1) ||
+        descriptor->struct_size < sizeof(RuntimePatchOptions) ||
         (descriptor->relocation_count != 0 && descriptor->relocations == nullptr)) {
-        return ST_RESULT_INVALID_ARGUMENT;
+        return RESULT_INVALID_ARGUMENT;
     }
     *patch = 0;
     std::scoped_lock lock(mutex);
     std::unique_ptr<Patch> implementation;
     const auto result = BuildPatch(*descriptor, implementation);
-    if (result != ST_RESULT_OK) return result;
+    if (result != RESULT_OK) return result;
 
     for (const auto& [handle, entry] : patches) {
-        if (implementation->Overlaps(*entry.patch)) return ST_RESULT_ALREADY_EXISTS;
+        if (implementation->Overlaps(*entry.patch)) return RESULT_CONFLICT;
     }
     const auto handle = nextHandle.fetch_add(1, std::memory_order_relaxed);
     patches.emplace(handle, Entry{owner, std::move(implementation)});
     *patch = handle;
-    return ST_RESULT_OK;
+    return RESULT_OK;
 }
 
-ST_Result SetEnabled(const std::string& owner, ST_RuntimePatch patch, bool enabled) {
-    if (owner.empty() || patch == 0) return ST_RESULT_INVALID_ARGUMENT;
+Result SetEnabled(const std::string& owner, RuntimePatch patch, bool enabled) {
+    if (owner.empty() || patch == 0) return RESULT_INVALID_ARGUMENT;
     std::scoped_lock lock(mutex);
     const auto entry = patches.find(patch);
-    if (entry == patches.end() || entry->second.owner != owner) return ST_RESULT_NOT_FOUND;
-    return entry->second.patch->Enable(enabled) ? ST_RESULT_OK : ST_RESULT_INTERNAL_ERROR;
+    if (entry == patches.end() || entry->second.owner != owner) return RESULT_NOT_FOUND;
+    return entry->second.patch->Enable(enabled) ? RESULT_OK : RESULT_INTERNAL_ERROR;
 }
 
-ST_Result GetState(const std::string& owner, ST_RuntimePatch patch, ST_RuntimePatchStateV1* state) {
+Result GetState(const std::string& owner, RuntimePatch patch, RuntimePatchState* state) {
     if (owner.empty() || patch == 0 || state == nullptr ||
-        state->struct_size < sizeof(ST_RuntimePatchStateV1)) return ST_RESULT_INVALID_ARGUMENT;
+        state->struct_size < sizeof(RuntimePatchState)) return RESULT_INVALID_ARGUMENT;
     std::scoped_lock lock(mutex);
     const auto entry = patches.find(patch);
-    if (entry == patches.end() || entry->second.owner != owner) return ST_RESULT_NOT_FOUND;
+    if (entry == patches.end() || entry->second.owner != owner) return RESULT_NOT_FOUND;
     state->enabled = entry->second.patch->enabled() ? 1 : 0;
     std::fill(std::begin(state->reserved), std::end(state->reserved), std::uint8_t{0});
-    return ST_RESULT_OK;
+    return RESULT_OK;
 }
 
-ST_Result Release(const std::string& owner, ST_RuntimePatch patch) {
-    if (owner.empty() || patch == 0) return ST_RESULT_INVALID_ARGUMENT;
+Result Release(const std::string& owner, RuntimePatch patch) {
+    if (owner.empty() || patch == 0) return RESULT_INVALID_ARGUMENT;
     std::scoped_lock lock(mutex);
     const auto entry = patches.find(patch);
-    if (entry == patches.end() || entry->second.owner != owner) return ST_RESULT_NOT_FOUND;
-    if (!entry->second.patch->Enable(false)) return ST_RESULT_INTERNAL_ERROR;
+    if (entry == patches.end() || entry->second.owner != owner) return RESULT_NOT_FOUND;
+    if (!entry->second.patch->Enable(false)) return RESULT_INTERNAL_ERROR;
     patches.erase(entry);
-    return ST_RESULT_OK;
+    return RESULT_OK;
 }
 
 void ReleaseOwner(const std::string& owner) {
