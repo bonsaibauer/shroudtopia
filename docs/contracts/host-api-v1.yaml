@@ -1,0 +1,1952 @@
+{
+  "id": "shroudtopia.host",
+  "version": "1.0",
+  "status": "stable",
+  "header": "api/include/shroudtopia/api/host.h",
+  "capability": null,
+  "provider": {
+    "en": "Shroudtopia loader",
+    "de": "Shroudtopia Loader"
+  },
+  "title": {
+    "en": "Host API",
+    "de": "Host API"
+  },
+  "summary": {
+    "en": "Core registries, permissions, settings, and logging exposed to every native mod.",
+    "de": "Zentrale Registries, Berechtigungen, Settings und Logging für jede native Mod."
+  },
+  "types": [
+    {
+      "name": "ST_StringView",
+      "kind": "struct",
+      "description": {
+        "en": "Borrowed byte string; no NUL terminator is required.",
+        "de": "Geliehener Byte-String; kein NUL-Abschluss erforderlich."
+      },
+      "fields": [
+        {
+          "name": "data",
+          "type": "const char*",
+          "description": {
+            "en": "First byte of the string.",
+            "de": "Erstes Byte des Strings."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "May be null only when size is zero.",
+            "de": "Darf nur bei size == 0 null sein."
+          },
+          "ownership": {
+            "en": "Caller retains ownership.",
+            "de": "Der Aufrufer bleibt Eigentümer."
+          }
+        },
+        {
+          "name": "size",
+          "type": "size_t",
+          "description": {
+            "en": "String length in bytes.",
+            "de": "Stringlänge in Byte."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_Result",
+      "kind": "enum",
+      "description": {
+        "en": "Result returned by every fallible API operation.",
+        "de": "Ergebnis jeder fehlschlagbaren API-Operation."
+      },
+      "values": [
+        {
+          "name": "ST_RESULT_OK",
+          "type": "0",
+          "description": {
+            "en": "Operation completed.",
+            "de": "Operation abgeschlossen."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_RESULT_INVALID_ARGUMENT",
+          "type": "1",
+          "description": {
+            "en": "Invalid input.",
+            "de": "Ungültige Eingabe."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_RESULT_ALREADY_EXISTS",
+          "type": "2",
+          "description": {
+            "en": "Unique value or owned range conflicts.",
+            "de": "Eindeutiger Wert oder Ownership-Bereich kollidiert."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_RESULT_NOT_FOUND",
+          "type": "3",
+          "description": {
+            "en": "Requested item is absent.",
+            "de": "Angefordertes Element fehlt."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_RESULT_VERSION_MISMATCH",
+          "type": "4",
+          "description": {
+            "en": "Versions are incompatible.",
+            "de": "Versionen sind inkompatibel."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_RESULT_PERMISSION_DENIED",
+          "type": "5",
+          "description": {
+            "en": "Required permission is absent.",
+            "de": "Erforderliche Berechtigung fehlt."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_RESULT_UNSUPPORTED",
+          "type": "6",
+          "description": {
+            "en": "Known operation is unavailable.",
+            "de": "Bekannte Operation ist nicht verfügbar."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_RESULT_CALLBACK_FAILED",
+          "type": "7",
+          "description": {
+            "en": "A callback failed or threw.",
+            "de": "Ein Callback schlug fehl oder warf eine Ausnahme."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_RESULT_INTERNAL_ERROR",
+          "type": "8",
+          "description": {
+            "en": "Host failure.",
+            "de": "Hostfehler."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_Registration",
+      "kind": "handle",
+      "description": {
+        "en": "Opaque nonzero owner-bound registry handle.",
+        "de": "Opakes, von null verschiedenes, Owner-gebundenes Registry-Handle."
+      }
+    },
+    {
+      "name": "ST_ServiceDescriptor",
+      "kind": "struct",
+      "description": {
+        "en": "Published service identity and interface.",
+        "de": "Identität und Interface eines veröffentlichten Service."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "contract_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Globally unique contract ID.",
+            "de": "Global eindeutige Contract-ID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "version_major",
+          "type": "uint32_t",
+          "description": {
+            "en": "Breaking version.",
+            "de": "Version für inkompatible Änderungen."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "version_minor",
+          "type": "uint32_t",
+          "description": {
+            "en": "Backward-compatible version.",
+            "de": "Rückwärtskompatible Version."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "interface_pointer",
+          "type": "const void*",
+          "description": {
+            "en": "Provider-owned interface table.",
+            "de": "Interface-Tabelle im Besitz des Providers."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_ServiceRequest",
+      "kind": "struct",
+      "description": {
+        "en": "Compatible service lookup request.",
+        "de": "Kompatible Service-Suchanfrage."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "contract_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Requested contract ID.",
+            "de": "Angeforderte Contract-ID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "version_major",
+          "type": "uint32_t",
+          "description": {
+            "en": "Required major version.",
+            "de": "Erforderliche Major-Version."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "minimum_minor",
+          "type": "uint32_t",
+          "description": {
+            "en": "Minimum compatible minor version.",
+            "de": "Kleinste kompatible Minor-Version."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_Event",
+      "kind": "struct",
+      "description": {
+        "en": "Published synchronous event.",
+        "de": "Publiziertes synchrones Event."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "event_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Global event ID.",
+            "de": "Globale Event-ID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "payload",
+          "type": "const void*",
+          "description": {
+            "en": "Opaque payload bytes.",
+            "de": "Opaqe Payload-Bytes."
+          },
+          "since": "1.0",
+          "ownership": {
+            "en": "Borrowed during dispatch. The publisher owns it.",
+            "de": "Während Dispatch geliehen; Eigentum des Publishers."
+          }
+        },
+        {
+          "name": "payload_size",
+          "type": "size_t",
+          "description": {
+            "en": "Payload length in bytes.",
+            "de": "Payload-Länge in Byte."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_CommandDescriptor",
+      "kind": "struct",
+      "description": {
+        "en": "Global command registration.",
+        "de": "Globale Command-Registrierung."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "command_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Global command ID.",
+            "de": "Globale Command-ID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "description",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Human-readable help text.",
+            "de": "Menschenlesbarer Hilfetext."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "callback",
+          "type": "ST_CommandCallback",
+          "description": {
+            "en": "Execution callback.",
+            "de": "Ausführungs-Callback."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "user_data",
+          "type": "void*",
+          "description": {
+            "en": "Opaque callback context.",
+            "de": "Opaker Callback-Kontext."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_SettingsDescriptor",
+      "kind": "struct",
+      "description": {
+        "en": "Settings schema and defaults.",
+        "de": "Settings-Schema und Standardwerte."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "settings_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Unique settings ID.",
+            "de": "Eindeutige Settings-ID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "schema_json",
+          "type": "ST_StringView",
+          "description": {
+            "en": "JSON Schema document.",
+            "de": "JSON-Schema-Dokument."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "defaults_json",
+          "type": "ST_StringView",
+          "description": {
+            "en": "JSON defaults object.",
+            "de": "JSON-Objekt mit Standardwerten."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_CapabilityInfoV1",
+      "kind": "struct",
+      "description": {
+        "en": "Runtime feature availability.",
+        "de": "Laufzeit-Verfügbarkeit eines Features."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "version_major",
+          "type": "uint32_t",
+          "description": {
+            "en": "Capability major version.",
+            "de": "Major-Version der Capability."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "version_minor",
+          "type": "uint32_t",
+          "description": {
+            "en": "Capability minor version.",
+            "de": "Minor-Version der Capability."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "flags",
+          "type": "uint64_t",
+          "description": {
+            "en": "Capability-defined flags; zero if none.",
+            "de": "Capability-spezifische Flags; null, wenn keine."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "available",
+          "type": "uint8_t",
+          "description": {
+            "en": "One when usable, otherwise zero.",
+            "de": "Eins bei Verfügbarkeit, sonst null."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "reserved",
+          "type": "uint8_t[7]",
+          "description": {
+            "en": "Reserved and zero-initialized.",
+            "de": "Reserviert und mit null initialisiert."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_EventSubscription",
+      "kind": "struct",
+      "description": {
+        "en": "Event subscription callback and context.",
+        "de": "Event-Subscription mit Callback und Kontext."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure size.",
+            "de": "Initialisierte Strukturgröße."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "event_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Subscribed event ID.",
+            "de": "Abonnierte Event-ID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "callback",
+          "type": "ST_EventCallback",
+          "description": {
+            "en": "Synchronous callback.",
+            "de": "Synchroner Callback."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "user_data",
+          "type": "void*",
+          "description": {
+            "en": "Opaque callback context.",
+            "de": "Opaker Callback-Kontext."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_HostApiV1",
+      "kind": "struct",
+      "description": {
+        "en": "Versioned host function table supplied to lifecycle callbacks.",
+        "de": "Versionierte Host-Funktionstabelle für Lifecycle-Callbacks."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Available table bytes.",
+            "de": "Verfügbare Tabellenbytes."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "abi_version",
+          "type": "uint32_t",
+          "description": {
+            "en": "Host ABI version.",
+            "de": "Host-ABI-Version."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "register_service",
+          "type": "function pointer",
+          "description": {
+            "en": "register service operation.",
+            "de": "register service-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "find_service",
+          "type": "function pointer",
+          "description": {
+            "en": "find service operation.",
+            "de": "find service-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "subscribe_event",
+          "type": "function pointer",
+          "description": {
+            "en": "subscribe event operation.",
+            "de": "subscribe event-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "publish_event",
+          "type": "function pointer",
+          "description": {
+            "en": "publish event operation.",
+            "de": "publish event-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "register_command",
+          "type": "function pointer",
+          "description": {
+            "en": "register command operation.",
+            "de": "register command-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "execute_command",
+          "type": "function pointer",
+          "description": {
+            "en": "execute command operation.",
+            "de": "execute command-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "register_settings",
+          "type": "function pointer",
+          "description": {
+            "en": "register settings operation.",
+            "de": "register settings-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "release_registration",
+          "type": "function pointer",
+          "description": {
+            "en": "release registration operation.",
+            "de": "release registration-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "release_owner",
+          "type": "function pointer",
+          "description": {
+            "en": "release owner operation.",
+            "de": "release owner-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "query_capability",
+          "type": "function pointer",
+          "description": {
+            "en": "query capability operation.",
+            "de": "query capability-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "check_permission",
+          "type": "function pointer",
+          "description": {
+            "en": "check permission operation.",
+            "de": "check permission-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "log",
+          "type": "function pointer",
+          "description": {
+            "en": "log operation.",
+            "de": "log-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "get_setting_bool",
+          "type": "function pointer",
+          "description": {
+            "en": "get setting bool operation.",
+            "de": "get setting bool-Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "get_setting_number",
+          "type": "function pointer",
+          "description": {
+            "en": "get setting number operation.",
+            "de": "get setting number-Operation."
+          },
+          "since": "1.0"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "register_service",
+      "signature": "ST_Result register_service(ST_StringView owner_id, const ST_ServiceDescriptor* descriptor, ST_Registration* registration)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Publish a versioned service provider.",
+        "de": "Einen versionierten Service-Provider veröffentlichen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "Adds an owner-bound service registration.",
+        "de": "Ändert die beschriebene Ressource."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Stable mod owner ID.",
+            "de": "Stabile Mod-Owner-ID."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "descriptor",
+          "type": "const ST_ServiceDescriptor*",
+          "description": {
+            "en": "Initialized service description.",
+            "de": "Initialisierte Service-Beschreibung."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "registration",
+          "type": "ST_Registration*",
+          "description": {
+            "en": "Receives the release handle.",
+            "de": "Empfängt das Release-Handle."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        },
+        {
+          "code": "ST_RESULT_ALREADY_EXISTS",
+          "description": {
+            "en": "The contract and major version already have a provider.",
+            "de": "Contract und Major-Version haben bereits einen Provider."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, descriptor, registration according to the parameter table.\nconst ST_Result status = api->register_service(owner_id, descriptor, registration);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "find_service",
+      "signature": "ST_Result find_service(const ST_ServiceRequest* request, const void** interface_pointer)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Find the highest compatible service provider.",
+        "de": "Den höchsten kompatiblen Service-Provider finden."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "request",
+          "type": "const ST_ServiceRequest*",
+          "description": {
+            "en": "Requested contract and version.",
+            "de": "Angeforderter Contract und Version."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "interface_pointer",
+          "type": "const void**",
+          "description": {
+            "en": "Receives the provider-owned table.",
+            "de": "Empfängt die Provider-eigene Tabelle."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        },
+        {
+          "code": "ST_RESULT_NOT_FOUND",
+          "description": {
+            "en": "No compatible provider is registered.",
+            "de": "Kein kompatibler Provider ist registriert."
+          }
+        },
+        {
+          "code": "ST_RESULT_VERSION_MISMATCH",
+          "description": {
+            "en": "The contract exists with an incompatible version.",
+            "de": "Der Contract existiert in inkompatibler Version."
+          }
+        }
+      ],
+      "example": "// Initialize request, interface_pointer according to the parameter table.\nconst ST_Result status = api->find_service(request, interface_pointer);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "subscribe_event",
+      "signature": "ST_Result subscribe_event(ST_StringView owner_id, const ST_EventSubscription* subscription, ST_Registration* registration)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Subscribe a callback to an event ID.",
+        "de": "Einen Callback für eine Event-ID abonnieren."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Subscriber owner ID.",
+            "de": "Owner-ID des Subscribers."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "subscription",
+          "type": "const ST_EventSubscription*",
+          "description": {
+            "en": "Event ID, callback, and context.",
+            "de": "Event-ID, Callback und Kontext."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "registration",
+          "type": "ST_Registration*",
+          "description": {
+            "en": "Receives the subscription handle.",
+            "de": "Empfängt das Subscription-Handle."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, subscription, registration according to the parameter table.\nconst ST_Result status = api->subscribe_event(owner_id, subscription, registration);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "publish_event",
+      "signature": "ST_Result publish_event(ST_StringView owner_id, const ST_Event* event_data)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Deliver an event synchronously to a subscriber snapshot.",
+        "de": "Ein Event synchron an einen Subscriber-Snapshot ausliefern."
+      },
+      "threading": {
+        "en": "Synchronously invokes callbacks on the publishing thread.",
+        "de": "Ruft Callbacks synchron auf dem publizierenden Thread auf."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "Invokes current subscriber callbacks.",
+        "de": "Ändert die beschriebene Ressource."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Publisher owner ID.",
+            "de": "Owner-ID des Publishers."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "event_data",
+          "type": "const ST_Event*",
+          "description": {
+            "en": "Event and borrowed payload.",
+            "de": "Event und geliehener Payload."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        },
+        {
+          "code": "ST_RESULT_CALLBACK_FAILED",
+          "description": {
+            "en": "A subscriber failed or threw.",
+            "de": "Ein Subscriber schlug fehl oder warf eine Ausnahme."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, event_data according to the parameter table.\nconst ST_Result status = api->publish_event(owner_id, event_data);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "register_command",
+      "signature": "ST_Result register_command(ST_StringView owner_id, const ST_CommandDescriptor* descriptor, ST_Registration* registration)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Register a globally unique command.",
+        "de": "Ein global eindeutiges Command registrieren."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Command owner.",
+            "de": "Command-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "descriptor",
+          "type": "const ST_CommandDescriptor*",
+          "description": {
+            "en": "Command callback and metadata.",
+            "de": "Command-Callback und Metadaten."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "registration",
+          "type": "ST_Registration*",
+          "description": {
+            "en": "Receives the registration.",
+            "de": "Empfängt die Registrierung."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        },
+        {
+          "code": "ST_RESULT_ALREADY_EXISTS",
+          "description": {
+            "en": "The command ID is already registered.",
+            "de": "Die Command-ID ist bereits registriert."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, descriptor, registration according to the parameter table.\nconst ST_Result status = api->register_command(owner_id, descriptor, registration);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "execute_command",
+      "signature": "ST_Result execute_command(ST_StringView owner_id, ST_StringView command_id, ST_StringView arguments)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Execute a registered command with raw arguments.",
+        "de": "Ein registriertes Command mit Rohargumenten ausführen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "command_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Command to execute.",
+            "de": "Auszuführendes Command."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "arguments",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Borrowed raw argument text.",
+            "de": "Geliehener Argument-Rohtext."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        },
+        {
+          "code": "ST_RESULT_NOT_FOUND",
+          "description": {
+            "en": "The command is not registered.",
+            "de": "Das Command ist nicht registriert."
+          }
+        },
+        {
+          "code": "ST_RESULT_CALLBACK_FAILED",
+          "description": {
+            "en": "The command callback failed.",
+            "de": "Der Command-Callback schlug fehl."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, command_id, arguments according to the parameter table.\nconst ST_Result status = api->execute_command(owner_id, command_id, arguments);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "register_settings",
+      "signature": "ST_Result register_settings(ST_StringView owner_id, const ST_SettingsDescriptor* descriptor, ST_Registration* registration)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Register settings schema and defaults.",
+        "de": "Settings-Schema und Standardwerte registrieren."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Settings owner.",
+            "de": "Settings-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "descriptor",
+          "type": "const ST_SettingsDescriptor*",
+          "description": {
+            "en": "Schema and defaults JSON.",
+            "de": "Schema- und Defaults-JSON."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "registration",
+          "type": "ST_Registration*",
+          "description": {
+            "en": "Receives the registration.",
+            "de": "Empfängt die Registrierung."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, descriptor, registration according to the parameter table.\nconst ST_Result status = api->register_settings(owner_id, descriptor, registration);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "release_registration",
+      "signature": "ST_Result release_registration(ST_Registration registration)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Release one registry resource.",
+        "de": "Eine Registry-Ressource freigeben."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "Removes the represented registration.",
+        "de": "Ändert die beschriebene Ressource."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "registration",
+          "type": "ST_Registration",
+          "description": {
+            "en": "Valid owner-bound handle.",
+            "de": "Gültiges Owner-gebundenes Handle."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        },
+        {
+          "code": "ST_RESULT_NOT_FOUND",
+          "description": {
+            "en": "The handle is unknown or already released.",
+            "de": "Das Handle ist unbekannt oder bereits freigegeben."
+          }
+        }
+      ],
+      "example": "// Initialize registration according to the parameter table.\nconst ST_Result status = api->release_registration(registration);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "release_owner",
+      "signature": "ST_Result release_owner(ST_StringView owner_id)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Release all resources associated with an owner.",
+        "de": "Alle einem Owner zugeordneten Ressourcen freigeben."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "Removes registry resources and supported subsystem resources.",
+        "de": "Ändert die beschriebene Ressource."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Owner to clean up.",
+            "de": "Zu bereinigender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id according to the parameter table.\nconst ST_Result status = api->release_owner(owner_id);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "query_capability",
+      "signature": "ST_Result query_capability(ST_StringView capability_id, ST_CapabilityInfoV1* information)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Query whether a known capability is available.",
+        "de": "Verfügbarkeit einer bekannten Capability abfragen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "capability_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Capability identifier.",
+            "de": "Capability-ID."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "information",
+          "type": "ST_CapabilityInfoV1*",
+          "description": {
+            "en": "Initialized output information.",
+            "de": "Initialisierte Output-Information."
+          },
+          "since": "1.0",
+          "direction": "inout",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        },
+        {
+          "code": "ST_RESULT_NOT_FOUND",
+          "description": {
+            "en": "The capability ID is unknown.",
+            "de": "Die Capability-ID ist unbekannt."
+          }
+        }
+      ],
+      "example": "// Initialize capability_id, information according to the parameter table.\nconst ST_Result status = api->query_capability(capability_id, information);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "check_permission",
+      "signature": "ST_Result check_permission(ST_StringView owner_id, ST_StringView permission_id, uint8_t* allowed)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Check a manifest-bound owner permission.",
+        "de": "Eine Manifest-gebundene Owner-Berechtigung prüfen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Owner to inspect.",
+            "de": "Zu prüfender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "permission_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Permission/capability ID.",
+            "de": "Permission-/Capability-ID."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "allowed",
+          "type": "uint8_t*",
+          "description": {
+            "en": "Receives one or zero.",
+            "de": "Empfängt eins oder null."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, permission_id, allowed according to the parameter table.\nconst ST_Result status = api->check_permission(owner_id, permission_id, allowed);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "log",
+      "signature": "ST_Result log(ST_StringView owner_id, ST_LogLevel level, ST_StringView message)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Write an owner-tagged log message.",
+        "de": "Eine Owner-markierte Logmeldung schreiben."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Message owner.",
+            "de": "Owner der Meldung."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "level",
+          "type": "ST_LogLevel",
+          "description": {
+            "en": "Log severity.",
+            "de": "Log-Schweregrad."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "ST_StringView",
+          "description": {
+            "en": "UTF-8 message; copied during the call.",
+            "de": "UTF-8-Meldung; wird im Aufruf kopiert."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, level, message according to the parameter table.\nconst ST_Result status = api->log(owner_id, level, message);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "get_setting_bool",
+      "signature": "ST_Result get_setting_bool(ST_StringView owner_id, ST_StringView key, uint8_t fallback, uint8_t* value)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Read a Boolean setting or its fallback.",
+        "de": "Ein boolesches Setting oder seinen Fallback lesen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Settings owner.",
+            "de": "Settings-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Setting key.",
+            "de": "Setting-Key."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "fallback",
+          "type": "uint8_t",
+          "description": {
+            "en": "Zero or one fallback.",
+            "de": "Fallback null oder eins."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "uint8_t*",
+          "description": {
+            "en": "Receives zero or one.",
+            "de": "Empfängt null oder eins."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, key, fallback, value according to the parameter table.\nconst ST_Result status = api->get_setting_bool(owner_id, key, fallback, value);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "get_setting_number",
+      "signature": "ST_Result get_setting_number(ST_StringView owner_id, ST_StringView key, double fallback, double* value)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Read a finite numeric setting or its fallback.",
+        "de": "Ein endliches numerisches Setting oder seinen Fallback lesen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Settings owner.",
+            "de": "Settings-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Setting key.",
+            "de": "Setting-Key."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "fallback",
+          "type": "double",
+          "description": {
+            "en": "Finite fallback.",
+            "de": "Endlicher Fallback."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "double*",
+          "description": {
+            "en": "Receives a finite number.",
+            "de": "Empfängt eine endliche Zahl."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, key, fallback, value according to the parameter table.\nconst ST_Result status = api->get_setting_number(owner_id, key, fallback, value);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    }
+  ]
+}

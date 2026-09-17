@@ -1,0 +1,815 @@
+{
+  "id": "shroudtopia.assets",
+  "version": "1.1",
+  "status": "stable",
+  "header": "api/include/shroudtopia/api/assets.h",
+  "capability": "shroudtopia.assets.read / shroudtopia.assets.write",
+  "provider": {
+    "en": "Shroudtopia asset engine",
+    "de": "Shroudtopia Asset Engine"
+  },
+  "title": {
+    "en": "Asset API",
+    "de": "Asset API"
+  },
+  "summary": {
+    "en": "Typed KFC3 resource discovery, JSON editing, ownership, and durable publication.",
+    "de": "Typisierte KFC3-Ressourcensuche, JSON-Bearbeitung, Ownership und dauerhafte Veröffentlichung."
+  },
+  "types": [
+    {
+      "name": "ST_AssetResourceKeyV1",
+      "kind": "struct",
+      "description": {
+        "en": "Typed resource identity.",
+        "de": "Identität einer typisierten Ressource."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "guid",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Resource GUID.",
+            "de": "Ressourcen-GUID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "type_name",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Qualified KFC3 type.",
+            "de": "Qualifizierter KFC3-Typ."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "part",
+          "type": "uint32_t",
+          "description": {
+            "en": "Resource part index.",
+            "de": "Index des Ressourcenteils."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_AssetsApiV1",
+      "kind": "struct",
+      "description": {
+        "en": "Versioned service function table.",
+        "de": "Versionierte Service-Funktionstabelle."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "struct size.",
+            "de": "struct size."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "visit_resources",
+          "type": "function pointer",
+          "description": {
+            "en": "visit resources.",
+            "de": "visit resources."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "read_resource_json",
+          "type": "function pointer",
+          "description": {
+            "en": "read resource json.",
+            "de": "read resource json."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "replace_resource_json",
+          "type": "function pointer",
+          "description": {
+            "en": "replace resource json.",
+            "de": "replace resource json."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "create_resource_json",
+          "type": "function pointer",
+          "description": {
+            "en": "create resource json.",
+            "de": "create resource json."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "discard_changes",
+          "type": "function pointer",
+          "description": {
+            "en": "discard changes.",
+            "de": "discard changes."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "flush",
+          "type": "function pointer",
+          "description": {
+            "en": "flush.",
+            "de": "flush."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "set_resource_field_json",
+          "type": "function pointer",
+          "description": {
+            "en": "set resource field json.",
+            "de": "set resource field json."
+          },
+          "since": "1.0"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "visit_resources",
+      "signature": "ST_Result visit_resources(ST_StringView owner_id, ST_StringView type_name, ST_AssetResourceVisitorV1 visitor, void* user_data)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Visit a snapshot of resources of one qualified type.",
+        "de": "Snapshot der Ressourcen eines qualifizierten Typs besuchen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.assets.read",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "type_name",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Qualified resource type.",
+            "de": "Qualifizierter Ressourcentyp."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "visitor",
+          "type": "ST_AssetResourceVisitorV1",
+          "description": {
+            "en": "Visitor callback.",
+            "de": "Visitor-Callback."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "user_data",
+          "type": "void*",
+          "description": {
+            "en": "Opaque visitor context.",
+            "de": "Opaker Visitor-Kontext."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, type_name, visitor, user_data according to the parameter table.\nconst ST_Result status = api->visit_resources(owner_id, type_name, visitor, user_data);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "read_resource_json",
+      "signature": "ST_Result read_resource_json(ST_StringView owner_id, const ST_AssetResourceKeyV1* resource, char* buffer, size_t capacity, size_t* required_size)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Read one typed resource as JSON.",
+        "de": "Eine typisierte Ressource als JSON lesen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.assets.read",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "resource",
+          "type": "const ST_AssetResourceKeyV1*",
+          "description": {
+            "en": "Resource key.",
+            "de": "Ressourcenschlüssel."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "buffer",
+          "type": "char*",
+          "description": {
+            "en": "Caller-owned output buffer.",
+            "de": "Output-Buffer im Besitz des Aufrufers."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Null only for a zero-capacity size query.",
+            "de": "Null nur für Größenabfrage mit Kapazität null."
+          },
+          "ownership": {
+            "en": "Caller owns the bytes.",
+            "de": "Der Aufrufer besitzt die Bytes."
+          },
+          "direction": "out",
+          "required": false
+        },
+        {
+          "name": "capacity",
+          "type": "size_t",
+          "description": {
+            "en": "Available buffer bytes.",
+            "de": "Verfügbare Buffer-Bytes."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "required_size",
+          "type": "size_t*",
+          "description": {
+            "en": "Receives exact bytes, without terminator.",
+            "de": "Empfängt exakte Bytezahl ohne Terminator."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, resource, buffer, capacity, required_size according to the parameter table.\nconst ST_Result status = api->read_resource_json(owner_id, resource, buffer, capacity, required_size);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "replace_resource_json",
+      "signature": "ST_Result replace_resource_json(ST_StringView owner_id, const ST_AssetResourceKeyV1* resource, ST_StringView json)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Replace a complete resource document.",
+        "de": "Ein vollständiges Ressourcendokument ersetzen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.assets.write",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "resource",
+          "type": "const ST_AssetResourceKeyV1*",
+          "description": {
+            "en": "Existing resource key.",
+            "de": "Existierender Ressourcenschlüssel."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "json",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Typed JSON document.",
+            "de": "Typisiertes JSON-Dokument."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, resource, json according to the parameter table.\nconst ST_Result status = api->replace_resource_json(owner_id, resource, json);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "create_resource_json",
+      "signature": "ST_Result create_resource_json(ST_StringView owner_id, ST_StringView type_name, ST_StringView json, ST_AssetResourceVisitorV1 visitor, void* user_data)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Create one typed resource and report its generated key.",
+        "de": "Eine typisierte Ressource erstellen und ihren Schlüssel melden."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.assets.write",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "type_name",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Qualified resource type.",
+            "de": "Qualifizierter Ressourcentyp."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "json",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Typed JSON document.",
+            "de": "Typisiertes JSON-Dokument."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "visitor",
+          "type": "ST_AssetResourceVisitorV1",
+          "description": {
+            "en": "Receives the created key.",
+            "de": "Empfängt den erzeugten Schlüssel."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "user_data",
+          "type": "void*",
+          "description": {
+            "en": "Opaque callback context.",
+            "de": "Opaker Callback-Kontext."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, type_name, json, visitor, user_data according to the parameter table.\nconst ST_Result status = api->create_resource_json(owner_id, type_name, json, visitor, user_data);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "discard_changes",
+      "signature": "ST_Result discard_changes(ST_StringView owner_id)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Discard all asset changes owned by one mod.",
+        "de": "Alle Asset-Änderungen einer Mod verwerfen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.assets.write",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id according to the parameter table.\nconst ST_Result status = api->discard_changes(owner_id);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "flush",
+      "signature": "ST_Result flush(ST_StringView owner_id)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Publish the combined asset overlay with recovery.",
+        "de": "Das kombinierte Asset-Overlay mit Recovery publizieren."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.assets.write",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id according to the parameter table.\nconst ST_Result status = api->flush(owner_id);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "set_resource_field_json",
+      "signature": "ST_Result set_resource_field_json(ST_StringView owner_id, const ST_AssetResourceKeyV1* resource, ST_StringView path, ST_StringView json)",
+      "since": "1.1",
+      "status": "stable",
+      "summary": {
+        "en": "Set one existing JSON Pointer field.",
+        "de": "Ein existierendes JSON-Pointer-Feld setzen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.assets.write",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "resource",
+          "type": "const ST_AssetResourceKeyV1*",
+          "description": {
+            "en": "Existing resource.",
+            "de": "Existierende Ressource."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Existing JSON Pointer.",
+            "de": "Existierender JSON Pointer."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "json",
+          "type": "ST_StringView",
+          "description": {
+            "en": "One typed JSON value.",
+            "de": "Ein typisierter JSON-Wert."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        },
+        {
+          "code": "ST_RESULT_ALREADY_EXISTS",
+          "description": {
+            "en": "Another owner controls an overlapping field.",
+            "de": "Ein anderer Owner kontrolliert ein überlappendes Feld."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, resource, path, json according to the parameter table.\nconst ST_Result status = api->set_resource_field_json(owner_id, resource, path, json);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    }
+  ]
+}

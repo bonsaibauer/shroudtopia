@@ -1,0 +1,1511 @@
+{
+  "id": "shroudtopia.world",
+  "version": "1.1",
+  "status": "experimental",
+  "header": "api/include/shroudtopia/api/world.h",
+  "capability": "shroudtopia.world.entities.* / shroudtopia.world.voxels.*",
+  "provider": {
+    "en": "ShroudEdit controlled test provider only",
+    "de": "Nur kontrollierter ShroudEdit-Test-Provider"
+  },
+  "title": {
+    "en": "World API",
+    "de": "World API"
+  },
+  "summary": {
+    "en": "Entity snapshots, transforms, and explicit-coverage world grids.",
+    "de": "Entity-Snapshots, Transforms und Welt-Grids mit expliziter Abdeckung."
+  },
+  "types": [
+    {
+      "name": "ST_Vec3d",
+      "kind": "struct",
+      "description": {
+        "en": "Three-dimensional double vector.",
+        "de": "Dreidimensionaler Double-Vektor."
+      },
+      "fields": [
+        {
+          "name": "x",
+          "type": "double",
+          "description": {
+            "en": "X component.",
+            "de": "X-Komponente."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "y",
+          "type": "double",
+          "description": {
+            "en": "Y component.",
+            "de": "Y-Komponente."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "z",
+          "type": "double",
+          "description": {
+            "en": "Z component.",
+            "de": "Z-Komponente."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_Quaterniond",
+      "kind": "struct",
+      "description": {
+        "en": "Quaternion rotation.",
+        "de": "Quaternion-Rotation."
+      },
+      "fields": [
+        {
+          "name": "x",
+          "type": "double",
+          "description": {
+            "en": "X component.",
+            "de": "X-Komponente."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "y",
+          "type": "double",
+          "description": {
+            "en": "Y component.",
+            "de": "Y-Komponente."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "z",
+          "type": "double",
+          "description": {
+            "en": "Z component.",
+            "de": "Z-Komponente."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "w",
+          "type": "double",
+          "description": {
+            "en": "W component.",
+            "de": "W-Komponente."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_TransformV1",
+      "kind": "struct",
+      "description": {
+        "en": "Position, rotation, and scale.",
+        "de": "Position, Rotation und Skalierung."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "position",
+          "type": "ST_Vec3d",
+          "description": {
+            "en": "World position.",
+            "de": "Weltposition."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "rotation",
+          "type": "ST_Quaterniond",
+          "description": {
+            "en": "Quaternion rotation.",
+            "de": "Quaternion-Rotation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "scale",
+          "type": "ST_Vec3d",
+          "description": {
+            "en": "Per-axis scale.",
+            "de": "Skalierung je Achse."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_AabbV1",
+      "kind": "struct",
+      "description": {
+        "en": "Half-open world-space bounds.",
+        "de": "Halboffene Grenzen im Weltraum."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "minimum",
+          "type": "ST_Vec3d",
+          "description": {
+            "en": "Inclusive minimum.",
+            "de": "Inklusives Minimum."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "maximum",
+          "type": "ST_Vec3d",
+          "description": {
+            "en": "Exclusive maximum.",
+            "de": "Exklusives Maximum."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_EntityHandleV1",
+      "kind": "struct",
+      "description": {
+        "en": "Session- and generation-bound entity identity.",
+        "de": "Session- und generationsgebundene Entity-Identität."
+      },
+      "fields": [
+        {
+          "name": "id",
+          "type": "uint64_t",
+          "description": {
+            "en": "Entity ID.",
+            "de": "Entity-ID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "generation",
+          "type": "uint32_t",
+          "description": {
+            "en": "Reuse generation.",
+            "de": "Wiederverwendungs-Generation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "session",
+          "type": "uint32_t",
+          "description": {
+            "en": "World session.",
+            "de": "Weltsession."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_EntityKindV1",
+      "kind": "enum",
+      "description": {
+        "en": "Supported entity classification.",
+        "de": "Unterstützte Entity-Klassifikation."
+      },
+      "values": [
+        {
+          "name": "ST_ENTITY_UNKNOWN",
+          "type": "0",
+          "description": {
+            "en": "Unsafe to copy.",
+            "de": "Nicht sicher kopierbar."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_ENTITY_PROP",
+          "type": "1",
+          "description": {
+            "en": "Supported static template instance.",
+            "de": "Unterstützte statische Template-Instanz."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_ENTITY_OTHER",
+          "type": "2",
+          "description": {
+            "en": "Player, NPC, or unsupported dynamic object.",
+            "de": "Spieler, NPC oder nicht unterstütztes dynamisches Objekt."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_EntitySnapshotV1",
+      "kind": "struct",
+      "description": {
+        "en": "Complete query snapshot.",
+        "de": "Vollständiger Query-Snapshot."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "handle",
+          "type": "ST_EntityHandleV1",
+          "description": {
+            "en": "Entity handle.",
+            "de": "Entity-Handle."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "template_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Template identity.",
+            "de": "Template-Identität."
+          },
+          "since": "1.0",
+          "ownership": {
+            "en": "Valid until the next world call on this thread.",
+            "de": "Bis zum nächsten World-Aufruf auf diesem Thread gültig."
+          }
+        },
+        {
+          "name": "transform",
+          "type": "ST_TransformV1",
+          "description": {
+            "en": "Snapshot transform.",
+            "de": "Snapshot-Transform."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "kind",
+          "type": "ST_EntityKindV1",
+          "description": {
+            "en": "Entity classification.",
+            "de": "Entity-Klassifikation."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_CoverageV1",
+      "kind": "enum",
+      "description": {
+        "en": "Meaning of one grid cell.",
+        "de": "Bedeutung einer Grid-Zelle."
+      },
+      "values": [
+        {
+          "name": "ST_COVERAGE_UNKNOWN",
+          "type": "0",
+          "description": {
+            "en": "Not loaded or not known; never air.",
+            "de": "Nicht geladen oder unbekannt; niemals Luft."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_COVERAGE_EMPTY",
+          "type": "1",
+          "description": {
+            "en": "Known empty cell.",
+            "de": "Bekannte leere Zelle."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_COVERAGE_OCCUPIED",
+          "type": "2",
+          "description": {
+            "en": "Known occupied cell.",
+            "de": "Bekannte belegte Zelle."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_GridSpecV1",
+      "kind": "struct",
+      "description": {
+        "en": "World grid geometry.",
+        "de": "Geometrie eines Welt-Grids."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "grid_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Grid identifier.",
+            "de": "Grid-ID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "origin",
+          "type": "ST_Vec3d",
+          "description": {
+            "en": "Grid origin.",
+            "de": "Grid-Ursprung."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "cell_size",
+          "type": "ST_Vec3d",
+          "description": {
+            "en": "Positive cell dimensions.",
+            "de": "Positive Zellabmessungen."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "chunk_size_x",
+          "type": "uint32_t",
+          "description": {
+            "en": "Chunk width.",
+            "de": "Chunk-Breite."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "chunk_size_y",
+          "type": "uint32_t",
+          "description": {
+            "en": "Chunk height.",
+            "de": "Chunk-Höhe."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "chunk_size_z",
+          "type": "uint32_t",
+          "description": {
+            "en": "Chunk depth.",
+            "de": "Chunk-Tiefe."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_WorldApiV1",
+      "kind": "struct",
+      "description": {
+        "en": "Versioned service function table.",
+        "de": "Versionierte Service-Funktionstabelle."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "struct size.",
+            "de": "struct size."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "api_version",
+          "type": "uint32_t",
+          "description": {
+            "en": "api version.",
+            "de": "api version."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "query_entities",
+          "type": "function pointer",
+          "description": {
+            "en": "query entities.",
+            "de": "query entities."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "get_entity_transform",
+          "type": "function pointer",
+          "description": {
+            "en": "get entity transform.",
+            "de": "get entity transform."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "spawn_entity",
+          "type": "function pointer",
+          "description": {
+            "en": "spawn entity.",
+            "de": "spawn entity."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "destroy_entity",
+          "type": "function pointer",
+          "description": {
+            "en": "destroy entity.",
+            "de": "destroy entity."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "set_entity_transform",
+          "type": "function pointer",
+          "description": {
+            "en": "set entity transform.",
+            "de": "set entity transform."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "get_grid_spec",
+          "type": "function pointer",
+          "description": {
+            "en": "get grid spec.",
+            "de": "get grid spec."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "read_grid_region",
+          "type": "function pointer",
+          "description": {
+            "en": "read grid region.",
+            "de": "read grid region."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "write_grid_region",
+          "type": "function pointer",
+          "description": {
+            "en": "write grid region.",
+            "de": "write grid region."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_GridRegionV1",
+      "kind": "struct",
+      "description": {
+        "en": "Bounded aligned grid region.",
+        "de": "Begrenzte ausgerichtete Grid-Region."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure size.",
+            "de": "Initialisierte Strukturgröße."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "bounds",
+          "type": "ST_AabbV1",
+          "description": {
+            "en": "Half-open world bounds.",
+            "de": "Halboffene Weltgrenzen."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "minimum",
+          "type": "int32_t[3]",
+          "description": {
+            "en": "Minimum cell indices.",
+            "de": "Minimale Zellindizes."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "dimensions",
+          "type": "uint32_t[3]",
+          "description": {
+            "en": "Cell count per axis.",
+            "de": "Zellanzahl je Achse."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "cell_count",
+          "type": "size_t",
+          "description": {
+            "en": "Total cell count.",
+            "de": "Gesamte Zellanzahl."
+          },
+          "since": "1.0"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "query_entities",
+      "signature": "ST_Result query_entities(ST_StringView owner_id, const ST_AabbV1* region, ST_EntitySnapshotV1* entities, size_t capacity, size_t* required_count)",
+      "since": "1.0",
+      "status": "experimental",
+      "summary": {
+        "en": "Return complete entity snapshots in a half-open region.",
+        "de": "Vollständige Entity-Snapshots in einer halboffenen Region liefern."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.world.entities.read",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "const ST_AabbV1*",
+          "description": {
+            "en": "Half-open world bounds.",
+            "de": "Halboffene Weltgrenzen."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "entities",
+          "type": "ST_EntitySnapshotV1*",
+          "description": {
+            "en": "Caller-owned initialized array.",
+            "de": "Initialisiertes Array des Aufrufers."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": false
+        },
+        {
+          "name": "capacity",
+          "type": "size_t",
+          "description": {
+            "en": "Array element capacity.",
+            "de": "Elementkapazität des Arrays."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "required_count",
+          "type": "size_t*",
+          "description": {
+            "en": "Receives required elements.",
+            "de": "Empfängt benötigte Elemente."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, region, entities, capacity, required_count according to the parameter table.\nconst ST_Result status = api->query_entities(owner_id, region, entities, capacity, required_count);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "get_entity_transform",
+      "signature": "ST_Result get_entity_transform(ST_StringView owner_id, ST_EntityHandleV1 entity, ST_TransformV1* transform)",
+      "since": "1.0",
+      "status": "experimental",
+      "summary": {
+        "en": "Read an entity transform.",
+        "de": "Entity-Transform lesen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.world.entities.read",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "entity",
+          "type": "ST_EntityHandleV1",
+          "description": {
+            "en": "Session-bound entity.",
+            "de": "Session-gebundene Entity."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "transform",
+          "type": "ST_TransformV1*",
+          "description": {
+            "en": "Initialized output.",
+            "de": "Initialisierter Output."
+          },
+          "since": "1.0",
+          "direction": "inout",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, entity, transform according to the parameter table.\nconst ST_Result status = api->get_entity_transform(owner_id, entity, transform);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "spawn_entity",
+      "signature": "ST_Result spawn_entity(ST_StringView owner_id, ST_StringView template_id, const ST_TransformV1* transform, ST_EntityHandleV1* entity)",
+      "since": "1.0",
+      "status": "experimental",
+      "summary": {
+        "en": "Spawn a supported template.",
+        "de": "Ein unterstütztes Template spawnen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.world.entities.write",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "template_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Supported template.",
+            "de": "Unterstütztes Template."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "transform",
+          "type": "const ST_TransformV1*",
+          "description": {
+            "en": "Initial transform.",
+            "de": "Initialer Transform."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "entity",
+          "type": "ST_EntityHandleV1*",
+          "description": {
+            "en": "Receives entity handle.",
+            "de": "Empfängt Entity-Handle."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, template_id, transform, entity according to the parameter table.\nconst ST_Result status = api->spawn_entity(owner_id, template_id, transform, entity);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "destroy_entity",
+      "signature": "ST_Result destroy_entity(ST_StringView owner_id, ST_EntityHandleV1 entity)",
+      "since": "1.0",
+      "status": "experimental",
+      "summary": {
+        "en": "Destroy a supported entity.",
+        "de": "Eine unterstützte Entity zerstören."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.world.entities.write",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "entity",
+          "type": "ST_EntityHandleV1",
+          "description": {
+            "en": "Entity to destroy.",
+            "de": "Zu zerstörende Entity."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, entity according to the parameter table.\nconst ST_Result status = api->destroy_entity(owner_id, entity);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "set_entity_transform",
+      "signature": "ST_Result set_entity_transform(ST_StringView owner_id, ST_EntityHandleV1 entity, const ST_TransformV1* transform)",
+      "since": "1.0",
+      "status": "experimental",
+      "summary": {
+        "en": "Change an entity transform.",
+        "de": "Entity-Transform ändern."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.world.entities.write",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "entity",
+          "type": "ST_EntityHandleV1",
+          "description": {
+            "en": "Entity to update.",
+            "de": "Zu ändernde Entity."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "transform",
+          "type": "const ST_TransformV1*",
+          "description": {
+            "en": "New transform.",
+            "de": "Neuer Transform."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, entity, transform according to the parameter table.\nconst ST_Result status = api->set_entity_transform(owner_id, entity, transform);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "get_grid_spec",
+      "signature": "ST_Result get_grid_spec(ST_StringView owner_id, ST_StringView grid_id, ST_GridSpecV1* grid)",
+      "since": "1.0",
+      "status": "experimental",
+      "summary": {
+        "en": "Read grid geometry.",
+        "de": "Grid-Geometrie lesen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.world.voxels.read",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "grid_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Grid identity.",
+            "de": "Grid-Identität."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "grid",
+          "type": "ST_GridSpecV1*",
+          "description": {
+            "en": "Initialized output.",
+            "de": "Initialisierter Output."
+          },
+          "since": "1.0",
+          "direction": "inout",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, grid_id, grid according to the parameter table.\nconst ST_Result status = api->get_grid_spec(owner_id, grid_id, grid);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "read_grid_region",
+      "signature": "ST_Result read_grid_region(ST_StringView owner_id, ST_StringView grid_id, const ST_AabbV1* region, uint32_t* values, ST_CoverageV1* coverage, size_t capacity, size_t* required_count)",
+      "since": "1.0",
+      "status": "experimental",
+      "summary": {
+        "en": "Read aligned cell values and explicit coverage.",
+        "de": "Ausgerichtete Zellwerte und explizite Abdeckung lesen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.world.voxels.read",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "grid_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Grid identity.",
+            "de": "Grid-Identität."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "const ST_AabbV1*",
+          "description": {
+            "en": "Grid-aligned bounds.",
+            "de": "Am Grid ausgerichtete Grenzen."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "values",
+          "type": "uint32_t*",
+          "description": {
+            "en": "X-fastest caller buffer.",
+            "de": "X-schnellster Buffer des Aufrufers."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        },
+        {
+          "name": "coverage",
+          "type": "ST_CoverageV1*",
+          "description": {
+            "en": "Parallel coverage buffer.",
+            "de": "Paralleler Coverage-Buffer."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        },
+        {
+          "name": "capacity",
+          "type": "size_t",
+          "description": {
+            "en": "Cells available.",
+            "de": "Verfügbare Zellen."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "required_count",
+          "type": "size_t*",
+          "description": {
+            "en": "Required cells.",
+            "de": "Benötigte Zellen."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, grid_id, region, values, coverage, capacity, required_count according to the parameter table.\nconst ST_Result status = api->read_grid_region(owner_id, grid_id, region, values, coverage, capacity, required_count);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "write_grid_region",
+      "signature": "ST_Result write_grid_region(ST_StringView owner_id, ST_StringView grid_id, const ST_AabbV1* region, const uint32_t* values, const ST_CoverageV1* coverage, size_t count)",
+      "since": "1.0",
+      "status": "experimental",
+      "summary": {
+        "en": "Write known cells in an aligned region.",
+        "de": "Bekannte Zellen in eine ausgerichtete Region schreiben."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.world.voxels.write",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Calling owner.",
+            "de": "Aufrufender Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "grid_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Grid identity.",
+            "de": "Grid-Identität."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "const ST_AabbV1*",
+          "description": {
+            "en": "Grid-aligned bounds.",
+            "de": "Am Grid ausgerichtete Grenzen."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "values",
+          "type": "const uint32_t*",
+          "description": {
+            "en": "X-fastest values.",
+            "de": "X-schnellste Werte."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "coverage",
+          "type": "const ST_CoverageV1*",
+          "description": {
+            "en": "UNKNOWN cells remain unchanged.",
+            "de": "UNKNOWN-Zellen bleiben unverändert."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "size_t",
+          "description": {
+            "en": "Exact cell count.",
+            "de": "Exakte Zellanzahl."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, grid_id, region, values, coverage, count according to the parameter table.\nconst ST_Result status = api->write_grid_region(owner_id, grid_id, region, values, coverage, count);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "ST_GridRegionFromPoints",
+      "signature": "ST_Result ST_GridRegionFromPoints(const ST_GridSpecV1* grid, ST_Vec3d a, ST_Vec3d b, size_t maximum_cells, ST_GridRegionV1* output)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Convert two included points into bounded aligned half-open grid bounds.",
+        "de": "Zwei inkludierte Punkte in begrenzte ausgerichtete halboffene Grid-Grenzen umwandeln."
+      },
+      "threading": {
+        "en": "Pure, reentrant, and callable on any thread.",
+        "de": "Rein, reentrant und auf jedem Thread aufrufbar."
+      },
+      "ownership": {
+        "en": "No allocation; caller owns input and output.",
+        "de": "Keine Allokation; der Aufrufer besitzt Input und Output."
+      },
+      "sideEffects": {
+        "en": "None.",
+        "de": "Keine."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "grid",
+          "type": "const ST_GridSpecV1*",
+          "direction": "in",
+          "required": true,
+          "description": {
+            "en": "Initialized grid geometry.",
+            "de": "Initialisierte Grid-Geometrie."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "a",
+          "type": "ST_Vec3d",
+          "direction": "in",
+          "required": true,
+          "description": {
+            "en": "First included point.",
+            "de": "Erster inkludierter Punkt."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "b",
+          "type": "ST_Vec3d",
+          "direction": "in",
+          "required": true,
+          "description": {
+            "en": "Second included point.",
+            "de": "Zweiter inkludierter Punkt."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "maximum_cells",
+          "type": "size_t",
+          "direction": "in",
+          "required": true,
+          "description": {
+            "en": "Nonzero allocation budget.",
+            "de": "Von null verschiedenes Allokationsbudget."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "output",
+          "type": "ST_GridRegionV1*",
+          "direction": "inout",
+          "required": true,
+          "description": {
+            "en": "Initialized result.",
+            "de": "Initialisiertes Ergebnis."
+          },
+          "since": "1.0"
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "A bounded region was written.",
+            "de": "Eine begrenzte Region wurde geschrieben."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "Input is invalid, non-finite, overflowing, or over budget.",
+            "de": "Input ist ungültig, nicht endlich, überlaufend oder über Budget."
+          }
+        }
+      ],
+      "example": "ST_GridRegionV1 region{sizeof(region)};\nST_Result status = ST_GridRegionFromPoints(&grid, a, b, 1u << 20, &region);"
+    }
+  ]
+}

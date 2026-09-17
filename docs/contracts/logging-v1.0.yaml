@@ -1,0 +1,254 @@
+{
+  "id": "shroudtopia.logging.read",
+  "version": "1.0",
+  "status": "stable",
+  "header": "api/include/shroudtopia/api/logging.h",
+  "capability": null,
+  "provider": {
+    "en": "Shroudtopia loader",
+    "de": "Shroudtopia Loader"
+  },
+  "title": {
+    "en": "Logging API",
+    "de": "Logging API"
+  },
+  "summary": {
+    "en": "Owner-tagged writes through Host API and bounded reads of current logs.",
+    "de": "Owner-markiertes Schreiben über die Host API und begrenztes Lesen aktueller Logs."
+  },
+  "types": [
+    {
+      "name": "ST_LogLevel",
+      "kind": "enum",
+      "description": {
+        "en": "Message severity.",
+        "de": "Schweregrad der Meldung."
+      },
+      "values": [
+        {
+          "name": "ST_LOG_TRACE",
+          "type": "0",
+          "description": {
+            "en": "Focused high-frequency diagnostics.",
+            "de": "Fokussierte hochfrequente Diagnose."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_LOG_DEBUG",
+          "type": "1",
+          "description": {
+            "en": "Technical decisions and state.",
+            "de": "Technische Entscheidungen und Zustand."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_LOG_INFO",
+          "type": "2",
+          "description": {
+            "en": "Successful user-relevant change.",
+            "de": "Erfolgreiche nutzerrelevante Änderung."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_LOG_WARNING",
+          "type": "3",
+          "description": {
+            "en": "Restricted or unsupported operation.",
+            "de": "Eingeschränkte oder nicht unterstützte Operation."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_LOG_ERROR",
+          "type": "4",
+          "description": {
+            "en": "Requested operation failed.",
+            "de": "Angeforderte Operation schlug fehl."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_LogSourceV1",
+      "kind": "enum",
+      "description": {
+        "en": "Readable current log source.",
+        "de": "Lesbare aktuelle Logquelle."
+      },
+      "values": [
+        {
+          "name": "ST_LOG_SOURCE_LOADER",
+          "type": "0",
+          "description": {
+            "en": "Shroudtopia and mod log.",
+            "de": "Shroudtopia- und Mod-Log."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_LOG_SOURCE_GAME",
+          "type": "1",
+          "description": {
+            "en": "Enshrouded game log.",
+            "de": "Enshrouded-Spiel-Log."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_LogReadApiV1",
+      "kind": "struct",
+      "description": {
+        "en": "Current-log reader table.",
+        "de": "Tabelle zum Lesen aktueller Logs."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "abi_version",
+          "type": "uint32_t",
+          "description": {
+            "en": "Must equal ST_ABI_VERSION_1.",
+            "de": "Muss ST_ABI_VERSION_1 entsprechen."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "read_tail",
+          "type": "function pointer",
+          "description": {
+            "en": "Bounded tail reader.",
+            "de": "Begrenzter Tail-Reader."
+          },
+          "since": "1.0"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "read_tail",
+      "signature": "ST_Result read_tail(ST_LogSourceV1 source, char* buffer, size_t capacity, size_t* written)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Read at most one MiB from the current log tail.",
+        "de": "Höchstens ein MiB vom Ende des aktuellen Logs lesen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "source",
+          "type": "ST_LogSourceV1",
+          "description": {
+            "en": "Loader or game log.",
+            "de": "Loader- oder Spiel-Log."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "buffer",
+          "type": "char*",
+          "description": {
+            "en": "Caller-owned byte buffer.",
+            "de": "Byte-Buffer im Besitz des Aufrufers."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        },
+        {
+          "name": "capacity",
+          "type": "size_t",
+          "description": {
+            "en": "Between 1 and 1,048,576 bytes.",
+            "de": "Zwischen 1 und 1.048.576 Byte."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "written",
+          "type": "size_t*",
+          "description": {
+            "en": "Receives bytes written; no terminator.",
+            "de": "Empfängt geschriebene Bytes; kein Terminator."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        },
+        {
+          "code": "ST_RESULT_NOT_FOUND",
+          "description": {
+            "en": "The current log file does not exist.",
+            "de": "Die aktuelle Logdatei existiert nicht."
+          }
+        }
+      ],
+      "example": "// Initialize source, buffer, capacity, written according to the parameter table.\nconst ST_Result status = api->read_tail(source, buffer, capacity, written);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    }
+  ]
+}

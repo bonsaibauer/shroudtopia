@@ -1,0 +1,176 @@
+{
+  "id": "shroudtopia.lifecycle.native",
+  "version": "1.0",
+  "status": "stable",
+  "header": "api/include/shroudtopia/api/lifecycle.h",
+  "capability": "shroudtopia.lifecycle.native",
+  "provider": {
+    "en": "Shroudtopia loader",
+    "de": "Shroudtopia Loader"
+  },
+  "title": {
+    "en": "Lifecycle API",
+    "de": "Lifecycle API"
+  },
+  "summary": {
+    "en": "Native mod discovery, creation, activation, update, and deterministic teardown.",
+    "de": "Discovery, Erstellung, Aktivierung, Update und deterministischer Abbau nativer Mods."
+  },
+  "types": [
+    {
+      "name": "ST_ModDescriptorV1",
+      "kind": "struct",
+      "description": {
+        "en": "Native mod identity, state, and lifecycle callbacks.",
+        "de": "Identität, Zustand und Lifecycle-Callbacks einer nativen Mod."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure size.",
+            "de": "Initialisierte Strukturgröße."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "mod_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Globally unique stable mod ID.",
+            "de": "Global eindeutige stabile Mod-ID."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "user_data",
+          "type": "void*",
+          "description": {
+            "en": "Mod-owned callback context.",
+            "de": "Callback-Kontext im Besitz der Mod."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "on_load",
+          "type": "ST_ModLifecycleCallback",
+          "description": {
+            "en": "Optional registration callback.",
+            "de": "Optionaler Registrierungs-Callback."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "on_activate",
+          "type": "ST_ModLifecycleCallback",
+          "description": {
+            "en": "Optional activation callback.",
+            "de": "Optionaler Aktivierungs-Callback."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "on_update",
+          "type": "ST_ModUpdateCallback",
+          "description": {
+            "en": "Optional bounded worker-thread update.",
+            "de": "Optionales begrenztes Worker-Thread-Update."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "on_deactivate",
+          "type": "ST_ModLifecycleCallback",
+          "description": {
+            "en": "Optional deactivation callback.",
+            "de": "Optionaler Deaktivierungs-Callback."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "on_unload",
+          "type": "ST_ModLifecycleCallback",
+          "description": {
+            "en": "Optional final cleanup callback.",
+            "de": "Optionaler finaler Cleanup-Callback."
+          },
+          "since": "1.0"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "ShroudtopiaGetApi",
+      "signature": "ST_Result ShroudtopiaGetApi(uint32_t requested_abi, const ST_HostApiV1** api)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Request the loader host table.",
+        "de": "Die Host-Tabelle des Loaders anfordern."
+      },
+      "threading": {
+        "en": "Call during native bootstrap on the loading thread.",
+        "de": "Beim nativen Bootstrap auf dem Lade-Thread aufrufen."
+      },
+      "ownership": {
+        "en": "The loader owns the returned table for the loaded mod lifetime.",
+        "de": "Der Loader besitzt die zurückgegebene Tabelle für die Lebensdauer der geladenen Mod."
+      },
+      "sideEffects": {
+        "en": "No persistent side effect.",
+        "de": "Kein persistenter Seiteneffekt."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "requested_abi",
+          "type": "uint32_t",
+          "direction": "in",
+          "required": true,
+          "description": {
+            "en": "Required ABI constant.",
+            "de": "Erforderliche ABI-Konstante."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "api",
+          "type": "const ST_HostApiV1**",
+          "direction": "out",
+          "required": true,
+          "description": {
+            "en": "Receives the loader-owned table.",
+            "de": "Empfängt die Loader-eigene Tabelle."
+          },
+          "since": "1.0"
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The compatible table was returned.",
+            "de": "Die kompatible Tabelle wurde geliefert."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "The output pointer is null.",
+            "de": "Der Output-Pointer ist null."
+          }
+        },
+        {
+          "code": "ST_RESULT_VERSION_MISMATCH",
+          "description": {
+            "en": "The ABI is unsupported.",
+            "de": "Die ABI wird nicht unterstützt."
+          }
+        }
+      ],
+      "example": "const ST_HostApiV1* host = nullptr;\nST_Result status = ShroudtopiaGetApi(ST_ABI_VERSION_1, &host);"
+    }
+  ]
+}

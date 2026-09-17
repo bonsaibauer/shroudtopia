@@ -1,0 +1,655 @@
+{
+  "id": "shroudtopia.runtime.patches",
+  "version": "1.0",
+  "status": "stable",
+  "header": "api/include/shroudtopia/api/runtime.h",
+  "capability": "shroudtopia.runtime.patches",
+  "provider": {
+    "en": "Shroudtopia loader",
+    "de": "Shroudtopia Loader"
+  },
+  "title": {
+    "en": "Runtime Patch API",
+    "de": "Runtime Patch API"
+  },
+  "summary": {
+    "en": "Controlled signature-based direct patches and x64 detours.",
+    "de": "Kontrollierte signaturbasierte direkte Patches und x64-Detours."
+  },
+  "types": [
+    {
+      "name": "ST_RuntimePatch",
+      "kind": "handle",
+      "description": {
+        "en": "Opaque owner-bound patch handle.",
+        "de": "Opakes Owner-gebundenes Patch-Handle."
+      }
+    },
+    {
+      "name": "ST_RuntimePatchKindV1",
+      "kind": "enum",
+      "description": {
+        "en": "Patch application strategy.",
+        "de": "Strategie zur Patch-Anwendung."
+      },
+      "values": [
+        {
+          "name": "ST_RUNTIME_PATCH_DIRECT",
+          "type": "0",
+          "description": {
+            "en": "Direct replacement bytes.",
+            "de": "Direkte Ersatzbytes."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_RUNTIME_PATCH_DETOUR",
+          "type": "1",
+          "description": {
+            "en": "Near x64 detour.",
+            "de": "Naher x64-Detour."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_RuntimeRelocationKindV1",
+      "kind": "enum",
+      "description": {
+        "en": "Supported payload relocation.",
+        "de": "Unterstützte Payload-Relocation."
+      },
+      "values": [
+        {
+          "name": "ST_RUNTIME_RELOCATION_REL32_RETURN",
+          "type": "1",
+          "description": {
+            "en": "Write a relative 32-bit return displacement.",
+            "de": "Relative 32-Bit-Return-Distanz schreiben."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_RuntimeRelocationV1",
+      "kind": "struct",
+      "description": {
+        "en": "Payload relocation instruction.",
+        "de": "Payload-Relocation-Anweisung."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "payload_offset",
+          "type": "size_t",
+          "description": {
+            "en": "Offset within payload.",
+            "de": "Offset innerhalb des Payloads."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "kind",
+          "type": "ST_RuntimeRelocationKindV1",
+          "description": {
+            "en": "Supported relocation kind.",
+            "de": "Unterstützte Relocation-Art."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_RuntimePatchDescriptorV1",
+      "kind": "struct",
+      "description": {
+        "en": "Complete inactive patch definition.",
+        "de": "Vollständige Definition eines inaktiven Patches."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "signature",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Executable-section byte signature.",
+            "de": "Byte-Signatur im ausführbaren Bereich."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "match_offset",
+          "type": "int64_t",
+          "description": {
+            "en": "Signed offset from unique match.",
+            "de": "Vorzeichenbehafteter Offset vom eindeutigen Treffer."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "kind",
+          "type": "ST_RuntimePatchKindV1",
+          "description": {
+            "en": "Direct or detour.",
+            "de": "Direkt oder Detour."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "overwrite_size",
+          "type": "size_t",
+          "description": {
+            "en": "Complete instruction bytes overwritten.",
+            "de": "Vollständige Zahl überschriebener Instruktionsbytes."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "payload",
+          "type": "const uint8_t*",
+          "description": {
+            "en": "Replacement payload.",
+            "de": "Ersatz-Payload."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "payload_size",
+          "type": "size_t",
+          "description": {
+            "en": "Payload bytes.",
+            "de": "Payload-Bytes."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "relocations",
+          "type": "const ST_RuntimeRelocationV1*",
+          "description": {
+            "en": "Relocation array.",
+            "de": "Relocation-Array."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "relocation_count",
+          "type": "size_t",
+          "description": {
+            "en": "Relocation count.",
+            "de": "Anzahl Relocations."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_RuntimePatchStateV1",
+      "kind": "struct",
+      "description": {
+        "en": "Current patch state.",
+        "de": "Aktueller Patch-Zustand."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "enabled",
+          "type": "uint8_t",
+          "description": {
+            "en": "One if applied.",
+            "de": "Eins, wenn angewandt."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "reserved",
+          "type": "uint8_t[7]",
+          "description": {
+            "en": "Reserved, zero.",
+            "de": "Reserviert, null."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_RuntimePatchesApiV1",
+      "kind": "struct",
+      "description": {
+        "en": "Versioned service function table.",
+        "de": "Versionierte Service-Funktionstabelle."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "struct size.",
+            "de": "struct size."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "create",
+          "type": "function pointer",
+          "description": {
+            "en": "create.",
+            "de": "create."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "set_enabled",
+          "type": "function pointer",
+          "description": {
+            "en": "set enabled.",
+            "de": "set enabled."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "get_state",
+          "type": "function pointer",
+          "description": {
+            "en": "get state.",
+            "de": "get state."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "release",
+          "type": "function pointer",
+          "description": {
+            "en": "release.",
+            "de": "release."
+          },
+          "since": "1.0"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "create",
+      "signature": "ST_Result create(ST_StringView owner_id, const ST_RuntimePatchDescriptorV1* descriptor, ST_RuntimePatch* patch)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Validate and create an inactive patch.",
+        "de": "Einen inaktiven Patch validieren und erstellen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.runtime.patches",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Patch owner.",
+            "de": "Patch-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "descriptor",
+          "type": "const ST_RuntimePatchDescriptorV1*",
+          "description": {
+            "en": "Complete patch definition.",
+            "de": "Vollständige Patch-Definition."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "patch",
+          "type": "ST_RuntimePatch*",
+          "description": {
+            "en": "Receives patch handle.",
+            "de": "Empfängt das Patch-Handle."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, descriptor, patch according to the parameter table.\nconst ST_Result status = api->create(owner_id, descriptor, patch);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "set_enabled",
+      "signature": "ST_Result set_enabled(ST_StringView owner_id, ST_RuntimePatch patch, uint8_t enabled)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Apply or restore patch bytes.",
+        "de": "Patch-Bytes anwenden oder wiederherstellen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.runtime.patches",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Patch owner.",
+            "de": "Patch-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "patch",
+          "type": "ST_RuntimePatch",
+          "description": {
+            "en": "Owned patch.",
+            "de": "Eigener Patch."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "uint8_t",
+          "description": {
+            "en": "One to apply, zero to restore.",
+            "de": "Eins zum Anwenden, null zum Wiederherstellen."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, patch, enabled according to the parameter table.\nconst ST_Result status = api->set_enabled(owner_id, patch, enabled);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "get_state",
+      "signature": "ST_Result get_state(ST_StringView owner_id, ST_RuntimePatch patch, ST_RuntimePatchStateV1* state)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Read whether a patch is enabled.",
+        "de": "Lesen, ob ein Patch aktiv ist."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.runtime.patches",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Patch owner.",
+            "de": "Patch-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "patch",
+          "type": "ST_RuntimePatch",
+          "description": {
+            "en": "Owned patch.",
+            "de": "Eigener Patch."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "ST_RuntimePatchStateV1*",
+          "description": {
+            "en": "Initialized output state.",
+            "de": "Initialisierter Output-Zustand."
+          },
+          "since": "1.0",
+          "direction": "inout",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, patch, state according to the parameter table.\nconst ST_Result status = api->get_state(owner_id, patch, state);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "release",
+      "signature": "ST_Result release(ST_StringView owner_id, ST_RuntimePatch patch)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Restore and destroy a patch.",
+        "de": "Einen Patch wiederherstellen und zerstören."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": "shroudtopia.runtime.patches",
+      "parameters": [
+        {
+          "name": "owner_id",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Patch owner.",
+            "de": "Patch-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "patch",
+          "type": "ST_RuntimePatch",
+          "description": {
+            "en": "Owned patch.",
+            "de": "Eigener Patch."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner_id, patch according to the parameter table.\nconst ST_Result status = api->release(owner_id, patch);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    }
+  ]
+}

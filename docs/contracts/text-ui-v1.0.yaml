@@ -1,0 +1,547 @@
+{
+  "id": "shroudtopia.ui.text",
+  "version": "1.0",
+  "status": "stable",
+  "header": "api/include/shroudtopia/api/ui.h",
+  "capability": null,
+  "provider": {
+    "en": "Shroudtopia loader on Windows clients",
+    "de": "Shroudtopia Loader auf Windows-Clients"
+  },
+  "title": {
+    "en": "Native Text UI API",
+    "de": "Native Text UI API"
+  },
+  "summary": {
+    "en": "Native tabbed text windows for windowed and borderless clients.",
+    "de": "Native Textfenster mit Tabs für Windowed- und Borderless-Clients."
+  },
+  "types": [
+    {
+      "name": "ST_TextWindow",
+      "kind": "handle",
+      "description": {
+        "en": "Opaque owner-bound native window.",
+        "de": "Opakes Owner-gebundenes natives Fenster."
+      }
+    },
+    {
+      "name": "ST_TextWindowStatusV1",
+      "kind": "enum",
+      "description": {
+        "en": "Asynchronous creation state.",
+        "de": "Asynchroner Erstellungszustand."
+      },
+      "values": [
+        {
+          "name": "ST_TEXT_PENDING",
+          "type": "0",
+          "description": {
+            "en": "Creation pending.",
+            "de": "Erstellung ausstehend."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_TEXT_READY",
+          "type": "1",
+          "description": {
+            "en": "Window ready.",
+            "de": "Fenster bereit."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "ST_TEXT_FAILED",
+          "type": "2",
+          "description": {
+            "en": "Creation failed.",
+            "de": "Erstellung fehlgeschlagen."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_TextWindowDescriptorV1",
+      "kind": "struct",
+      "description": {
+        "en": "Native tabbed window definition.",
+        "de": "Definition eines nativen Fensters mit Tabs."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "Initialized structure byte size.",
+            "de": "Initialisierte Strukturgröße in Byte."
+          },
+          "since": "1.0",
+          "rules": {
+            "en": "Set to sizeof(the structure).",
+            "de": "Auf sizeof(der Struktur) setzen."
+          }
+        },
+        {
+          "name": "title",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Window title, at most 128 bytes.",
+            "de": "Fenstertitel, höchstens 128 Byte."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "tabs",
+          "type": "const ST_StringView*",
+          "description": {
+            "en": "One to eight tab labels.",
+            "de": "Ein bis acht Tab-Beschriftungen."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "tab_count",
+          "type": "size_t",
+          "description": {
+            "en": "Number of tabs, 1..8.",
+            "de": "Anzahl Tabs, 1..8."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "toggle_key",
+          "type": "uint32_t",
+          "description": {
+            "en": "Windows virtual key; zero disables.",
+            "de": "Windows Virtual Key; null deaktiviert."
+          },
+          "since": "1.0"
+        }
+      ]
+    },
+    {
+      "name": "ST_UiTextApiV1",
+      "kind": "struct",
+      "description": {
+        "en": "Versioned service function table.",
+        "de": "Versionierte Service-Funktionstabelle."
+      },
+      "fields": [
+        {
+          "name": "struct_size",
+          "type": "size_t",
+          "description": {
+            "en": "struct size.",
+            "de": "struct size."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "abi_version",
+          "type": "uint32_t",
+          "description": {
+            "en": "abi version.",
+            "de": "abi version."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "create",
+          "type": "function pointer",
+          "description": {
+            "en": "create.",
+            "de": "create."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "set_text",
+          "type": "function pointer",
+          "description": {
+            "en": "set text.",
+            "de": "set text."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "get_status",
+          "type": "function pointer",
+          "description": {
+            "en": "get status.",
+            "de": "get status."
+          },
+          "since": "1.0"
+        },
+        {
+          "name": "destroy",
+          "type": "function pointer",
+          "description": {
+            "en": "destroy.",
+            "de": "destroy."
+          },
+          "since": "1.0"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "create",
+      "signature": "ST_Result create(ST_StringView owner, const ST_TextWindowDescriptorV1* descriptor, ST_TextWindow* window)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Begin asynchronous native window creation.",
+        "de": "Asynchrone Erstellung eines nativen Fensters beginnen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Window owner.",
+            "de": "Fenster-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "descriptor",
+          "type": "const ST_TextWindowDescriptorV1*",
+          "description": {
+            "en": "Window and tabs.",
+            "de": "Fenster und Tabs."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "window",
+          "type": "ST_TextWindow*",
+          "description": {
+            "en": "Receives window handle.",
+            "de": "Empfängt das Fenster-Handle."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner, descriptor, window according to the parameter table.\nconst ST_Result status = api->create(owner, descriptor, window);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "set_text",
+      "signature": "ST_Result set_text(ST_StringView owner, ST_TextWindow window, size_t tab, ST_StringView text)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Replace one tab snapshot.",
+        "de": "Snapshot eines Tabs ersetzen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Window owner.",
+            "de": "Fenster-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "window",
+          "type": "ST_TextWindow",
+          "description": {
+            "en": "Owned window.",
+            "de": "Eigenes Fenster."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "tab",
+          "type": "size_t",
+          "description": {
+            "en": "Zero-based tab index.",
+            "de": "Nullbasierter Tab-Index."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Copied UTF-8, at most one MiB.",
+            "de": "Kopiertes UTF-8, höchstens ein MiB."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner, window, tab, text according to the parameter table.\nconst ST_Result status = api->set_text(owner, window, tab, text);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "get_status",
+      "signature": "ST_Result get_status(ST_StringView owner, ST_TextWindow window, ST_TextWindowStatusV1* status)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Read asynchronous creation status.",
+        "de": "Asynchronen Erstellungsstatus lesen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Window owner.",
+            "de": "Fenster-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "window",
+          "type": "ST_TextWindow",
+          "description": {
+            "en": "Owned window.",
+            "de": "Eigenes Fenster."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "ST_TextWindowStatusV1*",
+          "description": {
+            "en": "Receives current status.",
+            "de": "Empfängt den aktuellen Status."
+          },
+          "since": "1.0",
+          "direction": "out",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner, window, status according to the parameter table.\nconst ST_Result status = api->get_status(owner, window, status);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    },
+    {
+      "name": "destroy",
+      "signature": "ST_Result destroy(ST_StringView owner, ST_TextWindow window)",
+      "since": "1.0",
+      "status": "stable",
+      "summary": {
+        "en": "Destroy the window and join its UI thread.",
+        "de": "Fenster zerstören und seinen UI-Thread joinen."
+      },
+      "threading": {
+        "en": "Synchronous on the calling thread; do not call concurrently unless stated otherwise.",
+        "de": "Synchron auf dem aufrufenden Thread; nicht gleichzeitig aufrufen, sofern nicht anders angegeben."
+      },
+      "ownership": {
+        "en": "Input is borrowed for the duration of the call; output ownership is stated per parameter.",
+        "de": "Eingaben sind für die Aufrufdauer geliehen; Output-Ownership steht am jeweiligen Parameter."
+      },
+      "sideEffects": {
+        "en": "No side effect beyond the described operation.",
+        "de": "Keine Seiteneffekte außerhalb der beschriebenen Operation."
+      },
+      "permission": null,
+      "parameters": [
+        {
+          "name": "owner",
+          "type": "ST_StringView",
+          "description": {
+            "en": "Window owner.",
+            "de": "Fenster-Owner."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        },
+        {
+          "name": "window",
+          "type": "ST_TextWindow",
+          "description": {
+            "en": "Owned window.",
+            "de": "Eigenes Fenster."
+          },
+          "since": "1.0",
+          "direction": "in",
+          "required": true
+        }
+      ],
+      "results": [
+        {
+          "code": "ST_RESULT_OK",
+          "description": {
+            "en": "The operation completed.",
+            "de": "Die Operation wurde abgeschlossen."
+          }
+        },
+        {
+          "code": "ST_RESULT_INVALID_ARGUMENT",
+          "description": {
+            "en": "A pointer, size, identifier, descriptor, or value is invalid.",
+            "de": "Ein Pointer, eine Größe, ID, Beschreibung oder ein Wert ist ungültig."
+          }
+        },
+        {
+          "code": "ST_RESULT_PERMISSION_DENIED",
+          "description": {
+            "en": "The owner lacks the required permission.",
+            "de": "Dem Owner fehlt die erforderliche Berechtigung."
+          }
+        },
+        {
+          "code": "ST_RESULT_INTERNAL_ERROR",
+          "description": {
+            "en": "The host could not complete the operation.",
+            "de": "Der Host konnte die Operation nicht abschließen."
+          }
+        }
+      ],
+      "example": "// Initialize owner, window according to the parameter table.\nconst ST_Result status = api->destroy(owner, window);\nif (status != ST_RESULT_OK) {\n    // Handle the specific documented result.\n    return status;\n}"
+    }
+  ]
+}
