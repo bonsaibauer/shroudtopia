@@ -69,7 +69,7 @@ Mods include `api`, export `CreateMod`, and ship with a
 
 - API entry point: [api/shroudtopia.h](api/shroudtopia.h)
 - Documentation: [Shroudtopia API](https://bonsaibauer.github.io/shroudtopia/)
-- Local books: [English](docs/content/en/SUMMARY.md) · [Deutsch](docs/content/de/SUMMARY.md)
+- Local ReDoc: [English](docs/generated/api/en/index.html) · [Deutsch](docs/generated/api/de/index.html)
 - Complete reference mod: [Shroudtopia Flight](mods/flight)
 
 ## Versioning

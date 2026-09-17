@@ -40,15 +40,32 @@ for (const file of serviceFiles) {
 
 const model = JSON.parse(await readFile(path.join(root, "docs", "generated", "api-model.json"), "utf8"));
 if (model.services.length !== serviceFiles.length) errors.push("docs/generated/api-model.json: service count does not match metadata");
-for (const service of model.services) {
-  const reference = path.join(root, "docs", "content", "en", "reference", `${service.slug}.md`);
+for (const locale of ["en", "de"]) {
+  const contractPath = path.join(root, "docs", "generated", "api", locale, "openapi.json");
   try {
-    const content = await readFile(reference, "utf8");
-    for (const fn of service.headers.flatMap((header) => header.functions)) {
-      if (!content.includes(`\`${fn.name}\``)) errors.push(`${path.relative(root, reference)}: missing function ${fn.name}`);
-      for (const parameter of fn.parameters) if (!content.includes(`\`${parameter.name}\``)) errors.push(`${path.relative(root, reference)}: missing parameter ${fn.name}.${parameter.name}`);
+    const contract = JSON.parse(await readFile(contractPath, "utf8"));
+    if (contract.openapi !== "3.1.0") errors.push(`${path.relative(root, contractPath)}: expected OpenAPI 3.1.0`);
+    if (contract.paths["/assets/real-data-snapshot"]) errors.push(`${path.relative(root, contractPath)}: asset data must be documented on its operation, not as a snapshot endpoint`);
+    if (contract.components.schemas.RealAssetSnapshot) errors.push(`${path.relative(root, contractPath)}: obsolete RealAssetSnapshot schema remains`);
+    const operations = Object.values(contract.paths).flatMap(item => Object.values(item));
+    for (const service of model.services) for (const fn of service.headers.flatMap(header => header.functions).filter(item => item.kind !== "callback")) {
+      const operation = operations.find(item => item.operationId === fn.name);
+      if (!operation) {
+        errors.push(`${path.relative(root, contractPath)}: missing operation ${fn.name}`);
+        continue;
+      }
+      const examples = operation.responses?.["200"]?.content?.["application/json"]?.examples;
+      if (!examples?.result_ok) errors.push(`${path.relative(root, contractPath)}: ${fn.name} has no direct RESULT_OK response example`);
+      for (const result of model.results) if (!examples?.[result.name.toLowerCase()]) errors.push(`${path.relative(root, contractPath)}: ${fn.name} has no direct ${result.name} response example`);
     }
-  } catch { errors.push(`${path.relative(root, reference)}: missing generated service reference`); }
+    const references = JSON.stringify(contract).match(/#\/components\/schemas\/[A-Za-z0-9_]+/g) ?? [];
+    for (const reference of new Set(references)) {
+      const name = reference.split("/").at(-1);
+      if (!contract.components.schemas[name]) errors.push(`${path.relative(root, contractPath)}: missing schema ${name}`);
+    }
+  } catch (error) {
+    errors.push(`${path.relative(root, contractPath)}: invalid or missing ReDoc contract (${error.message})`);
+  }
 }
 if (errors.length) { console.error(errors.map((error) => `- ${error}`).join("\n")); process.exit(1); }
-console.log(`Validated public API naming, ${serviceFiles.length} service contracts, and generated references.`);
+console.log(`Validated public API naming, ${serviceFiles.length} service contracts, and ReDoc output.`);

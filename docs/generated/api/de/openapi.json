@@ -61,10 +61,6 @@
     {
       "name": "Text UI",
       "description": "Erstellt native Textfenster, aktualisiert Tab-Inhalte, beobachtet die Bereitschaft und zerstört Fenster."
-    },
-    {
-      "name": "Echter Enshrouded-Asset-Snapshot",
-      "description": "Statische Werte aus den lokal installierten Enshrouded-KFC-Dateien, erfasst am 17.09.2026. Es wird keine EXE- oder KFC-Datei eingebunden."
     }
   ],
   "paths": {
@@ -108,11 +104,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "registration": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "registration": 1001
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -173,10 +238,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -226,11 +360,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "state": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "state": "ACTION_AVAILABLE"
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -261,17 +464,12 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "requested_api_version",
-                  "api"
+                  "requested_api_version"
                 ],
                 "properties": {
                   "requested_api_version": {
                     "type": "integer",
                     "description": "Value for requested api version."
-                  },
-                  "api": {
-                    "$ref": "#/components/schemas/Api",
-                    "description": "Value for api."
                   }
                 }
               }
@@ -286,10 +484,84 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "api": {
+                          "struct_size": 264,
+                          "api_version": 65537
+                        }
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -310,7 +582,7 @@
           "Assets"
         ],
         "summary": "List assets.",
-        "description": "**Native C-Funktion:** `api->list_assets`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* list_assets)(StringView owner_id, StringView type_name, AssetVisitor visitor, void* user_data);\n```",
+        "description": "**Native C-Funktion:** `api->list_assets`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\nDie erfolgreiche Antwort enthält Werte aus den lokal installierten Enshrouded-KFC-Dateien, erfasst am 17.09.2026. Es wird keine EXE- oder KFC-Datei eingebunden.\n\n```c\nResult (CALL* list_assets)(StringView owner_id, StringView type_name, AssetVisitor visitor, void* user_data);\n```",
         "operationId": "list_assets",
         "requestBody": {
           "required": true,
@@ -353,17 +625,86 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "assets": [
-                      {
-                        "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
-                        "type_name": "keen::RecipeRegistryResource",
-                        "part": 0
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "assets": [
+                          {
+                            "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
+                            "type_name": "keen::RecipeRegistryResource",
+                            "part": 0
+                          }
+                        ]
                       }
-                    ]
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -385,7 +726,7 @@
           "Assets"
         ],
         "summary": "Read asset.",
-        "description": "**Native C-Funktion:** `api->get_asset`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* get_asset)(StringView owner_id, const AssetId* asset, char* buffer, size_t capacity, size_t* required_size);\n```",
+        "description": "**Native C-Funktion:** `api->get_asset`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\nDie erfolgreiche Antwort enthält Werte aus den lokal installierten Enshrouded-KFC-Dateien, erfasst am 17.09.2026. Es wird keine EXE- oder KFC-Datei eingebunden.\n\n```c\nResult (CALL* get_asset)(StringView owner_id, const AssetId* asset, char* buffer, size_t capacity, size_t* required_size);\n```",
         "operationId": "get_asset",
         "requestBody": {
           "required": true,
@@ -407,11 +748,6 @@
                     "$ref": "#/components/schemas/AssetId",
                     "description": "Value for asset."
                   },
-                  "buffer": {
-                    "type": "string",
-                    "description": "Caller-owned output buffer; may be null for a size query.",
-                    "nullable": true
-                  },
                   "capacity": {
                     "type": "integer",
                     "description": "Elements or bytes available in the output buffer."
@@ -429,11 +765,81 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "required_size": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "buffer": "{\"inputCategories\":[],\"recipes\":[{\"debugName\":\"Key_T4_Skeleton_Bone_HollowHalls\",\"recipeGuid\":\"b1d93aea-6737-4bd7-909f-020dd7a9fc04\",\"recipeId\":{\"value\":1335314663},\"input\":[{\"itemStack\":{\"count\":100,\"item\":{\"value\":1453689781},\"itemRef\":\"ca6b8ff7-c0c1-4dff-99ab-35fedfd3c6ff\"}},{\"itemStack\":{\"count\":2,\"item\":{\"value\":2956062198},\"itemRef\":\"39e2bce4-6c71-466d-a540-3d7ab11bc204\"}}],\"output\":[{\"count\":1,\"item\":{\"value\":4053229560},\"itemRef\":\"62550276-1656-459c-a489-b18c1019e9c7\"}],\"showIsImportantLabel\":true}]}",
+                        "required_size": 514
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -494,10 +900,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -518,7 +993,7 @@
           "Assets"
         ],
         "summary": "Create asset.",
-        "description": "**Native C-Funktion:** `api->create_asset`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* create_asset)(StringView owner_id, StringView type_name, StringView json, AssetVisitor visitor, void* user_data);\n```",
+        "description": "**Native C-Funktion:** `api->create_asset`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\nDie erfolgreiche Antwort enthält Werte aus den lokal installierten Enshrouded-KFC-Dateien, erfasst am 17.09.2026. Es wird keine EXE- oder KFC-Datei eingebunden.\n\n```c\nResult (CALL* create_asset)(StringView owner_id, StringView type_name, StringView json, AssetVisitor visitor, void* user_data);\n```",
         "operationId": "create_asset",
         "requestBody": {
           "required": true,
@@ -566,10 +1041,85 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "asset": {
+                          "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
+                          "type_name": "keen::RecipeRegistryResource",
+                          "part": 0
+                        }
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -619,10 +1169,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -672,10 +1291,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -740,10 +1428,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -793,11 +1550,95 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "information": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "information": {
+                          "struct_size": 32,
+                          "version_major": 1,
+                          "version_minor": 1,
+                          "flags": 0,
+                          "available": 1,
+                          "reserved": [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -853,11 +1694,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "allowed": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "allowed": 1
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -913,11 +1823,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "registration": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "registration": 1002
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -978,10 +1957,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -1036,11 +2084,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "registration": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "registration": 1003
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -1096,10 +2213,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -1159,10 +2345,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -1200,11 +2455,6 @@
                     "$ref": "#/components/schemas/LogSource",
                     "description": "Value for source."
                   },
-                  "buffer": {
-                    "type": "string",
-                    "description": "Caller-owned output buffer; may be null for a size query.",
-                    "nullable": true
-                  },
                   "capacity": {
                     "type": "integer",
                     "description": "Elements or bytes available in the output buffer."
@@ -1222,11 +2472,81 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "written": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "buffer": "[I 00:00:00,000] [shroudtopia] Starting 1.1.0\n",
+                        "written": 46
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -1282,11 +2602,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "patch": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "patch": 1
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -1347,10 +2736,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -1405,11 +2863,92 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "state": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "state": {
+                          "struct_size": 16,
+                          "enabled": 1,
+                          "reserved": [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -1465,10 +3004,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -1523,11 +3131,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "registration": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "registration": 1004
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -1578,11 +3255,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "interface_pointer": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "interface_pointer": "0x000001F000001100"
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -1633,10 +3379,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -1696,11 +3511,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "value": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "value": 1
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -1761,11 +3645,80 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {
-                    "value": null
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "value": 500
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
                   }
                 }
               }
@@ -1797,8 +3750,7 @@
                 "type": "object",
                 "required": [
                   "owner_id",
-                  "options",
-                  "window"
+                  "options"
                 ],
                 "properties": {
                   "owner_id": {
@@ -1808,10 +3760,6 @@
                   "options": {
                     "$ref": "#/components/schemas/TextWindowOptions",
                     "description": "Value for options."
-                  },
-                  "window": {
-                    "type": "integer",
-                    "description": "Value for window."
                   }
                 }
               }
@@ -1826,10 +3774,81 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "window": 1
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -1894,10 +3913,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -1928,8 +4016,7 @@
                 "type": "object",
                 "required": [
                   "owner_id",
-                  "window",
-                  "status"
+                  "window"
                 ],
                 "properties": {
                   "owner_id": {
@@ -1939,10 +4026,6 @@
                   "window": {
                     "type": "integer",
                     "description": "Value for window."
-                  },
-                  "status": {
-                    "$ref": "#/components/schemas/TextWindowStatus",
-                    "description": "Value for status."
                   }
                 }
               }
@@ -1957,10 +4040,81 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "status": "TEXT_READY"
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -2015,10 +4169,79 @@
                 "schema": {
                   "$ref": "#/components/schemas/ResultEnvelope"
                 },
-                "example": {
-                  "result": "RESULT_OK",
-                  "result_code": 0,
-                  "outputs": {}
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
                 }
               }
             }
@@ -2031,92 +4254,6 @@
             "source": "Result result = api->destroy_text_window(View(\"mod.example\"), window);\nif (result != RESULT_OK) {\n    return result;\n}"
           }
         ]
-      }
-    },
-    "/assets/real-data-snapshot": {
-      "get": {
-        "tags": [
-          "Echter Enshrouded-Asset-Snapshot"
-        ],
-        "summary": "Echter Enshrouded-Asset-Snapshot",
-        "description": "Statische Werte aus den lokal installierten Enshrouded-KFC-Dateien, erfasst am 17.09.2026. Es wird keine EXE- oder KFC-Datei eingebunden.",
-        "operationId": "realAssetSnapshot",
-        "responses": {
-          "200": {
-            "description": "Echter Enshrouded-Asset-Snapshot",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RealAssetSnapshot"
-                },
-                "example": {
-                  "list_assets": {
-                    "result": "RESULT_OK",
-                    "result_code": 0,
-                    "outputs": {
-                      "assets": [
-                        {
-                          "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
-                          "type_name": "keen::RecipeRegistryResource",
-                          "part": 0
-                        }
-                      ]
-                    }
-                  },
-                  "recipe_registry": {
-                    "asset": {
-                      "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
-                      "type_name": "keen::RecipeRegistryResource",
-                      "part": 0
-                    },
-                    "fields": [
-                      "inputCategories",
-                      "recipes"
-                    ],
-                    "recipeCount": 1954,
-                    "firstRecipe": {
-                      "debugName": "Key_T4_Skeleton_Bone_HollowHalls",
-                      "recipeGuid": "b1d93aea-6737-4bd7-909f-020dd7a9fc04",
-                      "recipeId": {
-                        "value": 1335314663
-                      },
-                      "input": [
-                        {
-                          "itemStack": {
-                            "count": 100,
-                            "item": {
-                              "value": 1453689781
-                            },
-                            "itemRef": "ca6b8ff7-c0c1-4dff-99ab-35fedfd3c6ff"
-                          }
-                        },
-                        {
-                          "itemStack": {
-                            "count": 2,
-                            "item": {
-                              "value": 2956062198
-                            },
-                            "itemRef": "39e2bce4-6c71-466d-a540-3d7ab11bc204"
-                          }
-                        }
-                      ],
-                      "output": [
-                        {
-                          "count": 1,
-                          "item": {
-                            "value": 4053229560
-                          },
-                          "itemRef": "62550276-1656-459c-a489-b18c1019e9c7"
-                        }
-                      ],
-                      "showIsImportantLabel": true
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
       }
     }
   },
@@ -2155,6 +4292,16 @@
           },
           "user_data": {}
         }
+      },
+      "ActionState": {
+        "type": "string",
+        "enum": [
+          "ACTION_AVAILABLE",
+          "ACTION_DISABLED",
+          "ACTION_RUNNING",
+          "ACTION_FAILED"
+        ],
+        "description": "ACTION_AVAILABLE = 0\n\nACTION_DISABLED = 1\n\nACTION_RUNNING = 2\n\nACTION_FAILED = 3"
       },
       "Api": {
         "type": "object",
@@ -2596,74 +4743,6 @@
           "outputs": {
             "type": "object",
             "additionalProperties": true
-          }
-        }
-      },
-      "RealAssetSnapshot": {
-        "type": "object",
-        "description": "Static values captured from the locally installed Enshrouded KFC files on 2026-09-17. No executable or KFC file is included.",
-        "example": {
-          "list_assets": {
-            "result": "RESULT_OK",
-            "result_code": 0,
-            "outputs": {
-              "assets": [
-                {
-                  "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
-                  "type_name": "keen::RecipeRegistryResource",
-                  "part": 0
-                }
-              ]
-            }
-          },
-          "recipe_registry": {
-            "asset": {
-              "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
-              "type_name": "keen::RecipeRegistryResource",
-              "part": 0
-            },
-            "fields": [
-              "inputCategories",
-              "recipes"
-            ],
-            "recipeCount": 1954,
-            "firstRecipe": {
-              "debugName": "Key_T4_Skeleton_Bone_HollowHalls",
-              "recipeGuid": "b1d93aea-6737-4bd7-909f-020dd7a9fc04",
-              "recipeId": {
-                "value": 1335314663
-              },
-              "input": [
-                {
-                  "itemStack": {
-                    "count": 100,
-                    "item": {
-                      "value": 1453689781
-                    },
-                    "itemRef": "ca6b8ff7-c0c1-4dff-99ab-35fedfd3c6ff"
-                  }
-                },
-                {
-                  "itemStack": {
-                    "count": 2,
-                    "item": {
-                      "value": 2956062198
-                    },
-                    "itemRef": "39e2bce4-6c71-466d-a540-3d7ab11bc204"
-                  }
-                }
-              ],
-              "output": [
-                {
-                  "count": 1,
-                  "item": {
-                    "value": 4053229560
-                  },
-                  "itemRef": "62550276-1656-459c-a489-b18c1019e9c7"
-                }
-              ],
-              "showIsImportantLabel": true
-            }
           }
         }
       }

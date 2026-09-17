@@ -154,7 +154,29 @@
               ]
             }
           ],
-          "enums": []
+          "enums": [
+            {
+              "name": "ActionState",
+              "values": [
+                {
+                  "name": "ACTION_AVAILABLE",
+                  "value": "0"
+                },
+                {
+                  "name": "ACTION_DISABLED",
+                  "value": "1"
+                },
+                {
+                  "name": "ACTION_RUNNING",
+                  "value": "2"
+                },
+                {
+                  "name": "ACTION_FAILED",
+                  "value": "3"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -191,10 +213,10 @@
                 {
                   "name": "api",
                   "type": "const Api**",
-                  "direction": "in",
+                  "direction": "out",
                   "required": "yes",
                   "nullable": "no",
-                  "ownership": "borrowed",
+                  "ownership": "caller-owned",
                   "description": "Value for api."
                 }
               ]
@@ -336,10 +358,10 @@
                 {
                   "name": "buffer",
                   "type": "char*",
-                  "direction": "in",
+                  "direction": "out",
                   "required": "conditional",
                   "nullable": "yes, for capacity query",
-                  "ownership": "borrowed",
+                  "ownership": "caller-owned",
                   "description": "Caller-owned output buffer; may be null for a size query."
                 },
                 {
@@ -1270,10 +1292,10 @@
                 {
                   "name": "buffer",
                   "type": "char*",
-                  "direction": "in",
+                  "direction": "out",
                   "required": "conditional",
                   "nullable": "yes, for capacity query",
-                  "ownership": "borrowed",
+                  "ownership": "caller-owned",
                   "description": "Caller-owned output buffer; may be null for a size query."
                 },
                 {
@@ -1901,10 +1923,10 @@
                 {
                   "name": "window",
                   "type": "TextWindow*",
-                  "direction": "in",
+                  "direction": "out",
                   "required": "yes",
                   "nullable": "no",
-                  "ownership": "borrowed",
+                  "ownership": "caller-owned",
                   "description": "Value for window."
                 }
               ]
@@ -1982,10 +2004,10 @@
                 {
                   "name": "status",
                   "type": "TextWindowStatus*",
-                  "direction": "in",
+                  "direction": "out",
                   "required": "yes",
                   "nullable": "no",
-                  "ownership": "borrowed",
+                  "ownership": "caller-owned",
                   "description": "Value for status."
                 }
               ]

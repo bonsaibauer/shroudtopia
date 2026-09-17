@@ -4,11 +4,10 @@ import path from "node:path";
 const root = process.cwd();
 const publicHeaderPath = path.join(root, "api", "shroudtopia.h");
 const metadataDir = path.join(root, "docs", "api", "services");
-const outputRoot = path.join(root, "docs", "content");
 const generatedRoot = path.join(root, "docs", "generated");
 
 const members = {
-  actions: { functions: ["register_action", "invoke_action", "get_action_state"], types: ["Action", "ActionState"] },
+  actions: { functions: ["register_action", "invoke_action", "get_action_state"], types: ["Action"], enums: ["ActionState"] },
   api: { functions: ["ShroudtopiaGetApi"], types: ["Api"] },
   assets: { functions: ["AssetVisitor", "list_assets", "get_asset", "update_asset", "create_asset", "reset_assets", "save_assets", "set_asset_field"], types: ["AssetId"] },
   capabilities: { functions: ["query_capability", "check_permission"], types: ["CapabilityInfo"] },
@@ -24,7 +23,6 @@ const members = {
 };
 
 const normalize = (value) => value.replace(/\s+/g, " ").trim();
-const escapeCell = (value) => String(value).replaceAll("|", "\\|").replaceAll("\n", " ");
 const humanize = (value) => value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
 const parameterDescriptions = {
@@ -58,7 +56,7 @@ const parseParameter = (raw, index) => {
   const type = hasName ? cleaned.slice(0, match.index).trim() : cleaned;
   const pointer = type.includes("*");
   const isConst = /\bconst\b/.test(type);
-  const outputName = /^(out|output|result|required|written|value|allowed|state|information|registration|interface|entity|grid|patch)/.test(name);
+  const outputName = /^(api|out|output|result|required|written|value|allowed|state|status|information|registration|interface|entity|grid|patch|window|buffer)/.test(name);
   const direction = pointer && outputName && (!isConst || type.includes("**")) ? "out" : "in";
   const conditional = ["buffer", "entities", "values", "coverage"].includes(name);
   return {
@@ -118,36 +116,6 @@ const resultRows = [
   ["RESULT_INTERNAL_ERROR", "The loader could not complete an otherwise valid operation.", "Log context and fail safely."]
 ];
 
-const labels = {
-  en: { status: "Status", header: "Header", version: "Service version", since: "Available since", threading: "Threading", capabilities: "Capabilities", types: "Types", functions: "Functions", function: "Function", purpose: "Purpose", parameters: "Parameters", parameter: "Parameter", direction: "Direction", type: "Type", required: "Required", nullable: "Nullable", ownership: "Ownership", description: "Description", results: "Results", cause: "Meaning", reaction: "Recommended handling", signature: "Signature", example: "Example", related: "Related contract", noParameters: "This function has no parameters.", source: "Canonical source", codeNote: "Always initialize structures, check Result, and release ownership-bound handles.", indexTitle: "API reference", indexIntro: "The reference is generated from public C headers and validated documentation metadata. Identifiers and signatures come from the headers; semantics, ownership, threading, and examples are contract metadata." },
-  de: { status: "Status", header: "Header", version: "Serviceversion", since: "Verfügbar seit", threading: "Threading", capabilities: "Capabilities", types: "Typen", functions: "Funktionen", function: "Funktion", purpose: "Aufgabe", parameters: "Parameter", parameter: "Parameter", direction: "Richtung", type: "Typ", required: "Pflicht", nullable: "Null erlaubt", ownership: "Ownership", description: "Beschreibung", results: "Ergebnisse", cause: "Bedeutung", reaction: "Empfohlene Behandlung", signature: "Signatur", example: "Beispiel", related: "Zugehöriger Vertrag", noParameters: "Diese Funktion besitzt keine Parameter.", source: "Kanonische Quelle", codeNote: "Strukturen immer initialisieren, Result prüfen und besitzergebundene Handles freigeben.", indexTitle: "API-Referenz", indexIntro: "Die Referenz wird aus öffentlichen C-Headern und validierten Dokumentationsmetadaten erzeugt. Bezeichner und Signaturen stammen aus den Headern; Semantik, Ownership, Threading und Beispiele sind Vertragsmetadaten." }
-};
-
-const renderService = (service, language) => {
-  const l = labels[language];
-  const title = language === "de" ? service.title_de : service.title;
-  const summary = language === "de" ? service.summary_de : service.summary;
-  const functions = service.headers.flatMap((header) => header.functions);
-  const structs = service.headers.flatMap((header) => header.structs);
-  const enums = service.headers.flatMap((header) => header.enums);
-  const version = service.headers.find((header) => header.version)?.version ?? service.since;
-  const headerList = "`shroudtopia.h`";
-  const output = ["<!-- Generated from public headers and docs/api metadata. Do not edit by hand. -->", `# ${title}`, "", summary, "", '<div class="api-meta">', "", `- **${l.status}:** ${humanize(service.status)}`, `- **${l.header}:** ${headerList}`, `- **${l.version}:** ${version}`, `- **${l.since}:** API ${service.since}`, `- **${l.threading}:** ${service.threading}`, `- **${l.capabilities}:** ${service.capabilities.length ? service.capabilities.map((item) => `\`${item}\``).join(", ") : "None"}`, "", "</div>", "", `## ${l.functions}`, "", `| ${l.function} | ${l.purpose} | ${l.status} |`, "|---|---|---|", ...functions.map((fn) => `| [\`${fn.name}\`](#${fn.name.toLowerCase()}) | ${escapeCell(fn.summary)} | ${humanize(service.status)} |`), ""];
-  if (!functions.length) output.push(language === "de" ? "Dieser Vertrag definiert gemeinsame Typen und besitzt keine direkt aufrufbaren Funktionen." : "This contract defines shared types and has no directly callable functions.", "");
-  if (structs.length || enums.length) output.push(`## ${l.types}`, "");
-  for (const item of enums) output.push(`### \`${item.name}\``, "", `| ${language === "de" ? "Wert" : "Value"} | ${language === "de" ? "Numerischer Wert" : "Numeric value"} |`, "|---|---:|", ...item.values.map((value) => `| \`${value.name}\` | \`${value.value}\` |`), "");
-  for (const item of structs) output.push(`### \`${item.name}\``, "", `| ${language === "de" ? "Feld" : "Field"} | ${l.type} | ${l.ownership} |`, "|---|---|---|", ...item.fields.map((field) => `| \`${field.name}\` | \`${escapeCell(field.type)}\` | ${field.type.includes("*") ? "Borrowed or caller-owned; see operation" : "Value"} |`), "");
-  for (const fn of functions) {
-    const call = fn.kind === "export" ? `${fn.name}(/* initialize every parameter above */)` : fn.kind === "callback" ? `${fn.name}(/* callback parameters */)` : `api->${fn.name}(/* initialize every parameter above */)`;
-    output.push(`<section class="api-function" data-api-name="${fn.name.toLowerCase()}" data-api-status="${service.status}">`, "", `## \`${fn.name}\``, "", fn.summary, "", `### ${l.signature}`, "", "```c", fn.signature, "```", "", `### ${l.parameters}`, "");
-    if (fn.parameters.length) output.push(`| ${l.parameter} | ${l.direction} | ${l.type} | ${l.required} | ${l.nullable} | ${l.ownership} | ${l.description} |`, "|---|---|---|---|---|---|---|", ...fn.parameters.map((parameter) => `| \`${parameter.name}\` | ${parameter.direction} | \`${escapeCell(parameter.type)}\` | ${parameter.required} | ${parameter.nullable} | ${parameter.ownership} | ${escapeCell(parameter.description)} |`), "");
-    else output.push(l.noParameters, "");
-    output.push(`### ${l.results}`, "", `| Result | ${l.cause} | ${l.reaction} |`, "|---|---|---|", ...resultRows.map((row) => `| \`${row[0]}\` | ${row[1]} | ${row[2]} |`), "", `### ${l.example}`, "", `> ${l.codeNote}`, "", "```cpp", `// ${fn.summary}`, `Result result = ${call};`, "if (result != RESULT_OK) {", "    // Log context and stop or degrade gracefully.", "}", "```", "", `**${l.related}:** \`api/shroudtopia.h\``, "", "</section>", "");
-  }
-  output.push(`## ${l.source}`, "", "`api/shroudtopia.h` is the single public ABI header.", "");
-  return `${output.join("\n").trimEnd()}\n`;
-};
-
 const metadataFiles = (await readdir(metadataDir)).filter((name) => name.endsWith(".yml")).sort();
 const services = [];
 const canonical = parseHeader("shroudtopia.h", await readFile(publicHeaderPath, "utf8"));
@@ -163,20 +131,7 @@ for (const file of metadataFiles) {
   services.push({ ...metadata, headers });
 }
 
-const renderIndex = (language) => {
-  const l = labels[language];
-  const rows = services.map((service) => `| [${language === "de" ? service.title_de : service.title}](./${service.slug}.md) | ${language === "de" ? service.summary_de : service.summary} | ${humanize(service.status)} | API ${service.since} |`);
-  return `# ${l.indexTitle}\n\n${l.indexIntro}\n\n| Service | ${l.purpose} | ${l.status} | ${l.since} |\n|---|---|---|---|\n${rows.join("\n")}\n`;
-};
-
 await mkdir(generatedRoot, { recursive: true });
-for (const language of ["en", "de"]) {
-  const referenceDir = path.join(outputRoot, language, "reference");
-  await mkdir(referenceDir, { recursive: true });
-  await writeFile(path.join(referenceDir, "index.md"), renderIndex(language));
-  for (const service of services) await writeFile(path.join(referenceDir, `${service.slug}.md`), renderService(service, language));
-}
-
 const publicModel = { schemaVersion: 1, apiVersion: "1.1", generatedFrom: "api/shroudtopia.h", services: services.map(({ headers, header: _header, extra_headers: _extra, ...service }) => ({ ...service, headers: headers.map(({ source, ...header }) => header) })), results: resultRows.map(([name, meaning, handling]) => ({ name, meaning, handling })) };
 await writeFile(path.join(generatedRoot, "api-model.json"), `${JSON.stringify(publicModel, null, 2)}\n`);
-console.log(`Generated ${services.length} English and German service references and the static API model.`);
+console.log(`Generated the static API model for ${services.length} contracts.`);

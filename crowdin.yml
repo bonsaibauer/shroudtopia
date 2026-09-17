@@ -6,13 +6,7 @@ pull_request_labels:
   - documentation
   - localization
 
-# File-based GitHub integration, "Source and translation files" mode.
-# Credentials belong to Crowdin/GitHub, never in this repository.
 files:
-  - source: /docs/content/en/**/*.md
-    translation: /docs/content/%two_letters_code%/**/%original_file_name%
-    update_option: update_as_unapproved
-    content_segmentation: 1
-  - source: /docs/content/en/_ui.json
-    translation: /docs/content/%two_letters_code%/_ui.json
+  - source: /docs/generated/api/en/openapi.json
+    translation: /docs/generated/api/%two_letters_code%/openapi.json
     update_option: update_as_unapproved
