@@ -1,0 +1,20 @@
+{
+  "id": "mod.no-stamina-loss",
+  "name": "Shroudtopia No Stamina Loss",
+  "version": "2.0.0",
+  "requires": {
+    "capabilities": [
+      "shroudtopia.runtime.patches"
+    ]
+  },
+  "shroudtopia": {
+    "api": "2.0",
+    "entrypoint": "CreateMod",
+    "binary": "shroudtopia-no-stamina-loss.dll",
+    "target": "both",
+    "default": {
+      "active": false
+    }
+  },
+  "description": "Prevents the known stamina reduction when the signature matches."
+}

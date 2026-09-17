@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shroudtopia API Documentation</title>
+  <script>
+    const language = localStorage.getItem("shroudtopia-language") === "de" ? "de" : "en";
+    location.replace(`./${language}/${location.search}${location.hash}`);
+  </script>
+  <noscript><meta http-equiv="refresh" content="0; url=./en/"></noscript>
+</head>
+<body></body>
+</html>

@@ -1,0 +1,9 @@
+# English Markdown is the source; Crowdin writes the matching German file beside it.
+files:
+  - source: /docs/src/**/*_en.md
+    translation: /docs/src/**/%original_file_name%
+    languages_mapping:
+      two_letters_code:
+        de: de
+    translation_replace:
+      _en.md: _%two_letters_code%.md

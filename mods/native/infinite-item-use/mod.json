@@ -1,0 +1,20 @@
+{
+  "id": "mod.infinite-item-use",
+  "name": "Shroudtopia Infinite Item Use",
+  "version": "2.0.0",
+  "requires": {
+    "capabilities": [
+      "shroudtopia.runtime.patches"
+    ]
+  },
+  "shroudtopia": {
+    "api": "2.0",
+    "entrypoint": "CreateMod",
+    "binary": "shroudtopia-infinite-item-use.dll",
+    "target": "both",
+    "default": {
+      "active": false
+    }
+  },
+  "description": "Prevents the known item consumption operation when the signature matches."
+}

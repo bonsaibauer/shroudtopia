@@ -1,0 +1,20 @@
+{
+  "id": "mod.no-resource-cost",
+  "name": "Shroudtopia No Resource Cost",
+  "version": "2.0.0",
+  "requires": {
+    "capabilities": [
+      "shroudtopia.runtime.patches"
+    ]
+  },
+  "shroudtopia": {
+    "api": "2.0",
+    "entrypoint": "CreateMod",
+    "binary": "shroudtopia-no-resource-cost.dll",
+    "target": "both",
+    "default": {
+      "active": false
+    }
+  },
+  "description": "Sets the requested resource count to zero for crafting and building when the game signature matches."
+}

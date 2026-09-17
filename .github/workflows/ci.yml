@@ -1,0 +1,67 @@
+name: Build Shroudtopia
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: "0.4.52"
+      - name: Validate and build documentation
+        run: npm run docs:check
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build, test and package
+        shell: pwsh
+        run: |
+          $refName = if ("${{ github.event_name }}" -eq "pull_request") { "${{ github.base_ref }}" } else { "${{ github.ref_name }}" }
+          $refType = if ("${{ github.ref }}".StartsWith("refs/tags/")) { "tag" } else { "branch" }
+          .\build.ps1 -BuildNumber "${{ github.run_number }}" -RefName $refName -RefType $refType
+      - name: Determine release type
+        id: release
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $isVersionBranch = "${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/heads/$version"
+
+          if ($isVersionBranch) {
+            "tag=v$version-build.${{ github.run_number }}" >> $env:GITHUB_OUTPUT
+            "prerelease=true" >> $env:GITHUB_OUTPUT
+            "publish=true" >> $env:GITHUB_OUTPUT
+          } else {
+            "publish=false" >> $env:GITHUB_OUTPUT
+          }
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: shroudtopia-${{ github.run_number }}
+          path: build/shroudtopia-*.zip
+      - name: Publish release
+        if: steps.release.outputs.publish == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          files: build/shroudtopia-*.zip
+          generate_release_notes: true
+          prerelease: ${{ steps.release.outputs.prerelease }}
