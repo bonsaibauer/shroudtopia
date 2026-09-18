@@ -1,0 +1,21 @@
+{
+  "id": "mod.unlock-blueprints",
+  "name": "Shroudtopia Unlock Blueprints",
+  "version": "1.1.0",
+  "requires": {
+    "capabilities": [
+      "shroudtopia.assets.read",
+      "shroudtopia.assets.write"
+    ]
+  },
+  "shroudtopia": {
+    "api": "1.1",
+    "entrypoint": "CreateMod",
+    "binary": "shroudtopia-unlock-blueprints.dll",
+    "target": "both",
+    "default": {
+      "active": false
+    }
+  },
+  "description": "Unlocks crafting recipes through the versioned Shroudtopia Asset API."
+}

@@ -1,0 +1,12 @@
+preserve_hierarchy: true
+
+pull_request_title: "docs(i18n): update translations from Crowdin"
+
+pull_request_labels:
+  - documentation
+  - localization
+
+files:
+  - source: /docs/generated/api/en/openapi.json
+    translation: /docs/generated/api/%two_letters_code%/openapi.json
+    update_option: update_as_unapproved

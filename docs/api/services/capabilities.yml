@@ -1,0 +1,1 @@
+{"slug":"capabilities","header":"shroudtopia.h","title":"Capability information","title_de":"Capability-Informationen","summary":"Describes the negotiated version and availability of a capability.","summary_de":"Beschreibt ausgehandelte Version und Verfügbarkeit einer Capability.","status":"stable","since":"1.1","threading":"See query_capability","capabilities":[]}

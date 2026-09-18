@@ -1,0 +1,1 @@
+{"slug":"events","header":"shroudtopia.h","title":"Events","title_de":"Events","summary":"Publishes typed event payloads and manages event subscriptions.","summary_de":"Veröffentlicht typisierte Event-Payloads und verwaltet Event-Abonnements.","status":"stable","since":"1.1","threading":"Publisher thread; callbacks are synchronous","capabilities":["shroudtopia.registry.events"]}

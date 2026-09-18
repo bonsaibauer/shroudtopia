@@ -1,0 +1,1 @@
+{"slug":"logging","header":"shroudtopia.h","title":"Logging","title_de":"Logging","summary":"Writes structured loader messages and reads bounded tails of loader or game logs.","summary_de":"Schreibt strukturierte Loader-Meldungen und liest begrenzte Ausschnitte aus Loader- oder Game-Logs.","status":"stable","since":"1.1","threading":"Thread-safe where stated","capabilities":[]}

@@ -1,0 +1,13 @@
+{
+  "name": "shroudtopia-documentation",
+  "private": true,
+  "scripts": {
+    "docs:validate": "node docs/tools/validate-api.mjs",
+    "docs:generate": "node docs/tools/generate-reference.mjs",
+    "docs:examples": "node docs/tools/validate-examples.mjs",
+    "docs:build": "node docs/tools/build-docs.mjs",
+    "assets:build": "cargo build --manifest-path src/assets/Cargo.toml --release -p shroudtopia",
+    "assets:verify": "python tools/asset-engine-smoke.py src/assets/target/release/shroudtopia.dll",
+    "docs:check": "npm run docs:examples && npm run docs:build"
+  }
+}

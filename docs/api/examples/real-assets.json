@@ -1,0 +1,40 @@
+{
+  "capturedAt": "2026-09-17",
+  "source": "Local Enshrouded installation",
+  "container": "enshrouded.kfc",
+  "listAssets": {
+    "result": "RESULT_OK",
+    "result_code": 0,
+    "outputs": {
+      "assets": [
+        {
+          "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
+          "type_name": "keen::RecipeRegistryResource",
+          "part": 0
+        }
+      ]
+    }
+  },
+  "recipeRegistry": {
+    "asset": {
+      "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
+      "type_name": "keen::RecipeRegistryResource",
+      "part": 0
+    },
+    "fields": ["inputCategories", "recipes"],
+    "recipeCount": 1954,
+    "firstRecipe": {
+      "debugName": "Key_T4_Skeleton_Bone_HollowHalls",
+      "recipeGuid": "b1d93aea-6737-4bd7-909f-020dd7a9fc04",
+      "recipeId": { "value": 1335314663 },
+      "input": [
+        { "itemStack": { "count": 100, "item": { "value": 1453689781 }, "itemRef": "ca6b8ff7-c0c1-4dff-99ab-35fedfd3c6ff" } },
+        { "itemStack": { "count": 2, "item": { "value": 2956062198 }, "itemRef": "39e2bce4-6c71-466d-a540-3d7ab11bc204" } }
+      ],
+      "output": [
+        { "count": 1, "item": { "value": 4053229560 }, "itemRef": "62550276-1656-459c-a489-b18c1019e9c7" }
+      ],
+      "showIsImportantLabel": true
+    }
+  }
+}

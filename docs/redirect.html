@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shroudtopia API Documentation</title>
+  <script>
+    fetch("./languages.json").then(response => response.json()).then(({ fallback, languages }) => {
+      const stored = localStorage.getItem("shroudtopia-language");
+      const preferred = navigator.languages.map(value => value.toLowerCase().split("-")[0]).find(value => languages.includes(value));
+      const language = languages.includes(stored) ? stored : preferred || fallback;
+      location.replace(`./${language}/${location.search}${location.hash}`);
+    }).catch(() => location.replace(`./en/${location.search}${location.hash}`));
+  </script>
+  <noscript><meta http-equiv="refresh" content="0; url=./en/"></noscript>
+</head>
+<body></body>
+</html>

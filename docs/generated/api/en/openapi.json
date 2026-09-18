@@ -1,0 +1,4751 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Shroudtopia API Documentation",
+    "version": "1.1",
+    "description": "This page documents the native Shroudtopia C API 1.1. The operation paths organize native function calls for the ReDoc layout; they are not HTTP endpoints.\n\nEvery operation contains its exact C signature, parameter schema, result contract, and a C++ call example. The Asset section also includes static responses captured from real local Enshrouded KFC data. The documentation never connects to a local game process.",
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/bonsaibauer/shroudtopia/blob/1.1.0/LICENSE"
+    }
+  },
+  "tags": [
+    {
+      "name": "Actions",
+      "description": "Exposes discoverable operations with JSON Schema inputs and observable state."
+    },
+    {
+      "name": "API",
+      "description": "Negotiates and exposes the single flat Shroudtopia interface used by every native mod."
+    },
+    {
+      "name": "Assets",
+      "description": "Lists, reads, creates, updates, patches, saves, and resets structured game assets."
+    },
+    {
+      "name": "Capability information",
+      "description": "Describes the negotiated version and availability of a capability."
+    },
+    {
+      "name": "Commands",
+      "description": "Registers named commands with descriptions and callbacks."
+    },
+    {
+      "name": "Core API",
+      "description": "Defines the ABI version, common string and registration handles, and the Result error model."
+    },
+    {
+      "name": "Events",
+      "description": "Publishes typed event payloads and manages event subscriptions."
+    },
+    {
+      "name": "Mod lifecycle",
+      "description": "Declares a mod and its load, activation, update, deactivation, and unload callbacks."
+    },
+    {
+      "name": "Logging",
+      "description": "Writes structured loader messages and reads bounded tails of loader or game logs."
+    },
+    {
+      "name": "Runtime patches",
+      "description": "Creates and controls ownership-scoped direct or detour runtime patches."
+    },
+    {
+      "name": "Service discovery",
+      "description": "Publishes extension contracts and resolves providers by exact contract version."
+    },
+    {
+      "name": "Settings",
+      "description": "Reads typed values from the calling mod's configuration."
+    },
+    {
+      "name": "Text UI",
+      "description": "Creates native text windows, updates tab snapshots, observes readiness, and destroys windows."
+    }
+  ],
+  "paths": {
+    "/actions/register_action": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Register action.",
+        "description": "**Native C function:** `api->register_action`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* register_action)(StringView owner_id, const Action* action, Registration* registration);\n```",
+        "operationId": "register_action",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "action"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "action": {
+                    "$ref": "#/components/schemas/Action",
+                    "description": "Value for action."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "registration": 1001
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->register_action(View(\"mod.example\"), &action, &registration);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/actions/invoke_action": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Invoke action.",
+        "description": "**Native C function:** `api->invoke_action`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* invoke_action)(StringView owner_id, StringView action_id, StringView input_json);\n```",
+        "operationId": "invoke_action",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "action_id",
+                  "input_json"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "action_id": {
+                    "type": "string",
+                    "description": "Value for action id."
+                  },
+                  "input_json": {
+                    "type": "string",
+                    "description": "UTF-8 JSON input validated against the action schema."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->invoke_action(View(\"mod.example\"), View(\"mod.example.action\"), View(\"value\"));\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/actions/get_action_state": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Read action state.",
+        "description": "**Native C function:** `api->get_action_state`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* get_action_state)(StringView action_id, ActionState* state);\n```",
+        "operationId": "get_action_state",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "action_id"
+                ],
+                "properties": {
+                  "action_id": {
+                    "type": "string",
+                    "description": "Value for action id."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "state": "ACTION_AVAILABLE"
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->get_action_state(View(\"mod.example.action\"), &state);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/api/ShroudtopiaGetApi": {
+      "post": {
+        "tags": [
+          "API"
+        ],
+        "summary": "Negotiate the requested ABI version and return the process-wide host API.",
+        "description": "**Native C function:** `api->ShroudtopiaGetApi`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nAPI_EXPORT Result CALL ShroudtopiaGetApi(uint32_t requested_api_version, const Api** api);\n```",
+        "operationId": "ShroudtopiaGetApi",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "requested_api_version"
+                ],
+                "properties": {
+                  "requested_api_version": {
+                    "type": "integer",
+                    "description": "Value for requested api version."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "api": {
+                          "struct_size": 264,
+                          "api_version": 65537
+                        }
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->ShroudtopiaGetApi(requested_api_version, &api);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/assets/list_assets": {
+      "post": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "List assets.",
+        "description": "**Native C function:** `api->list_assets`\n\n**Canonical header:** `api/shroudtopia.h`\n\nThe success response contains values captured from the locally installed Enshrouded KFC files on 2026-09-17. No executable or KFC file is included.\n\n```c\nResult (CALL* list_assets)(StringView owner_id, StringView type_name, AssetVisitor visitor, void* user_data);\n```",
+        "operationId": "list_assets",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "type_name",
+                  "visitor",
+                  "user_data"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "type_name": {
+                    "type": "string",
+                    "description": "Value for type name."
+                  },
+                  "visitor": {
+                    "type": "string",
+                    "description": "Value for visitor."
+                  },
+                  "user_data": {
+                    "description": "Opaque context forwarded unchanged to the callback."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "assets": [
+                          {
+                            "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
+                            "type_name": "keen::RecipeRegistryResource",
+                            "part": 0
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->list_assets(View(\"mod.example\"), View(\"keen::RecipeRegistryResource\"), visitor, &user_data);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/assets/get_asset": {
+      "post": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Read asset.",
+        "description": "**Native C function:** `api->get_asset`\n\n**Canonical header:** `api/shroudtopia.h`\n\nThe success response contains values captured from the locally installed Enshrouded KFC files on 2026-09-17. No executable or KFC file is included.\n\n```c\nResult (CALL* get_asset)(StringView owner_id, const AssetId* asset, char* buffer, size_t capacity, size_t* required_size);\n```",
+        "operationId": "get_asset",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "asset",
+                  "capacity"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "asset": {
+                    "$ref": "#/components/schemas/AssetId",
+                    "description": "Value for asset."
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "description": "Elements or bytes available in the output buffer."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "buffer": "{\"inputCategories\":[],\"recipes\":[{\"debugName\":\"Key_T4_Skeleton_Bone_HollowHalls\",\"recipeGuid\":\"b1d93aea-6737-4bd7-909f-020dd7a9fc04\",\"recipeId\":{\"value\":1335314663},\"input\":[{\"itemStack\":{\"count\":100,\"item\":{\"value\":1453689781},\"itemRef\":\"ca6b8ff7-c0c1-4dff-99ab-35fedfd3c6ff\"}},{\"itemStack\":{\"count\":2,\"item\":{\"value\":2956062198},\"itemRef\":\"39e2bce4-6c71-466d-a540-3d7ab11bc204\"}}],\"output\":[{\"count\":1,\"item\":{\"value\":4053229560},\"itemRef\":\"62550276-1656-459c-a489-b18c1019e9c7\"}],\"showIsImportantLabel\":true}]}",
+                        "required_size": 514
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->get_asset(View(\"mod.example\"), &asset, &buffer, capacity, &required_size);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/assets/update_asset": {
+      "post": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Update asset.",
+        "description": "**Native C function:** `api->update_asset`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* update_asset)(StringView owner_id, const AssetId* asset, StringView json);\n```",
+        "operationId": "update_asset",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "asset",
+                  "json"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "asset": {
+                    "$ref": "#/components/schemas/AssetId",
+                    "description": "Value for asset."
+                  },
+                  "json": {
+                    "type": "string",
+                    "description": "UTF-8 JSON representation of the resource."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->update_asset(View(\"mod.example\"), &asset, View(\"0\"));\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/assets/create_asset": {
+      "post": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Create asset.",
+        "description": "**Native C function:** `api->create_asset`\n\n**Canonical header:** `api/shroudtopia.h`\n\nThe success response contains values captured from the locally installed Enshrouded KFC files on 2026-09-17. No executable or KFC file is included.\n\n```c\nResult (CALL* create_asset)(StringView owner_id, StringView type_name, StringView json, AssetVisitor visitor, void* user_data);\n```",
+        "operationId": "create_asset",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "type_name",
+                  "json",
+                  "visitor",
+                  "user_data"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "type_name": {
+                    "type": "string",
+                    "description": "Value for type name."
+                  },
+                  "json": {
+                    "type": "string",
+                    "description": "UTF-8 JSON representation of the resource."
+                  },
+                  "visitor": {
+                    "type": "string",
+                    "description": "Value for visitor."
+                  },
+                  "user_data": {
+                    "description": "Opaque context forwarded unchanged to the callback."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "asset": {
+                          "guid": "5e57de0f-280c-4559-8191-f02c1ba656e2",
+                          "type_name": "keen::RecipeRegistryResource",
+                          "part": 0
+                        }
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->create_asset(View(\"mod.example\"), View(\"keen::RecipeRegistryResource\"), View(\"0\"), visitor, &user_data);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/assets/reset_assets": {
+      "post": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Reset assets.",
+        "description": "**Native C function:** `api->reset_assets`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* reset_assets)(StringView owner_id);\n```",
+        "operationId": "reset_assets",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->reset_assets(View(\"mod.example\"));\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/assets/save_assets": {
+      "post": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Persist assets.",
+        "description": "**Native C function:** `api->save_assets`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* save_assets)(StringView owner_id);\n```",
+        "operationId": "save_assets",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->save_assets(View(\"mod.example\"));\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/assets/set_asset_field": {
+      "post": {
+        "tags": [
+          "Assets"
+        ],
+        "summary": "Set asset field.",
+        "description": "**Native C function:** `api->set_asset_field`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* set_asset_field)(StringView owner_id, const AssetId* asset, StringView path, StringView json);\n```",
+        "operationId": "set_asset_field",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "asset",
+                  "path",
+                  "json"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "asset": {
+                    "$ref": "#/components/schemas/AssetId",
+                    "description": "Value for asset."
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "Value for path."
+                  },
+                  "json": {
+                    "type": "string",
+                    "description": "UTF-8 JSON representation of the resource."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->set_asset_field(View(\"mod.example\"), &asset, View(\"/recipes/0/requiredEnergy\"), View(\"0\"));\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/capabilities/query_capability": {
+      "post": {
+        "tags": [
+          "Capability information"
+        ],
+        "summary": "Read availability and version information for a capability.",
+        "description": "**Native C function:** `api->query_capability`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* query_capability)(StringView capability_id, CapabilityInfo* information);\n```",
+        "operationId": "query_capability",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "capability_id"
+                ],
+                "properties": {
+                  "capability_id": {
+                    "type": "string",
+                    "description": "Value for capability id."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "information": {
+                          "struct_size": 32,
+                          "version_major": 1,
+                          "version_minor": 1,
+                          "flags": 0,
+                          "available": 1,
+                          "reserved": [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->query_capability(View(\"value\"), &information);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/capabilities/check_permission": {
+      "post": {
+        "tags": [
+          "Capability information"
+        ],
+        "summary": "Check whether an owner may use a permission.",
+        "description": "**Native C function:** `api->check_permission`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* check_permission)(StringView owner_id, StringView permission_id, uint8_t* allowed);\n```",
+        "operationId": "check_permission",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "permission_id"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "permission_id": {
+                    "type": "string",
+                    "description": "Value for permission id."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "allowed": 1
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->check_permission(View(\"mod.example\"), View(\"value\"), &allowed);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/commands/register_command": {
+      "post": {
+        "tags": [
+          "Commands"
+        ],
+        "summary": "Register command.",
+        "description": "**Native C function:** `api->register_command`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* register_command)(StringView owner_id, const CommandDescriptor* descriptor, Registration* registration);\n```",
+        "operationId": "register_command",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "descriptor"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "descriptor": {
+                    "$ref": "#/components/schemas/CommandDescriptor",
+                    "description": "Value for descriptor."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "registration": 1002
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->register_command(View(\"mod.example\"), &descriptor, &registration);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/commands/invoke_command": {
+      "post": {
+        "tags": [
+          "Commands"
+        ],
+        "summary": "Invoke command.",
+        "description": "**Native C function:** `api->invoke_command`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* invoke_command)(StringView owner_id, StringView command_id, StringView arguments);\n```",
+        "operationId": "invoke_command",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "command_id",
+                  "arguments"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "command_id": {
+                    "type": "string",
+                    "description": "Value for command id."
+                  },
+                  "arguments": {
+                    "type": "string",
+                    "description": "Value for arguments."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->invoke_command(View(\"mod.example\"), View(\"mod.example.command\"), View(\"value\"));\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/events/subscribe_event": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Subscribe to event.",
+        "description": "**Native C function:** `api->subscribe_event`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* subscribe_event)(StringView owner_id, const EventSubscription* subscription, Registration* registration);\n```",
+        "operationId": "subscribe_event",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "subscription"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "subscription": {
+                    "$ref": "#/components/schemas/EventSubscription",
+                    "description": "Value for subscription."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "registration": 1003
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->subscribe_event(View(\"mod.example\"), &subscription, &registration);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/events/publish_event": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Publish event.",
+        "description": "**Native C function:** `api->publish_event`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* publish_event)(StringView owner_id, const Event* event_data);\n```",
+        "operationId": "publish_event",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "event_data"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "event_data": {
+                    "$ref": "#/components/schemas/Event",
+                    "description": "Value for event data."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->publish_event(View(\"mod.example\"), &event_data);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/logging/log": {
+      "post": {
+        "tags": [
+          "Logging"
+        ],
+        "summary": "Write .",
+        "description": "**Native C function:** `api->log`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* log)(StringView owner_id, LogLevel level, StringView message);\n```",
+        "operationId": "log",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "level",
+                  "message"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "level": {
+                    "$ref": "#/components/schemas/LogLevel",
+                    "description": "Value for level."
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Value for message."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->log(View(\"mod.example\"), level, View(\"value\"));\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/logging/read_log_tail": {
+      "post": {
+        "tags": [
+          "Logging"
+        ],
+        "summary": "Execute log tail.",
+        "description": "**Native C function:** `api->read_log_tail`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* read_log_tail)(LogSource source, char* buffer, size_t capacity, size_t* written);\n```",
+        "operationId": "read_log_tail",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "source",
+                  "capacity"
+                ],
+                "properties": {
+                  "source": {
+                    "$ref": "#/components/schemas/LogSource",
+                    "description": "Value for source."
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "description": "Elements or bytes available in the output buffer."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "buffer": "[I 00:00:00,000] [shroudtopia] Starting 1.1.0\n",
+                        "written": 46
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->read_log_tail(source, &buffer, capacity, &written);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/runtime-patches/create_patch": {
+      "post": {
+        "tags": [
+          "Runtime patches"
+        ],
+        "summary": "Create patch.",
+        "description": "**Native C function:** `api->create_patch`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* create_patch)(StringView owner_id, const RuntimePatchOptions* options, RuntimePatch* patch);\n```",
+        "operationId": "create_patch",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "options"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "options": {
+                    "$ref": "#/components/schemas/RuntimePatchOptions",
+                    "description": "Value for options."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "patch": 1
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->create_patch(View(\"mod.example\"), &options, &patch);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/runtime-patches/set_patch_enabled": {
+      "post": {
+        "tags": [
+          "Runtime patches"
+        ],
+        "summary": "Set patch enabled.",
+        "description": "**Native C function:** `api->set_patch_enabled`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* set_patch_enabled)(StringView owner_id, RuntimePatch patch, uint8_t enabled);\n```",
+        "operationId": "set_patch_enabled",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "patch",
+                  "enabled"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "patch": {
+                    "type": "integer",
+                    "description": "Value for patch."
+                  },
+                  "enabled": {
+                    "type": "integer",
+                    "description": "Value for enabled."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->set_patch_enabled(View(\"mod.example\"), patch, enabled);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/runtime-patches/get_patch_state": {
+      "post": {
+        "tags": [
+          "Runtime patches"
+        ],
+        "summary": "Read patch state.",
+        "description": "**Native C function:** `api->get_patch_state`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* get_patch_state)(StringView owner_id, RuntimePatch patch, RuntimePatchState* state);\n```",
+        "operationId": "get_patch_state",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "patch"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "patch": {
+                    "type": "integer",
+                    "description": "Value for patch."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "state": {
+                          "struct_size": 16,
+                          "enabled": 1,
+                          "reserved": [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->get_patch_state(View(\"mod.example\"), patch, &state);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/runtime-patches/release_patch": {
+      "post": {
+        "tags": [
+          "Runtime patches"
+        ],
+        "summary": "Release patch.",
+        "description": "**Native C function:** `api->release_patch`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* release_patch)(StringView owner_id, RuntimePatch patch);\n```",
+        "operationId": "release_patch",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "patch"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "patch": {
+                    "type": "integer",
+                    "description": "Value for patch."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->release_patch(View(\"mod.example\"), patch);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/services/register_service": {
+      "post": {
+        "tags": [
+          "Service discovery"
+        ],
+        "summary": "Publish a versioned service implementation owned by the calling mod.",
+        "description": "**Native C function:** `api->register_service`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* register_service)(StringView owner_id, const ServiceDescriptor* descriptor, Registration* registration);\n```",
+        "operationId": "register_service",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "descriptor"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "descriptor": {
+                    "$ref": "#/components/schemas/ServiceDescriptor",
+                    "description": "Value for descriptor."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "registration": 1004
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->register_service(View(\"mod.example\"), &descriptor, &registration);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/services/find_service": {
+      "post": {
+        "tags": [
+          "Service discovery"
+        ],
+        "summary": "Resolve a service implementation by its exact contract version.",
+        "description": "**Native C function:** `api->find_service`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* find_service)(const ServiceRequest* request, const void** interface_pointer);\n```",
+        "operationId": "find_service",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "request"
+                ],
+                "properties": {
+                  "request": {
+                    "$ref": "#/components/schemas/ServiceRequest",
+                    "description": "Value for request."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "interface_pointer": "0x000001F000001100"
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->find_service(&request, &interface_pointer);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/services/release_registration": {
+      "post": {
+        "tags": [
+          "Service discovery"
+        ],
+        "summary": "Release one registration handle.",
+        "description": "**Native C function:** `api->release_registration`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* release_registration)(Registration registration);\n```",
+        "operationId": "release_registration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "registration"
+                ],
+                "properties": {
+                  "registration": {
+                    "type": "integer",
+                    "description": "Receives or identifies an ownership-bound registration."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->release_registration(registration);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/settings/get_mod_setting_bool": {
+      "post": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Read mod setting bool.",
+        "description": "**Native C function:** `api->get_mod_setting_bool`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* get_mod_setting_bool)(StringView owner_id, StringView key, uint8_t fallback, uint8_t* value);\n```",
+        "operationId": "get_mod_setting_bool",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "key",
+                  "fallback"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "Value for key."
+                  },
+                  "fallback": {
+                    "type": "integer",
+                    "description": "Value for fallback."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "value": 1
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->get_mod_setting_bool(View(\"mod.example\"), View(\"value\"), fallback, &value);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/settings/get_mod_setting_number": {
+      "post": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Read mod setting number.",
+        "description": "**Native C function:** `api->get_mod_setting_number`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* get_mod_setting_number)(StringView owner_id, StringView key, double fallback, double* value);\n```",
+        "operationId": "get_mod_setting_number",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "key",
+                  "fallback"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "Value for key."
+                  },
+                  "fallback": {
+                    "type": "number",
+                    "description": "Value for fallback."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "value": 500
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->get_mod_setting_number(View(\"mod.example\"), View(\"value\"), fallback, &value);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/ui/create_text_window": {
+      "post": {
+        "tags": [
+          "Text UI"
+        ],
+        "summary": "Create text window.",
+        "description": "**Native C function:** `api->create_text_window`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* create_text_window)(StringView owner_id, const TextWindowOptions* options, TextWindow* window);\n```",
+        "operationId": "create_text_window",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "options"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "options": {
+                    "$ref": "#/components/schemas/TextWindowOptions",
+                    "description": "Value for options."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "window": 1
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->create_text_window(View(\"mod.example\"), &options, &window);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/ui/set_text_window_text": {
+      "post": {
+        "tags": [
+          "Text UI"
+        ],
+        "summary": "Set text window text.",
+        "description": "**Native C function:** `api->set_text_window_text`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* set_text_window_text)(StringView owner_id, TextWindow window, size_t tab, StringView text);\n```",
+        "operationId": "set_text_window_text",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "window",
+                  "tab",
+                  "text"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "window": {
+                    "type": "integer",
+                    "description": "Value for window."
+                  },
+                  "tab": {
+                    "type": "integer",
+                    "description": "Value for tab."
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Value for text."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->set_text_window_text(View(\"mod.example\"), window, tab, View(\"value\"));\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/ui/get_text_window_status": {
+      "post": {
+        "tags": [
+          "Text UI"
+        ],
+        "summary": "Read text window status.",
+        "description": "**Native C function:** `api->get_text_window_status`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* get_text_window_status)(StringView owner_id, TextWindow window, TextWindowStatus* status);\n```",
+        "operationId": "get_text_window_status",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "window"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "window": {
+                    "type": "integer",
+                    "description": "Value for window."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {
+                        "status": "TEXT_READY"
+                      }
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->get_text_window_status(View(\"mod.example\"), window, &status);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    },
+    "/ui/destroy_text_window": {
+      "post": {
+        "tags": [
+          "Text UI"
+        ],
+        "summary": "Destroy text window.",
+        "description": "**Native C function:** `api->destroy_text_window`\n\n**Canonical header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* destroy_text_window)(StringView owner_id, TextWindow window);\n```",
+        "operationId": "destroy_text_window",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "owner_id",
+                  "window"
+                ],
+                "properties": {
+                  "owner_id": {
+                    "type": "string",
+                    "description": "Stable identifier of the calling mod."
+                  },
+                  "window": {
+                    "type": "integer",
+                    "description": "Value for window."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEnvelope"
+                },
+                "examples": {
+                  "result_ok": {
+                    "summary": "RESULT_OK",
+                    "value": {
+                      "result": "RESULT_OK",
+                      "result_code": 0,
+                      "outputs": {}
+                    }
+                  },
+                  "result_invalid_argument": {
+                    "summary": "RESULT_INVALID_ARGUMENT",
+                    "value": {
+                      "result": "RESULT_INVALID_ARGUMENT",
+                      "result_code": 1,
+                      "outputs": {}
+                    }
+                  },
+                  "result_conflict": {
+                    "summary": "RESULT_CONFLICT",
+                    "value": {
+                      "result": "RESULT_CONFLICT",
+                      "result_code": 2,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_found": {
+                    "summary": "RESULT_NOT_FOUND",
+                    "value": {
+                      "result": "RESULT_NOT_FOUND",
+                      "result_code": 3,
+                      "outputs": {}
+                    }
+                  },
+                  "result_version_mismatch": {
+                    "summary": "RESULT_VERSION_MISMATCH",
+                    "value": {
+                      "result": "RESULT_VERSION_MISMATCH",
+                      "result_code": 4,
+                      "outputs": {}
+                    }
+                  },
+                  "result_permission_denied": {
+                    "summary": "RESULT_PERMISSION_DENIED",
+                    "value": {
+                      "result": "RESULT_PERMISSION_DENIED",
+                      "result_code": 5,
+                      "outputs": {}
+                    }
+                  },
+                  "result_not_available": {
+                    "summary": "RESULT_NOT_AVAILABLE",
+                    "value": {
+                      "result": "RESULT_NOT_AVAILABLE",
+                      "result_code": 6,
+                      "outputs": {}
+                    }
+                  },
+                  "result_callback_failed": {
+                    "summary": "RESULT_CALLBACK_FAILED",
+                    "value": {
+                      "result": "RESULT_CALLBACK_FAILED",
+                      "result_code": 7,
+                      "outputs": {}
+                    }
+                  },
+                  "result_internal_error": {
+                    "summary": "RESULT_INTERNAL_ERROR",
+                    "value": {
+                      "result": "RESULT_INTERNAL_ERROR",
+                      "result_code": 8,
+                      "outputs": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C++",
+            "label": "Native C function",
+            "source": "Result result = api->destroy_text_window(View(\"mod.example\"), window);\nif (result != RESULT_OK) {\n    return result;\n}"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Action": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "id",
+          "title",
+          "description",
+          "input_schema_json",
+          "invoke",
+          "user_data"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "input_schema_json": {
+            "type": "string"
+          },
+          "invoke": {
+            "type": "string",
+            "description": "Native type: ActionHandler"
+          },
+          "user_data": {}
+        }
+      },
+      "ActionState": {
+        "type": "string",
+        "enum": [
+          "ACTION_AVAILABLE",
+          "ACTION_DISABLED",
+          "ACTION_RUNNING",
+          "ACTION_FAILED"
+        ],
+        "description": "ACTION_AVAILABLE = 0\n\nACTION_DISABLED = 1\n\nACTION_RUNNING = 2\n\nACTION_FAILED = 3"
+      },
+      "Api": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "api_version"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "api_version": {
+            "type": "integer"
+          }
+        }
+      },
+      "AssetId": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "guid",
+          "type_name",
+          "part"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "guid": {
+            "type": "string"
+          },
+          "type_name": {
+            "type": "string"
+          },
+          "part": {
+            "type": "integer"
+          }
+        }
+      },
+      "CapabilityInfo": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "version_major",
+          "version_minor",
+          "flags",
+          "available",
+          "reserved"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "version_major": {
+            "type": "integer"
+          },
+          "version_minor": {
+            "type": "integer"
+          },
+          "flags": {
+            "type": "integer"
+          },
+          "available": {
+            "type": "integer"
+          },
+          "reserved": {
+            "type": "integer"
+          }
+        }
+      },
+      "CommandDescriptor": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "command_id",
+          "description",
+          "callback",
+          "user_data"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "command_id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "callback": {
+            "type": "string",
+            "description": "Native type: CommandCallback"
+          },
+          "user_data": {}
+        }
+      },
+      "StringView": {
+        "type": "object",
+        "required": [
+          "data",
+          "size"
+        ],
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Native type: char"
+          },
+          "size": {
+            "type": "integer"
+          }
+        }
+      },
+      "Result": {
+        "type": "string",
+        "enum": [
+          "RESULT_OK",
+          "RESULT_INVALID_ARGUMENT",
+          "RESULT_CONFLICT",
+          "RESULT_NOT_FOUND",
+          "RESULT_VERSION_MISMATCH",
+          "RESULT_PERMISSION_DENIED",
+          "RESULT_NOT_AVAILABLE",
+          "RESULT_CALLBACK_FAILED",
+          "RESULT_INTERNAL_ERROR"
+        ],
+        "description": "RESULT_OK = 0\n\nRESULT_INVALID_ARGUMENT = 1\n\nRESULT_CONFLICT = 2\n\nRESULT_NOT_FOUND = 3\n\nRESULT_VERSION_MISMATCH = 4\n\nRESULT_PERMISSION_DENIED = 5\n\nRESULT_NOT_AVAILABLE = 6\n\nRESULT_CALLBACK_FAILED = 7\n\nRESULT_INTERNAL_ERROR = 8"
+      },
+      "Event": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "event_id",
+          "payload",
+          "payload_size"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "payload": {},
+          "payload_size": {
+            "type": "integer"
+          }
+        }
+      },
+      "EventSubscription": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "event_id",
+          "callback",
+          "user_data"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "callback": {
+            "type": "string",
+            "description": "Native type: EventCallback"
+          },
+          "user_data": {}
+        }
+      },
+      "ModDescriptor": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "mod_id",
+          "user_data",
+          "on_load",
+          "on_activate",
+          "on_update",
+          "on_deactivate",
+          "on_unload"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "mod_id": {
+            "type": "string"
+          },
+          "user_data": {},
+          "on_load": {
+            "type": "string",
+            "description": "Native type: ModLifecycleCallback"
+          },
+          "on_activate": {
+            "type": "string",
+            "description": "Native type: ModLifecycleCallback"
+          },
+          "on_update": {
+            "type": "string",
+            "description": "Native type: ModUpdateCallback"
+          },
+          "on_deactivate": {
+            "type": "string",
+            "description": "Native type: ModLifecycleCallback"
+          },
+          "on_unload": {
+            "type": "string",
+            "description": "Native type: ModLifecycleCallback"
+          }
+        }
+      },
+      "LogLevel": {
+        "type": "string",
+        "enum": [
+          "LOG_TRACE",
+          "LOG_DEBUG",
+          "LOG_INFO",
+          "LOG_WARNING",
+          "LOG_ERROR"
+        ],
+        "description": "LOG_TRACE = 0\n\nLOG_DEBUG = 1\n\nLOG_INFO = 2\n\nLOG_WARNING = 3\n\nLOG_ERROR = 4"
+      },
+      "LogSource": {
+        "type": "string",
+        "enum": [
+          "LOG_SOURCE_LOADER",
+          "LOG_SOURCE_GAME"
+        ],
+        "description": "LOG_SOURCE_LOADER = 0\n\nLOG_SOURCE_GAME = 1"
+      },
+      "RuntimeRelocation": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "payload_offset",
+          "kind"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "payload_offset": {
+            "type": "integer"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/RuntimeRelocationKind"
+          }
+        }
+      },
+      "RuntimePatchOptions": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "signature",
+          "match_offset",
+          "kind",
+          "overwrite_size",
+          "payload",
+          "payload_size",
+          "relocations",
+          "relocation_count"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "signature": {
+            "type": "string"
+          },
+          "match_offset": {
+            "type": "integer"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/RuntimePatchKind"
+          },
+          "overwrite_size": {
+            "type": "integer"
+          },
+          "payload": {
+            "type": "integer"
+          },
+          "payload_size": {
+            "type": "integer"
+          },
+          "relocations": {
+            "$ref": "#/components/schemas/RuntimeRelocation"
+          },
+          "relocation_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "RuntimePatchState": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "enabled",
+          "reserved"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "enabled": {
+            "type": "integer"
+          },
+          "reserved": {
+            "type": "integer"
+          }
+        }
+      },
+      "RuntimePatchKind": {
+        "type": "string",
+        "enum": [
+          "RUNTIME_PATCH_DIRECT",
+          "RUNTIME_PATCH_DETOUR"
+        ],
+        "description": "RUNTIME_PATCH_DIRECT = 0\n\nRUNTIME_PATCH_DETOUR = 1"
+      },
+      "RuntimeRelocationKind": {
+        "type": "string",
+        "enum": [
+          "RUNTIME_RELOCATION_REL32_RETURN"
+        ],
+        "description": "RUNTIME_RELOCATION_REL32_RETURN = 1"
+      },
+      "ServiceDescriptor": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "contract_id",
+          "version_major",
+          "version_minor",
+          "interface_pointer"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "contract_id": {
+            "type": "string"
+          },
+          "version_major": {
+            "type": "integer"
+          },
+          "version_minor": {
+            "type": "integer"
+          },
+          "interface_pointer": {}
+        }
+      },
+      "ServiceRequest": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "contract_id",
+          "version_major",
+          "version_minor"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "contract_id": {
+            "type": "string"
+          },
+          "version_major": {
+            "type": "integer"
+          },
+          "version_minor": {
+            "type": "integer"
+          }
+        }
+      },
+      "TextWindowOptions": {
+        "type": "object",
+        "required": [
+          "struct_size",
+          "title",
+          "tabs",
+          "tab_count",
+          "toggle_key"
+        ],
+        "properties": {
+          "struct_size": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "tabs": {
+            "type": "string"
+          },
+          "tab_count": {
+            "type": "integer"
+          },
+          "toggle_key": {
+            "type": "integer"
+          }
+        }
+      },
+      "TextWindowStatus": {
+        "type": "string",
+        "enum": [
+          "TEXT_PENDING",
+          "TEXT_READY",
+          "TEXT_FAILED"
+        ],
+        "description": "TEXT_PENDING = 0\n\nTEXT_READY = 1\n\nTEXT_FAILED = 2"
+      },
+      "ResultEnvelope": {
+        "type": "object",
+        "required": [
+          "result",
+          "result_code",
+          "outputs"
+        ],
+        "properties": {
+          "result": {
+            "type": "string",
+            "enum": [
+              "RESULT_OK",
+              "RESULT_INVALID_ARGUMENT",
+              "RESULT_CONFLICT",
+              "RESULT_NOT_FOUND",
+              "RESULT_VERSION_MISMATCH",
+              "RESULT_PERMISSION_DENIED",
+              "RESULT_NOT_AVAILABLE",
+              "RESULT_CALLBACK_FAILED",
+              "RESULT_INTERNAL_ERROR"
+            ],
+            "example": "RESULT_OK"
+          },
+          "result_code": {
+            "type": "integer",
+            "example": 0
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

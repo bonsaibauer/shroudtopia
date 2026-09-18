@@ -1,0 +1,19 @@
+[package]
+name = "shroudtopia"
+edition = "2024"
+version = "1.1.0"
+authors = ["Shroudtopia contributors"]
+license = "GPL-3.0-or-later"
+rust-version = "1.88.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+kfc = { path = "../../third-party/kfc-parser/crates/kfc", features = ["resource"] }
+serde_json = "1.0"
+uuid = { version = "1.18.0", features = ["v4"] }
+
+[profile.release]
+panic = "abort"
+lto = "thin"

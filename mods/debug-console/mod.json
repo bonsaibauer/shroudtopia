@@ -1,0 +1,13 @@
+{
+  "id": "mod.debug-console",
+  "name": "Shroudtopia Debug Console",
+  "version": "1.1.0",
+  "description": "Opens the central log window with a configurable hotkey. Switch between the existing Enshrouded and Shroudtopia logs.",
+  "shroudtopia": {
+    "api": "1.1",
+    "entrypoint": "CreateMod",
+    "binary": "shroudtopia-debug-console.dll",
+    "target": "client",
+    "default": { "active": true, "toggleKey": 121 }
+  }
+}

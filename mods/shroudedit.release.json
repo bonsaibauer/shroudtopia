@@ -1,0 +1,10 @@
+{
+  "id": "mod.shroudedit",
+  "version": "0.2.0",
+  "tag": "v0.2.0-build.3",
+  "sourceCommit": "a78d3db242a68beb11b85c0caca62f7171e13790",
+  "asset": "shroudedit-0.2.0-3.zip",
+  "url": "https://github.com/bonsaibauer/shroudedit/releases/download/v0.2.0-build.3/shroudedit-0.2.0-3.zip",
+  "archiveSha256": "135970CE72CEC056F004CB1E8161BE96070B2DE765B3F88F18EAAA407119A139",
+  "dllSha256": "7681B41F967A9C5229EDC99CE1AE03EDE5C7D1E9901B0738E783640A693BBD96"
+}
