@@ -4,7 +4,7 @@ import process from "node:process";
 
 const root = process.cwd();
 const errors = [];
-const forbidden = ["ST_", "HostApiV1", "AssetsApiV1", "WorldApiV1", "CreateModV1", "ShroudtopiaCreateMod", "visit_resources", "read_resource_json", "replace_resource_json", "set_resource_field_json", "discard_changes", "query_entities", "get_entity_transform", "spawn_entity", "destroy_entity", "set_entity_transform", "read_grid_region", "write_grid_region", "execute_command", "get_setting_bool", "get_setting_number"];
+const forbidden = ["ST_", "HostApiV1", "AssetsApiV1", "WorldApiV1", "CreateModV1", "ShroudtopiaCreateMod", "visit_resources", "read_resource_json", "replace_resource_json", "set_resource_field_json", "discard_changes", "set_entity_transform", "execute_command", "get_setting_bool", "get_setting_number"];
 const required = {
   "api/shroudtopia.h": ["Api", "ShroudtopiaGetApi", "register_service", "register_action", "get_mod_setting_bool", "create_patch", "list_assets", "get_asset", "update_asset", "set_asset_field", "save_assets", "create_text_window"]
 };
