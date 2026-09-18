@@ -6,6 +6,10 @@
 #include <iostream>
 #include <limits>
 int main() {
+    const float packedBounds[]{1,2,3,4,5,6};
+    const WorldNative::PlacementBounds bounds(packedBounds);
+    assert(bounds.minimum[0]==1 && bounds.minimum[2]==3 && bounds.minimum[3]==0);
+    assert(bounds.maximum[0]==4 && bounds.maximum[2]==6 && bounds.maximum[3]==0);
     WorldNative::Cursor cursor{};
     cursor.primary.position[0] = -INT64_C(4294967296);
     cursor.primary.position[1] = INT64_C(6442450944);

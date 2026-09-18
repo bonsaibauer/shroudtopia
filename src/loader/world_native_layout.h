@@ -7,6 +7,16 @@
 #include <span>
 
 namespace WorldNative {
+// Native placement reads float3 endpoints at offsets 0 and 16, not 0 and 12.
+struct alignas(16) PlacementBounds {
+    float minimum[4]{};
+    float maximum[4]{};
+    explicit PlacementBounds(const float* packed) {
+        std::memcpy(minimum,packed,3*sizeof(float));
+        std::memcpy(maximum,packed+3,3*sizeof(float));
+    }
+};
+static_assert(sizeof(PlacementBounds)==32 && offsetof(PlacementBounds,maximum)==16);
 // Client AF2F5A12...; sizes/offsets from its reflection, confirmed in instructions.
 // These are engine layouts, never part of the public mod contract.
 struct Transform {

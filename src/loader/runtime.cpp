@@ -305,6 +305,7 @@ DWORD WINAPI run(LPVOID) {
         }
         const int update_delay = (std::max)(Config::get<int>("updateDelay", 500), 1);
         WorldDiagnostic::Tick(Config::get<bool>("worldDiagnostic",false) && Config::get<bool>("active",true));
+        if (worldResult==RESULT_OK) WorldEngine::Tick();
         if (Config::get<bool>("active", true)) {
             discover_mods();
             update_mods(static_cast<double>(update_delay) / 1000.0);
