@@ -4,3 +4,6 @@
 [submodule "third-party/kfc-parser"]
 	path = third-party/kfc-parser
 	url = https://github.com/Brabb3l/kfc-parser.git
+[submodule "mods/shroudedit"]
+	path = mods/shroudedit
+	url = https://github.com/bonsaibauer/shroudedit.git

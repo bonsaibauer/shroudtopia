@@ -36,6 +36,25 @@ $engineBinary = Join-Path $engineRoot 'target\release\shroudtopia.dll'
 if (-not (Test-Path -LiteralPath $engineBinary)) { throw "Shroudtopia asset engine binary missing: $engineBinary" }
 Copy-Item -LiteralPath $engineBinary -Destination (Join-Path $output 'shroudtopia.dll') -Force
 
+# ShroudEdit is maintained as its own repository and pinned here as a submodule.
+# Build and test that exact commit, then place its DLL beside the bundled mod
+# binaries so the existing validation and packaging stages treat it uniformly.
+$shroudEditSource = Join-Path $root 'mods\shroudedit'
+$shroudEditProject = Join-Path $shroudEditSource 'CMakeLists.txt'
+if (-not (Test-Path -LiteralPath $shroudEditProject)) {
+    throw 'ShroudEdit submodule is missing. Run: git submodule update --init --recursive'
+}
+$shroudEditBuild = Join-Path $root 'build\shroudedit'
+& cmake -S $shroudEditSource -B $shroudEditBuild -A x64 "-DSHROUDTOPIA_API_DIR=$root"
+if ($LASTEXITCODE -ne 0) { throw "ShroudEdit configure failed with exit code $LASTEXITCODE." }
+& cmake --build $shroudEditBuild --config Release --parallel
+if ($LASTEXITCODE -ne 0) { throw "ShroudEdit build failed with exit code $LASTEXITCODE." }
+& ctest --test-dir $shroudEditBuild -C Release --output-on-failure
+if ($LASTEXITCODE -ne 0) { throw "ShroudEdit tests failed with exit code $LASTEXITCODE." }
+$shroudEditBinary = Join-Path $shroudEditBuild 'Release\mod.shroudedit.dll'
+if (-not (Test-Path -LiteralPath $shroudEditBinary)) { throw "ShroudEdit binary missing: $shroudEditBinary" }
+Copy-Item -LiteralPath $shroudEditBinary -Destination (Join-Path $output 'mod.shroudedit.dll') -Force
+
 $smokeSource = Join-Path $root 'tools\platform-api-smoke.cpp'
 $smokeExecutable = Join-Path $output 'platform-api-smoke.exe'
 $nativeModSmokeSource = Join-Path $root 'tools\native-mod-smoke.cpp'
@@ -86,6 +105,12 @@ function Copy-BundledMods([string]$Destination) {
         $target = Join-Path $Destination ([string]$manifest.id)
         New-Item -ItemType Directory -Force -Path $target | Out-Null
         Copy-Item -LiteralPath $sourceBinary,$manifestPath -Destination $target -Force
+        foreach ($documentation in @('README.md','LICENSE','VALIDATED-BUILD.md')) {
+            $documentationPath = Join-Path $_.FullName $documentation
+            if (Test-Path -LiteralPath $documentationPath) {
+                Copy-Item -LiteralPath $documentationPath -Destination $target -Force
+            }
+        }
     }
 }
 
@@ -102,6 +127,9 @@ try {
         $manifestPath = Join-Path $_.FullName 'mod.json'
         if (-not (Test-Path -LiteralPath $manifestPath)) { return }
         $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+        # ShroudEdit has its own CMake lifecycle/command test suite above. The
+        # generic harness below models only the built-in patch and utility mods.
+        if ([string]$manifest.id -eq 'mod.shroudedit') { return }
         & $nativeModSmokeExecutable (Join-Path $output ([string]$manifest.shroudtopia.binary)) ([string]$manifest.id)
         if ($LASTEXITCODE -ne 0) { throw "Native mod smoke test failed for $($manifest.id)." }
         if ([string]$manifest.id -ne 'mod.commands') {
