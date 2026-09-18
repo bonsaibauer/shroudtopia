@@ -36,25 +36,6 @@ $engineBinary = Join-Path $engineRoot 'target\release\shroudtopia.dll'
 if (-not (Test-Path -LiteralPath $engineBinary)) { throw "Shroudtopia asset engine binary missing: $engineBinary" }
 Copy-Item -LiteralPath $engineBinary -Destination (Join-Path $output 'shroudtopia.dll') -Force
 
-# ShroudEdit is maintained as its own repository and pinned here as a submodule.
-# Build and test that exact commit, then place its DLL beside the bundled mod
-# binaries so the existing validation and packaging stages treat it uniformly.
-$shroudEditSource = Join-Path $root 'mods\shroudedit'
-$shroudEditProject = Join-Path $shroudEditSource 'CMakeLists.txt'
-if (-not (Test-Path -LiteralPath $shroudEditProject)) {
-    throw 'ShroudEdit submodule is missing. Run: git submodule update --init --recursive'
-}
-$shroudEditBuild = Join-Path $root 'build\shroudedit'
-& cmake -S $shroudEditSource -B $shroudEditBuild -A x64 "-DSHROUDTOPIA_API_DIR=$root"
-if ($LASTEXITCODE -ne 0) { throw "ShroudEdit configure failed with exit code $LASTEXITCODE." }
-& cmake --build $shroudEditBuild --config Release --parallel
-if ($LASTEXITCODE -ne 0) { throw "ShroudEdit build failed with exit code $LASTEXITCODE." }
-& ctest --test-dir $shroudEditBuild -C Release --output-on-failure
-if ($LASTEXITCODE -ne 0) { throw "ShroudEdit tests failed with exit code $LASTEXITCODE." }
-$shroudEditBinary = Join-Path $shroudEditBuild 'Release\mod.shroudedit.dll'
-if (-not (Test-Path -LiteralPath $shroudEditBinary)) { throw "ShroudEdit binary missing: $shroudEditBinary" }
-Copy-Item -LiteralPath $shroudEditBinary -Destination (Join-Path $output 'mod.shroudedit.dll') -Force
-
 $smokeSource = Join-Path $root 'tools\platform-api-smoke.cpp'
 $smokeExecutable = Join-Path $output 'platform-api-smoke.exe'
 $nativeModSmokeSource = Join-Path $root 'tools\native-mod-smoke.cpp'
@@ -90,8 +71,45 @@ finally {
     Remove-Item -LiteralPath $compileCommand -ErrorAction SilentlyContinue
 }
 
+$externalMods = Join-Path $root 'build\external-mods'
+$dependencyCache = Join-Path $root 'build\dependencies'
+$shroudEditLockPath = Join-Path $root 'mods\shroudedit.release.json'
+$shroudEditLock = Get-Content -LiteralPath $shroudEditLockPath -Raw | ConvertFrom-Json
+if (-not $shroudEditLock.asset -or -not $shroudEditLock.url -or -not $shroudEditLock.archiveSha256 -or
+    -not $shroudEditLock.dllSha256 -or -not $shroudEditLock.sourceCommit) {
+    throw "Invalid ShroudEdit release lock: $shroudEditLockPath"
+}
+New-Item -ItemType Directory -Force -Path $dependencyCache | Out-Null
+$shroudEditArchive = Join-Path $dependencyCache ([string]$shroudEditLock.asset)
+$downloadRequired = -not (Test-Path -LiteralPath $shroudEditArchive)
+if (-not $downloadRequired) {
+    $downloadRequired = (Get-FileHash -LiteralPath $shroudEditArchive -Algorithm SHA256).Hash -ne [string]$shroudEditLock.archiveSha256
+}
+if ($downloadRequired) {
+    Invoke-WebRequest -Uri ([string]$shroudEditLock.url) -OutFile $shroudEditArchive
+}
+$archiveHash = (Get-FileHash -LiteralPath $shroudEditArchive -Algorithm SHA256).Hash
+if ($archiveHash -ne [string]$shroudEditLock.archiveSha256) { throw 'ShroudEdit release archive hash mismatch.' }
+Remove-Item -LiteralPath $externalMods -Recurse -Force -ErrorAction SilentlyContinue
+$expandedRelease = Join-Path $externalMods 'expanded'
+Expand-Archive -LiteralPath $shroudEditArchive -DestinationPath $expandedRelease
+$shroudEditSource = Join-Path $expandedRelease 'mods\mod.shroudedit'
+if (-not (Test-Path -LiteralPath (Join-Path $shroudEditSource 'mod.json'))) { throw 'ShroudEdit release layout is invalid.' }
+$shroudEditManifest = Get-Content -LiteralPath (Join-Path $shroudEditSource 'mod.json') -Raw | ConvertFrom-Json
+$shroudEditBinary = Join-Path $shroudEditSource ([string]$shroudEditManifest.shroudtopia.binary)
+if ([string]$shroudEditManifest.id -ne [string]$shroudEditLock.id -or
+    [string]$shroudEditManifest.version -ne [string]$shroudEditLock.version -or
+    (Get-FileHash -LiteralPath $shroudEditBinary -Algorithm SHA256).Hash -ne [string]$shroudEditLock.dllSha256) {
+    throw 'ShroudEdit release contents do not match the pinned lock.'
+}
+Copy-Item -LiteralPath $shroudEditLockPath -Destination (Join-Path $shroudEditSource 'release.json') -Force
+
+function Get-BundledModDirectories {
+    @(Get-ChildItem -LiteralPath (Join-Path $root 'mods') -Directory) + @((Get-Item -LiteralPath $shroudEditSource))
+}
+
 function Copy-BundledMods([string]$Destination) {
-    Get-ChildItem -LiteralPath (Join-Path $root 'mods') -Directory | ForEach-Object {
+    Get-BundledModDirectories | ForEach-Object {
         $manifestPath = Join-Path $_.FullName 'mod.json'
         if (-not (Test-Path -LiteralPath $manifestPath)) { return }
         $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
@@ -100,12 +118,13 @@ function Copy-BundledMods([string]$Destination) {
         if ([string]$manifest.shroudtopia.target -notin @('client', 'server', 'both')) {
             throw "Invalid shroudtopia.target in bundled mod manifest: $manifestPath"
         }
-        $sourceBinary = Join-Path $output $binary
+        $releasePath = Join-Path $_.FullName 'release.json'
+        $sourceBinary = if (Test-Path -LiteralPath $releasePath) { Join-Path $_.FullName $binary } else { Join-Path $output $binary }
         if (-not (Test-Path -LiteralPath $sourceBinary)) { throw "Bundled mod binary missing: $sourceBinary" }
         $target = Join-Path $Destination ([string]$manifest.id)
         New-Item -ItemType Directory -Force -Path $target | Out-Null
         Copy-Item -LiteralPath $sourceBinary,$manifestPath -Destination $target -Force
-        foreach ($documentation in @('README.md','LICENSE','VALIDATED-BUILD.md')) {
+        foreach ($documentation in @('README.md','LICENSE','VALIDATED-BUILD.md','release.json')) {
             $documentationPath = Join-Path $_.FullName $documentation
             if (Test-Path -LiteralPath $documentationPath) {
                 Copy-Item -LiteralPath $documentationPath -Destination $target -Force
@@ -123,12 +142,12 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Runtime patch smoke test failed with exit code $LASTEXITCODE." }
     & (Join-Path $output 'log-reader-smoke.exe')
     if ($LASTEXITCODE -ne 0) { throw 'Log reader / native UI smoke test failed.' }
-    Get-ChildItem -LiteralPath (Join-Path $root 'mods') -Directory | ForEach-Object {
+    Get-BundledModDirectories | ForEach-Object {
         $manifestPath = Join-Path $_.FullName 'mod.json'
         if (-not (Test-Path -LiteralPath $manifestPath)) { return }
         $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-        # ShroudEdit has its own CMake lifecycle/command test suite above. The
-        # generic harness below models only the built-in patch and utility mods.
+        # The pinned ShroudEdit release was tested by its own CI. The generic
+        # harness below models only the built-in patch and utility mods.
         if ([string]$manifest.id -eq 'mod.shroudedit') { return }
         & $nativeModSmokeExecutable (Join-Path $output ([string]$manifest.shroudtopia.binary)) ([string]$manifest.id)
         if ($LASTEXITCODE -ne 0) { throw "Native mod smoke test failed for $($manifest.id)." }
