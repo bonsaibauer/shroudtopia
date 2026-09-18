@@ -32,8 +32,9 @@ int main() {
     record.enabled=1; record.lock=1; assert(call(nullptr)==preserved); assert(record.sequence==1 && record.lock==1);
     VirtualFree(allocation,0,MEM_RELEASE);
 
+    for (const auto kind:{Kind::TerrainEntry,Kind::WorldContext}) {
     record={}; record.enabled=1;
-    code=Payload(&record,Kind::TerrainEntry); code.push_back(0xc3);
+    code=Payload(&record,kind); code.push_back(0xc3);
     allocation=VirtualAlloc(nullptr,4096,MEM_RESERVE|MEM_COMMIT,PAGE_READWRITE); assert(allocation);
     std::memcpy(allocation,code.data(),code.size());
     assert(VirtualProtect(allocation,4096,PAGE_EXECUTE_READ,&previous));
@@ -43,6 +44,7 @@ int main() {
     assert(record.arguments[0]==11 && record.arguments[1]==22 && record.arguments[2]==33 && record.arguments[3]==44);
     assert(record.arguments[4]!=0 && record.arguments[5]==55);
     VirtualFree(allocation,0,MEM_RELEASE);
+    }
     for (const auto ownerOffset:{0x44,0x40}) {
         record={}; record.enabled=1;
         std::array<std::uint8_t,72> event{};

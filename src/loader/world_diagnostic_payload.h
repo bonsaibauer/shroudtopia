@@ -6,7 +6,7 @@
 #include <cstring>
 
 namespace WorldDiagnostic {
-enum class Kind { Cursor, TerrainEntry, BuildingEvent, VoxelWriteEntry };
+enum class Kind { Cursor, TerrainEntry, BuildingEvent, VoxelWriteEntry, WorldContext };
 // Fixed latest-sample mailbox. No allocation, file access, calls or world writes
 // in the hook. Reader and writers acquire the same lock; contention drops a sample.
 struct alignas(8) Record {
