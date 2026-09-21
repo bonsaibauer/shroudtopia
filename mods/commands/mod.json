@@ -1,9 +1,9 @@
 {
   "id": "mod.commands",
   "name": "Shroudtopia Commands",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "shroudtopia": {
-    "api": "1.1",
+    "api": "1.2",
     "entrypoint": "CreateMod",
     "binary": "shroudtopia-commands.dll",
     "target": "both",

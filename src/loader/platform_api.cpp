@@ -5,6 +5,7 @@
 #include "assets_engine.h"
 #include "utils.h"
 #include "ui_text.h"
+#include "../ui/ui_pages.h"
 #include "shroudtopia.h"
 
 #include <algorithm>
@@ -216,6 +217,14 @@ namespace {
             return RESULT_OK;
         }
 
+        Result RegisterUiPage(StringView owner, const UiPageDescriptor* descriptor, Registration* registration) {
+            if (!Valid(owner) || descriptor == nullptr || registration == nullptr) return RESULT_INVALID_ARGUMENT;
+            const auto handle = NextHandle();
+            const auto result = UiPages::Register(owner, descriptor, handle);
+            if (result == RESULT_OK) *registration = handle;
+            return result;
+        }
+
         Result InvokeAction(StringView owner, StringView actionId, StringView inputJson) {
             if (!Valid(owner) || !Valid(actionId) || (inputJson.size != 0 && inputJson.data == nullptr)) {
                 return RESULT_INVALID_ARGUMENT;
@@ -259,10 +268,14 @@ namespace {
 
         Result Release(Registration registration) {
             if (registration == 0) return RESULT_INVALID_ARGUMENT;
-            std::scoped_lock lock(mutex_);
-            const auto removed = services_.erase(registration) + events_.erase(registration) +
-                commands_.erase(registration) + actions_.erase(registration);
-            return removed == 0 ? RESULT_NOT_FOUND : RESULT_OK;
+            size_t removed = 0;
+            {
+                std::scoped_lock lock(mutex_);
+                removed = services_.erase(registration) + events_.erase(registration) +
+                    commands_.erase(registration) + actions_.erase(registration);
+            }
+            if (removed != 0) return RESULT_OK;
+            return UiPages::Release(registration);
         }
 
         Result ReleaseOwner(StringView owner) {
@@ -270,6 +283,7 @@ namespace {
             const auto ownerId = Copy(owner);
             RuntimePatches::ReleaseOwner(ownerId);
             AssetsEngine::Reset(owner);
+            UiPages::ReleaseOwner(owner);
             std::scoped_lock lock(mutex_);
             EraseOwner(services_, ownerId);
             EraseOwner(events_, ownerId);
@@ -300,6 +314,7 @@ namespace {
                 {CAPABILITY_REGISTRY_EVENTS, {1, 1, 0, true}},
                 {CAPABILITY_REGISTRY_COMMANDS, {1, 1, 0, true}},
                 {CAPABILITY_RUNTIME_PATCHES, {1, 1, 0, true}},
+                {CAPABILITY_UI_PAGES, {1, 2, 0, true}},
             };
 
             const auto entry = capabilities.find(capability);
@@ -368,6 +383,12 @@ namespace {
     }
     Result CALL RegisterAction(StringView owner, const Action* action, Registration* registration) {
         return registry.RegisterAction(owner, action, registration);
+    }
+    Result CALL RegisterUiPage(StringView owner, const UiPageDescriptor* descriptor, Registration* registration) {
+        return registry.RegisterUiPage(owner, descriptor, registration);
+    }
+    Result CALL VisitUiPages(StringView owner, UiPageVisitor visitor, void* userData) {
+        return UiPages::Visit(owner, visitor, userData);
     }
     Result CALL InvokeAction(StringView owner, StringView actionId, StringView inputJson) {
         return registry.InvokeAction(owner, actionId, inputJson);
@@ -499,6 +520,16 @@ namespace {
         *value = result;
         return RESULT_OK;
     }
+    Result CALL SetModSettingBool(StringView owner, StringView key, uint8_t value) {
+        if (!Valid(owner) || !Valid(key)) return RESULT_INVALID_ARGUMENT;
+        const auto ownerId = Copy(owner), settingKey = Copy(key);
+        return Config::modSet(ownerId.c_str(), settingKey.c_str(), value != 0) ? RESULT_OK : RESULT_INTERNAL_ERROR;
+    }
+    Result CALL SetModSettingNumber(StringView owner, StringView key, double value) {
+        if (!Valid(owner) || !Valid(key) || !std::isfinite(value)) return RESULT_INVALID_ARGUMENT;
+        const auto ownerId = Copy(owner), settingKey = Copy(key);
+        return Config::modSet(ownerId.c_str(), settingKey.c_str(), value) ? RESULT_OK : RESULT_INTERNAL_ERROR;
+    }
     Api api{
         sizeof(Api), API_VERSION,
         RegisterService, FindService,
@@ -512,8 +543,22 @@ namespace {
         GetModSettingNumber,
         CreateRuntimePatch, SetRuntimePatchEnabled, GetRuntimePatchState, ReleaseRuntimePatch,
         ListAssets, GetAsset, UpdateAsset, CreateAsset, ResetAssets, SaveAssets, SetAssetField,
-        UiText::Create, UiText::SetText, UiText::Status, UiText::Destroy
+        UiText::Create, UiText::SetText, UiText::Status, UiText::Destroy,
+        SetModSettingBool, SetModSettingNumber,
+        RegisterUiPage, VisitUiPages
     };
+
+    constexpr uint32_t ApiVersion11 = UINT32_C(0x00010001);
+    Api api11 = [] {
+        Api compatible = api;
+        compatible.struct_size = offsetof(Api, set_mod_setting_bool);
+        compatible.api_version = ApiVersion11;
+        compatible.set_mod_setting_bool = nullptr;
+        compatible.set_mod_setting_number = nullptr;
+        compatible.register_ui_page = nullptr;
+        compatible.visit_ui_pages = nullptr;
+        return compatible;
+    }();
 }
 
 namespace PlatformApi {
@@ -531,6 +576,7 @@ void ReleaseOwner(const std::string& owner) {
 
 void Shutdown() {
     UiText::Shutdown();
+    UiPages::Shutdown();
     RuntimePatches::Shutdown();
     AssetsEngine::Shutdown();
 }
@@ -539,8 +585,9 @@ void Shutdown() {
 extern "C" API_EXPORT Result CALL ShroudtopiaGetApi(uint32_t requestedApiVersion, const Api** api) {
     if (api == nullptr) return RESULT_INVALID_ARGUMENT;
     *api = nullptr;
-    if (requestedApiVersion != API_VERSION) return RESULT_VERSION_MISMATCH;
+    if (requestedApiVersion != API_VERSION && requestedApiVersion != ApiVersion11)
+        return RESULT_VERSION_MISMATCH;
     PlatformApi::Initialize();
-    *api = &::api;
+    *api = requestedApiVersion == ApiVersion11 ? &api11 : &::api;
     return RESULT_OK;
 }

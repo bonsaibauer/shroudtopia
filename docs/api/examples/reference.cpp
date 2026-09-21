@@ -34,4 +34,29 @@ Result example_read_asset(const Api* api, const AssetId* asset, std::vector<char
     json->resize(required_size);
     return api->get_asset(view("docs.example"), asset, json->data(), json->size(), &required_size);
 }
+
+Result CALL example_ui_changed(StringView control_id, uint8_t enabled, double, void* user_data) {
+    const Api* api = static_cast<const Api*>(user_data);
+    if (api == nullptr) return RESULT_INVALID_ARGUMENT;
+    return api->set_mod_setting_bool(view("docs.example"), control_id, enabled);
+}
+
+Result example_register_ui(const Api* api, Registration* registration) {
+    if (api == nullptr || registration == nullptr || api->register_ui_page == nullptr)
+        return RESULT_INVALID_ARGUMENT;
+    const UiControlDescriptor controls[]{
+        {sizeof(UiControlDescriptor), view("enabled"), view("Enabled"),
+            view("Enables this example mod."), UI_CONTROL_BOOL, 0, 0, 1, 1, 1, {}, 0,
+            UI_STATUS_NEUTRAL}
+    };
+    const UiTabDescriptor tabs[]{
+        {sizeof(UiTabDescriptor), view("general"), view("General"), controls, 1}
+    };
+    const UiPageDescriptor page{
+        sizeof(UiPageDescriptor), view("settings"), view("Example mod"),
+        view("Settings rendered by Shroudforge."), 100, tabs, 1,
+        example_ui_changed, nullptr, const_cast<Api*>(api)
+    };
+    return api->register_ui_page(view("docs.example"), &page, registration);
+}
 }

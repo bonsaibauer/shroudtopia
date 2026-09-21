@@ -109,7 +109,7 @@ const resultRows = [
   ["RESULT_INVALID_ARGUMENT", "A pointer, structure size, value, or JSON document is invalid.", "Correct the call; do not retry unchanged."],
   ["RESULT_CONFLICT", "The requested ownership or mutation conflicts with existing state.", "Resolve the competing owner or operation."],
   ["RESULT_NOT_FOUND", "The requested resource or provider does not exist.", "Check identifiers and availability."],
-  ["RESULT_VERSION_MISMATCH", "The requested API version does not match API 1.1.", "Request API 1.1."],
+  ["RESULT_VERSION_MISMATCH", "The requested API version does not match API 1.2.", "Request API 1.2."],
   ["RESULT_PERMISSION_DENIED", "The owner lacks the required permission.", "Declare and obtain the required permission."],
   ["RESULT_NOT_AVAILABLE", "The feature is unavailable in the current runtime state.", "Wait for the required state or degrade gracefully."],
   ["RESULT_CALLBACK_FAILED", "A consumer callback returned a failure.", "Inspect the callback and its user data."],
@@ -132,6 +132,6 @@ for (const file of metadataFiles) {
 }
 
 await mkdir(generatedRoot, { recursive: true });
-const publicModel = { schemaVersion: 1, apiVersion: "1.1", generatedFrom: "api/shroudtopia.h", services: services.map(({ headers, header: _header, extra_headers: _extra, ...service }) => ({ ...service, headers: headers.map(({ source, ...header }) => header) })), results: resultRows.map(([name, meaning, handling]) => ({ name, meaning, handling })) };
+const publicModel = { schemaVersion: 1, apiVersion: "1.2", generatedFrom: "api/shroudtopia.h", services: services.map(({ headers, header: _header, extra_headers: _extra, ...service }) => ({ ...service, headers: headers.map(({ source, ...header }) => header) })), results: resultRows.map(([name, meaning, handling]) => ({ name, meaning, handling })) };
 await writeFile(path.join(generatedRoot, "api-model.json"), `${JSON.stringify(publicModel, null, 2)}\n`);
 console.log(`Generated the static API model for ${services.length} contracts.`);

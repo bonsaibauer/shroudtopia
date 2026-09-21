@@ -1,7 +1,7 @@
 {
   "id": "mod.unlock-blueprints",
   "name": "Shroudtopia Unlock Blueprints",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "requires": {
     "capabilities": [
       "shroudtopia.assets.read",
@@ -9,7 +9,7 @@
     ]
   },
   "shroudtopia": {
-    "api": "1.1",
+    "api": "1.2",
     "entrypoint": "CreateMod",
     "binary": "shroudtopia-unlock-blueprints.dll",
     "target": "both",
