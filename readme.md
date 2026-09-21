@@ -46,7 +46,7 @@ Runtime patches activate only when their signature matches the running game buil
 | Area |
 |---|
 | Lifecycle, discovery, services, events, commands, and settings |
-| Owner-tagged logging, current-log reading, and native text UI |
+| Owner-tagged logging, current-log reading, native text UI, and the responsive Shroudforge Win32 settings window |
 | Capabilities, permissions, ownership, and cleanup |
 | Runtime patches and detours |
 | Typed KFC3 Asset API |

@@ -102,6 +102,8 @@
     <ClInclude Include="runtime_patches.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="..\..\api\shroudtopia.h" />
+    <ClInclude Include="..\ui\ui_module.h" />
+    <ClInclude Include="..\ui\ui_pages.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -113,6 +115,8 @@
     <ClCompile Include="world_engine.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="ui_text.cpp" />
+    <ClCompile Include="..\ui\ui_module.cpp"><PrecompiledHeader>NotUsing</PrecompiledHeader></ClCompile>
+    <ClCompile Include="..\ui\ui_pages.cpp"><PrecompiledHeader>NotUsing</PrecompiledHeader></ClCompile>
     <ClCompile Include="winmm_proxy.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>

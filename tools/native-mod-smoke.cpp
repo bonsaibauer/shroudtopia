@@ -212,6 +212,8 @@ Result CALL GetModSettingNumber(StringView, StringView, double fallback, double*
     *value = fallback;
     return RESULT_OK;
 }
+Result CALL SetModSettingBool(StringView, StringView, std::uint8_t) { return RESULT_OK; }
+Result CALL SetModSettingNumber(StringView, StringView, double) { return RESULT_OK; }
 
 const Api TestApi{
     sizeof(Api), API_VERSION,
@@ -221,7 +223,8 @@ const Api TestApi{
     Log, ReadLog, GetModSettingBool, GetModSettingNumber,
     PatchCreate, PatchEnable, PatchState, PatchRelease,
     ListAssets, GetAsset, UpdateAsset, CreateAsset, ResetAssets, SaveAssets, SetAssetField,
-    TextCreate, TextSet, TextStatus, TextDestroy
+    TextCreate, TextSet, TextStatus, TextDestroy,
+    SetModSettingBool, SetModSettingNumber
 };
 
 bool SamePatch(const ExpectedPatch& actual, const ExpectedPatch& expected) {

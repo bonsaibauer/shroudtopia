@@ -8,6 +8,7 @@
 #include "shroudtopia.h"
 #include "world_diagnostic.h"
 #include "world_engine.h"
+#include "../ui/ui_module.h"
 
 #include <algorithm>
 #include <chrono>
@@ -36,9 +37,11 @@ struct LoadedMod {
     ModDescriptor descriptor{};
     std::string id;
     std::string version;
+    const Api* mod_api = nullptr;
     bool loaded = false;
     bool active = false;
     bool failed = false;
+    Registration settings_page = 0;
 };
 
 std::map<std::string, LoadedMod> mods;
@@ -87,16 +90,46 @@ bool supports_target(const std::string& target) {
         (target == "server" && process == ProcessTarget::Server);
 }
 
-Result invoke(ModLifecycleCallback callback, void* user_data) {
+Result invoke(const Api* mod_api, ModLifecycleCallback callback, void* user_data) {
     if (callback == nullptr) return RESULT_OK;
-    try { return callback(api, user_data); }
+    try { return callback(mod_api, user_data); }
     catch (...) { return RESULT_CALLBACK_FAILED; }
 }
 
-Result invoke_update(ModUpdateCallback callback, void* user_data, double delta_seconds) {
+Result invoke_update(const Api* mod_api, ModUpdateCallback callback, void* user_data, double delta_seconds) {
     if (callback == nullptr) return RESULT_OK;
-    try { return callback(api, user_data, delta_seconds); }
+    try { return callback(mod_api, user_data, delta_seconds); }
     catch (...) { return RESULT_CALLBACK_FAILED; }
+}
+
+Result CALL update_mod_setting(StringView control, uint8_t boolean, double, void* user_data) {
+    auto* mod = static_cast<LoadedMod*>(user_data);
+    if (!mod || std::string_view(control.data ? control.data : "", control.size) != "active" || !api->set_mod_setting_bool)
+        return RESULT_INVALID_ARGUMENT;
+    return api->set_mod_setting_bool({mod->id.data(), mod->id.size()}, {"active", 6}, boolean);
+}
+
+void register_settings_page(LoadedMod& mod, const json& manifest) {
+    if (!api->register_ui_page) return;
+    const auto name = manifest.value("name", mod.id);
+    const auto description = manifest.value("description", std::string{});
+    const bool active = Config::modGet<bool>(mod.id.c_str(), "active", false);
+    static constexpr char Active[] = "active", ActiveLabel[] = "Mod aktiviert";
+    static constexpr char ActiveDescription[] = "Aktiviert oder deaktiviert die Mod beim naechsten Loader-Tick.";
+    static constexpr char General[] = "general", GeneralLabel[] = "Allgemein", PageId[] = "shroudtopia.settings";
+    const UiControlDescriptor controls[]{
+        {sizeof(UiControlDescriptor), {Active, sizeof(Active) - 1}, {ActiveLabel, sizeof(ActiveLabel) - 1},
+            {ActiveDescription, sizeof(ActiveDescription) - 1},
+            UI_CONTROL_BOOL, 0, 0, 1, 1, active ? uint8_t{1} : uint8_t{0}, {}, 0, UI_STATUS_NEUTRAL}
+    };
+    const UiTabDescriptor tabs[]{
+        {sizeof(UiTabDescriptor), {General, sizeof(General) - 1}, {GeneralLabel, sizeof(GeneralLabel) - 1}, controls, std::size(controls)}
+    };
+    const UiPageDescriptor page{sizeof(UiPageDescriptor), {PageId, sizeof(PageId) - 1},
+        {name.data(), name.size()}, {description.data(), description.size()}, 100, tabs, std::size(tabs),
+        update_mod_setting, nullptr, &mod};
+    const auto result = api->register_ui_page({mod.id.data(), mod.id.size()}, &page, &mod.settings_page);
+    if (result != RESULT_OK) Utils::LogAs(LOG_WARNING, mod.id.c_str(), "Could not register Shroudforge page: result=%d", result);
 }
 
 void apply_manifest_defaults(const std::string& id, const json& manifest) {
@@ -119,7 +152,10 @@ void load_mod(const fs::path& directory, const json& manifest) {
     }
 
     const auto& section = manifest["shroudtopia"];
-    if (section.value("api", "") != "1.1" || section.value("entrypoint", "") != "CreateMod") {
+    const auto api_name = section.value("api", "");
+    const uint32_t requested_api_version = api_name == "1.2" ? API_VERSION :
+        api_name == "1.1" ? UINT32_C(0x00010001) : 0;
+    if (requested_api_version == 0 || section.value("entrypoint", "") != "CreateMod") {
         Utils::Log(LOG_ERROR, "Unsupported API or entrypoint for mod: %s", id.c_str());
         return;
     }
@@ -156,8 +192,14 @@ void load_mod(const fs::path& directory, const json& manifest) {
 
     ModDescriptor descriptor{};
     descriptor.struct_size = sizeof(descriptor);
+    const Api* mod_api = nullptr;
+    if (ShroudtopiaGetApi(requested_api_version, &mod_api) != RESULT_OK || mod_api == nullptr) {
+        Utils::Log(LOG_ERROR, "Requested API is unavailable for mod: %s", id.c_str());
+        FreeLibrary(module);
+        return;
+    }
     Result result = RESULT_CALLBACK_FAILED;
-    try { result = create_mod(API_VERSION, &descriptor); }
+    try { result = create_mod(requested_api_version, &descriptor); }
     catch (...) {}
 
     if (result != RESULT_OK || descriptor.struct_size < sizeof(descriptor) ||
@@ -183,7 +225,8 @@ void load_mod(const fs::path& directory, const json& manifest) {
         }
     }
     PlatformApi::GrantCapabilities(id, capabilities);
-    mods.emplace(key, LoadedMod{module, descriptor, id, version});
+    const auto [entry, inserted] = mods.emplace(key, LoadedMod{module, descriptor, id, version, mod_api});
+    if (inserted) register_settings_page(entry->second, manifest);
     Utils::Log(LOG_INFO, "Registered mod: %s v%s", id.c_str(), version.c_str());
     Utils::Log(LOG_DEBUG, "Mod manifest accepted: id=%s target=%s capabilities=%zu binary=%s",
         id.c_str(), target.c_str(), capabilities.size(), key.c_str());
@@ -214,7 +257,7 @@ void update_mods(double delta_seconds) {
         if (mod.failed) continue;
         if (!mod.loaded) {
             const auto started = std::chrono::steady_clock::now();
-            const auto result = invoke(mod.descriptor.on_load, mod.descriptor.user_data);
+            const auto result = invoke(mod.mod_api, mod.descriptor.on_load, mod.descriptor.user_data);
             Utils::LogAs(LOG_DEBUG, mod.id.c_str(), "on_load: result=%d duration=%.3f ms",
                 static_cast<int>(result), elapsed_ms(started));
             if (result != RESULT_OK) {
@@ -229,7 +272,7 @@ void update_mods(double delta_seconds) {
         const bool should_activate = Config::modGet<bool>(mod.id.c_str(), "active", false);
         if (should_activate && !mod.active) {
             const auto started = std::chrono::steady_clock::now();
-            const auto result = invoke(mod.descriptor.on_activate, mod.descriptor.user_data);
+            const auto result = invoke(mod.mod_api, mod.descriptor.on_activate, mod.descriptor.user_data);
             Utils::LogAs(LOG_DEBUG, mod.id.c_str(), "on_activate: result=%d duration=%.3f ms",
                 static_cast<int>(result), elapsed_ms(started));
             if (result != RESULT_OK) {
@@ -241,7 +284,7 @@ void update_mods(double delta_seconds) {
             Utils::LogAs(LOG_INFO, mod.id.c_str(), "Activated");
         } else if (!should_activate && mod.active) {
             const auto started = std::chrono::steady_clock::now();
-            const auto result = invoke(mod.descriptor.on_deactivate, mod.descriptor.user_data);
+            const auto result = invoke(mod.mod_api, mod.descriptor.on_deactivate, mod.descriptor.user_data);
             Utils::LogAs(LOG_DEBUG, mod.id.c_str(), "on_deactivate: result=%d duration=%.3f ms",
                 static_cast<int>(result), elapsed_ms(started));
             if (result != RESULT_OK) {
@@ -253,7 +296,7 @@ void update_mods(double delta_seconds) {
         }
 
         if (mod.active && mod.descriptor.on_update != nullptr) {
-            const auto result = invoke_update(mod.descriptor.on_update, mod.descriptor.user_data, delta_seconds);
+            const auto result = invoke_update(mod.mod_api, mod.descriptor.on_update, mod.descriptor.user_data, delta_seconds);
             if (result != RESULT_OK) Utils::LogAs(LOG_ERROR, mod.id.c_str(), "Update failed: result=%d", static_cast<int>(result));
         }
     }
@@ -262,7 +305,7 @@ void update_mods(double delta_seconds) {
 void deactivate_mods() {
     for (auto& [path, mod] : mods) {
         if (!mod.active) continue;
-        const auto result = invoke(mod.descriptor.on_deactivate, mod.descriptor.user_data);
+        const auto result = invoke(mod.mod_api, mod.descriptor.on_deactivate, mod.descriptor.user_data);
         if (result != RESULT_OK) {
             Utils::LogAs(LOG_ERROR, mod.id.c_str(), "Deactivation failed: result=%d", static_cast<int>(result));
         }
@@ -272,8 +315,8 @@ void deactivate_mods() {
 
 void unload_mods() {
     for (auto& [path, mod] : mods) {
-        if (mod.active) invoke(mod.descriptor.on_deactivate, mod.descriptor.user_data);
-        if (mod.loaded) invoke(mod.descriptor.on_unload, mod.descriptor.user_data);
+        if (mod.active) invoke(mod.mod_api, mod.descriptor.on_deactivate, mod.descriptor.user_data);
+        if (mod.loaded) invoke(mod.mod_api, mod.descriptor.on_unload, mod.descriptor.user_data);
         PlatformApi::ReleaseOwner(mod.id);
         if (mod.module != nullptr) FreeLibrary(mod.module);
     }
@@ -294,7 +337,11 @@ DWORD WINAPI run(LPVOID) {
     Utils::Log(LOG_INFO, "Starting %s-%s", SHROUDTOPIA_VERSION, SHROUDTOPIA_BUILD_NUMBER);
     Utils::Log(LOG_DEBUG, "Runtime initialized: process=%s updateDelay=%dms modsDirectory=%s",
         target_name(current_target()), Config::get<int>("updateDelay", 500), SHROUDTOPIA_MOD_FOLDER);
-    Utils::Log(LOG_DEBUG, "API ready: version=1.1");
+    Utils::Log(LOG_DEBUG, "API ready: version=1.2");
+    if (current_target() == ProcessTarget::Client) {
+        const auto uiResult = ShroudforgeUi::Initialize(api);
+        if (uiResult != RESULT_OK) Utils::Log(LOG_WARNING, "Shroudforge UI unavailable: result=%d", static_cast<int>(uiResult));
+    }
     const auto worldResult=WorldEngine::Initialize(api);
     if (worldResult!=RESULT_OK) Utils::Log(LOG_WARNING,"Native world service unavailable: result=%d",static_cast<int>(worldResult));
     WorldDiagnostic::Start(Config::get<bool>("worldDiagnostic",false));
@@ -305,6 +352,7 @@ DWORD WINAPI run(LPVOID) {
         }
         const int update_delay = (std::max)(Config::get<int>("updateDelay", 500), 1);
         WorldDiagnostic::Tick(Config::get<bool>("worldDiagnostic",false) && Config::get<bool>("active",true));
+        if (current_target() == ProcessTarget::Client) ShroudforgeUi::Tick();
         if (worldResult==RESULT_OK) WorldEngine::Tick();
         if (Config::get<bool>("active", true)) {
             discover_mods();
@@ -317,6 +365,7 @@ DWORD WINAPI run(LPVOID) {
 
     WorldDiagnostic::Tick(false);
     unload_mods();
+    if (current_target() == ProcessTarget::Client) ShroudforgeUi::Shutdown();
     WorldEngine::Shutdown(api);
     Utils::Log(LOG_DEBUG, "Runtime shutdown: all mods unloaded");
     PlatformApi::Shutdown();

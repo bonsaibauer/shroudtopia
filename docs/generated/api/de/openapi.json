@@ -2,11 +2,11 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Shroudtopia API-Dokumentation",
-    "version": "1.1",
-    "description": "Diese Seite dokumentiert die native Shroudtopia-C-API 1.1. Die Operationspfade ordnen native Funktionsaufrufe für das ReDoc-Layout; sie sind keine HTTP-Endpunkte.\n\nJede Operation enthält die exakte C-Signatur, das Parameterschema, den Result-Vertrag und ein C++-Aufrufbeispiel. Der Asset-Bereich enthält außerdem statische Antworten aus echten lokalen Enshrouded-KFC-Daten. Die Dokumentation verbindet sich niemals mit einem lokalen Spielprozess.",
+    "version": "1.2",
+    "description": "Diese Seite dokumentiert die native Shroudtopia-C-API 1.2. Die Operationspfade ordnen native Funktionsaufrufe für das ReDoc-Layout; sie sind keine HTTP-Endpunkte.\n\nJede Operation enthält die exakte C-Signatur, das Parameterschema, den Result-Vertrag und ein C++-Aufrufbeispiel. Der Asset-Bereich enthält außerdem statische Antworten aus echten lokalen Enshrouded-KFC-Daten. Die Dokumentation verbindet sich niemals mit einem lokalen Spielprozess.",
     "license": {
       "name": "MIT",
-      "url": "https://github.com/bonsaibauer/shroudtopia/blob/1.1.0/LICENSE"
+      "url": "https://github.com/bonsaibauer/shroudtopia/blob/1.2.0/LICENSE"
     }
   },
   "tags": [
@@ -56,11 +56,11 @@
     },
     {
       "name": "Settings",
-      "description": "Liest typisierte Werte aus der Konfiguration der aufrufenden Mod."
+      "description": "Liest und schreibt typisierte Werte in der Konfiguration der aufrufenden Mod."
     },
     {
-      "name": "Text UI",
-      "description": "Erstellt native Textfenster, aktualisiert Tab-Inhalte, beobachtet die Bereitschaft und zerstört Fenster."
+      "name": "UI",
+      "description": "Erstellt native Textfenster und registriert responsive Shroudforge-Einstellungsseiten, die mit Win32 gerendert werden."
     }
   ],
   "paths": {
@@ -2479,7 +2479,7 @@
                       "result": "RESULT_OK",
                       "result_code": 0,
                       "outputs": {
-                        "buffer": "[I 00:00:00,000] [shroudtopia] Starting 1.1.0\n",
+                        "buffer": "[I 00:00:00,000] [shroudtopia] Starting 1.2.0\n",
                         "written": 46
                       }
                     }
@@ -3737,7 +3737,7 @@
     "/ui/create_text_window": {
       "post": {
         "tags": [
-          "Text UI"
+          "UI"
         ],
         "summary": "Create text window.",
         "description": "**Native C-Funktion:** `api->create_text_window`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* create_text_window)(StringView owner_id, const TextWindowOptions* options, TextWindow* window);\n```",
@@ -3866,7 +3866,7 @@
     "/ui/set_text_window_text": {
       "post": {
         "tags": [
-          "Text UI"
+          "UI"
         ],
         "summary": "Set text window text.",
         "description": "**Native C-Funktion:** `api->set_text_window_text`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* set_text_window_text)(StringView owner_id, TextWindow window, size_t tab, StringView text);\n```",
@@ -4003,7 +4003,7 @@
     "/ui/get_text_window_status": {
       "post": {
         "tags": [
-          "Text UI"
+          "UI"
         ],
         "summary": "Read text window status.",
         "description": "**Native C-Funktion:** `api->get_text_window_status`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* get_text_window_status)(StringView owner_id, TextWindow window, TextWindowStatus* status);\n```",
@@ -4132,7 +4132,7 @@
     "/ui/destroy_text_window": {
       "post": {
         "tags": [
-          "Text UI"
+          "UI"
         ],
         "summary": "Destroy text window.",
         "description": "**Native C-Funktion:** `api->destroy_text_window`\n\n**Kanonischer Header:** `api/shroudtopia.h`\n\n```c\nResult (CALL* destroy_text_window)(StringView owner_id, TextWindow window);\n```",

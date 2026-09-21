@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "apiVersion": "1.1",
+  "apiVersion": "1.2",
   "generatedFrom": "api/shroudtopia.h",
   "services": [
     {
@@ -1773,11 +1773,11 @@
       "slug": "settings",
       "title": "Settings",
       "title_de": "Settings",
-      "summary": "Reads typed values from the calling mod's configuration.",
-      "summary_de": "Liest typisierte Werte aus der Konfiguration der aufrufenden Mod.",
+      "summary": "Reads and writes typed values in the calling mod's configuration.",
+      "summary_de": "Liest und schreibt typisierte Werte in der Konfiguration der aufrufenden Mod.",
       "status": "stable",
       "since": "1.1",
-      "threading": "Main thread",
+      "threading": "Thread-safe",
       "capabilities": [],
       "headers": [
         {
@@ -1881,15 +1881,15 @@
     },
     {
       "slug": "ui",
-      "title": "Text UI",
-      "title_de": "Text UI",
-      "summary": "Creates native text windows, updates tab snapshots, observes readiness, and destroys windows.",
-      "summary_de": "Erstellt native Textfenster, aktualisiert Tab-Inhalte, beobachtet die Bereitschaft und zerstört Fenster.",
+      "title": "UI",
+      "title_de": "UI",
+      "summary": "Creates native text windows and registers responsive Shroudforge settings pages rendered by Win32.",
+      "summary_de": "Erstellt native Textfenster und registriert responsive Shroudforge-Einstellungsseiten, die mit Win32 gerendert werden.",
       "status": "experimental",
       "since": "1.1",
-      "threading": "Creation and destruction coordinate a UI thread",
+      "threading": "Registration is thread-safe; native controls run on the Shroudforge UI thread",
       "capabilities": [
-        "shroudtopia.ui.overlay"
+        "shroudtopia.ui.pages"
       ],
       "headers": [
         {
@@ -2113,8 +2113,8 @@
     },
     {
       "name": "RESULT_VERSION_MISMATCH",
-      "meaning": "The requested API version does not match API 1.1.",
-      "handling": "Request API 1.1."
+      "meaning": "The requested API version does not match API 1.2.",
+      "handling": "Request API 1.2."
     },
     {
       "name": "RESULT_PERMISSION_DENIED",

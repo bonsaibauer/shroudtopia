@@ -37,6 +37,13 @@ namespace {
         return RESULT_OK;
     }
 
+    Result CALL CountUiPage(StringView ownerId, UiPageDescriptor* page, void* userData) {
+        if (ownerId.data == nullptr || page == nullptr || page->struct_size < sizeof(UiPageDescriptor))
+            return RESULT_CALLBACK_FAILED;
+        ++*static_cast<size_t*>(userData);
+        return RESULT_OK;
+    }
+
     bool Check(Result actual, Result expected, const char* operation) {
         if (actual == expected) return true;
         std::cerr << operation << " returned " << actual << ", expected " << expected << '\n';
@@ -92,6 +99,10 @@ int main() {
 
     const Api* api = nullptr;
     if (!Check(getApi(API_VERSION, &api), RESULT_OK, "ShroudtopiaGetApi") || api == nullptr) return 3;
+    const Api* api11 = nullptr;
+    if (!Check(getApi(UINT32_C(0x00010001), &api11), RESULT_OK, "ShroudtopiaGetApi 1.1") ||
+        api11 == nullptr || api11->api_version != UINT32_C(0x00010001) ||
+        api11->struct_size != offsetof(Api, set_mod_setting_bool)) return 3;
     if (api->struct_size < offsetof(Api, log) + sizeof(api->log) || api->log == nullptr) return 3;
     if (!Check(api->log(View("mod.smoke"), LOG_INFO, View("smoke test")), RESULT_OK, "log")) return 3;
     if (api->struct_size < offsetof(Api, get_mod_setting_number) + sizeof(api->get_mod_setting_number) || !api->get_mod_setting_number) return 3;
@@ -117,6 +128,24 @@ int main() {
         "reject runtime patch without manifest permission")) return 4;
 
     const auto owner = View("mod.smoke");
+
+    if (!api->set_mod_setting_bool || !api->set_mod_setting_number ||
+        !api->register_ui_page || !api->visit_ui_pages) return 4;
+    if (!Check(api->set_mod_setting_bool(owner, View("uiSmokeBool"), 1), RESULT_OK,
+        "set bool setting")) return 4;
+    uint8_t savedBool = 0;
+    if (!Check(api->get_mod_setting_bool(owner, View("uiSmokeBool"), 0, &savedBool), RESULT_OK,
+        "get bool setting") || savedBool != 1) return 4;
+    const UiControlDescriptor uiControl{sizeof(UiControlDescriptor), View("enabled"), View("Enabled"),
+        View("Smoke UI control"), UI_CONTROL_BOOL, 0, 0, 1, 1, 1, {}, 0, UI_STATUS_NEUTRAL};
+    const UiTabDescriptor uiTab{sizeof(UiTabDescriptor), View("general"), View("General"), &uiControl, 1};
+    const UiPageDescriptor uiPage{sizeof(UiPageDescriptor), View("smoke"), View("Smoke"),
+        View("Smoke UI page"), 50, &uiTab, 1, nullptr, nullptr, nullptr};
+    Registration uiHandle = 0;
+    if (!Check(api->register_ui_page(owner, &uiPage, &uiHandle), RESULT_OK, "register UI page")) return 4;
+    size_t visitedPages = 0;
+    if (!Check(api->visit_ui_pages(owner, CountUiPage, &visitedPages), RESULT_OK,
+        "visit UI pages") || visitedPages == 0) return 4;
 
     size_t visitedAssets = 0;
     if (!Check(api->list_assets(owner, View("keen::RecipeRegistryResource"), CountAsset, &visitedAssets),
@@ -201,6 +230,7 @@ int main() {
     if (!Check(commandsResult, RESULT_OK, "reactivate mods with global loader switch")) return 11;
 
     if (!Check(api->release_registration(serviceHandle), RESULT_OK, "release service")) return 13;
+    if (!Check(api->release_registration(uiHandle), RESULT_OK, "release UI page")) return 13;
     if (!Check(api->find_service(&request, &found), RESULT_NOT_FOUND, "find_service after release")) return 14;
 
     if (!stop(10000)) return 15;

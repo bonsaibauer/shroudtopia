@@ -9,7 +9,7 @@ const outputRoot = path.join(root, "docs", "generated", "api");
 const translations = {
   en: {
     title: "Shroudtopia API Documentation",
-    description: `This page documents the native Shroudtopia C API 1.1. The operation paths organize native function calls for the ReDoc layout; they are not HTTP endpoints.
+    description: `This page documents the native Shroudtopia C API 1.2. The operation paths organize native function calls for the ReDoc layout; they are not HTTP endpoints.
 
 Every operation contains its exact C signature, parameter schema, result contract, and a C++ call example. The Asset section also includes static responses captured from real local Enshrouded KFC data. The documentation never connects to a local game process.`,
     native: "Native C function", response: "API result",
@@ -18,7 +18,7 @@ Every operation contains its exact C signature, parameter schema, result contrac
   },
   de: {
     title: "Shroudtopia API-Dokumentation",
-    description: `Diese Seite dokumentiert die native Shroudtopia-C-API 1.1. Die Operationspfade ordnen native Funktionsaufrufe für das ReDoc-Layout; sie sind keine HTTP-Endpunkte.
+    description: `Diese Seite dokumentiert die native Shroudtopia-C-API 1.2. Die Operationspfade ordnen native Funktionsaufrufe für das ReDoc-Layout; sie sind keine HTTP-Endpunkte.
 
 Jede Operation enthält die exakte C-Signatur, das Parameterschema, den Result-Vertrag und ein C++-Aufrufbeispiel. Der Asset-Bereich enthält außerdem statische Antworten aus echten lokalen Enshrouded-KFC-Daten. Die Dokumentation verbindet sich niemals mit einem lokalen Spielprozess.`,
     native: "Native C-Funktion", response: "API-Ergebnis",
@@ -120,8 +120,8 @@ const successOutputs = {
   publish_event: {},
   log: {},
   read_log_tail: {
-    buffer: "[I 00:00:00,000] [shroudtopia] Starting 1.1.0\n",
-    written: Buffer.byteLength("[I 00:00:00,000] [shroudtopia] Starting 1.1.0\n", "utf8")
+    buffer: "[I 00:00:00,000] [shroudtopia] Starting 1.2.0\n",
+    written: Buffer.byteLength("[I 00:00:00,000] [shroudtopia] Starting 1.2.0\n", "utf8")
   },
   create_patch: { patch: 1 },
   set_patch_enabled: {},
@@ -186,7 +186,7 @@ for (const locale of ["en", "de"]) {
   }
   const spec = {
     openapi: "3.1.0",
-    info: { title: l.title, version: model.apiVersion, description: l.description, license: { name: "MIT", url: "https://github.com/bonsaibauer/shroudtopia/blob/1.1.0/LICENSE" } },
+    info: { title: l.title, version: model.apiVersion, description: l.description, license: { name: "MIT", url: "https://github.com/bonsaibauer/shroudtopia/blob/1.2.0/LICENSE" } },
     tags: model.services.map(service => ({ name: locale === "de" ? service.title_de : service.title, description: locale === "de" ? service.summary_de : service.summary })),
     paths, components
   };

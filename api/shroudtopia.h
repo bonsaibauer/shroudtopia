@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-#define API_VERSION UINT32_C(0x00010001)
+#define API_VERSION UINT32_C(0x00010002)
 
 typedef struct StringView { const char* data; size_t size; } StringView;
 typedef uint64_t Registration;
@@ -62,6 +62,7 @@ typedef struct CapabilityInfo {
 #define CAPABILITY_ASSETS_READ "shroudtopia.assets.read"
 #define CAPABILITY_ASSETS_WRITE "shroudtopia.assets.write"
 #define CAPABILITY_RUNTIME_PATCHES "shroudtopia.runtime.patches"
+#define CAPABILITY_UI_PAGES "shroudtopia.ui.pages"
 
 typedef struct ServiceDescriptor {
     size_t struct_size;
@@ -172,6 +173,80 @@ typedef enum TextWindowStatus {
     TEXT_FAILED = 2
 } TextWindowStatus;
 
+typedef enum UiControlType {
+    UI_CONTROL_TEXT = 0,
+    UI_CONTROL_SEPARATOR = 1,
+    UI_CONTROL_BOOL = 2,
+    UI_CONTROL_NUMBER = 3,
+    UI_CONTROL_BUTTON = 4,
+    UI_CONTROL_STATUS = 5
+} UiControlType;
+
+typedef enum UiStatusTone {
+    UI_STATUS_NEUTRAL = 0,
+    UI_STATUS_SUCCESS = 1,
+    UI_STATUS_WARNING = 2,
+    UI_STATUS_ERROR = 3
+} UiStatusTone;
+
+typedef struct UiControlDescriptor {
+    size_t struct_size;
+    StringView id;
+    StringView label;
+    StringView description;
+    UiControlType type;
+    uint32_t flags;
+    double minimum;
+    double maximum;
+    double step;
+    uint8_t bool_value;
+    uint8_t reserved[7];
+    double number_value;
+    UiStatusTone status_tone;
+} UiControlDescriptor;
+
+typedef struct UiTabDescriptor {
+    size_t struct_size;
+    StringView id;
+    StringView title;
+    const UiControlDescriptor* controls;
+    size_t control_count;
+} UiTabDescriptor;
+
+typedef Result (CALL* UiControlCallback)(StringView control_id,
+    uint8_t bool_value, double number_value, void* user_data);
+
+typedef struct UiRenderContext {
+    size_t struct_size;
+    void (CALL* text)(StringView text);
+    void (CALL* separator)(void);
+    uint8_t (CALL* button)(StringView id, StringView label);
+    uint8_t (CALL* checkbox)(StringView id, StringView label, uint8_t* value);
+    uint8_t (CALL* slider_number)(StringView id, StringView label, double* value,
+        double minimum, double maximum, double step);
+    void (CALL* same_line)(void);
+    void (CALL* begin_disabled)(uint8_t disabled);
+    void (CALL* end_disabled)(void);
+} UiRenderContext;
+
+typedef Result (CALL* UiRenderCallback)(const UiRenderContext* context, void* user_data);
+
+typedef struct UiPageDescriptor {
+    size_t struct_size;
+    StringView id;
+    StringView title;
+    StringView description;
+    uint32_t order;
+    const UiTabDescriptor* tabs;
+    size_t tab_count;
+    UiControlCallback on_control;
+    UiRenderCallback render;
+    void* user_data;
+} UiPageDescriptor;
+
+typedef Result (CALL* UiPageVisitor)(StringView owner_id,
+    UiPageDescriptor* page, void* user_data);
+
 typedef struct Api {
     size_t struct_size;
     uint32_t api_version;
@@ -211,6 +286,11 @@ typedef struct Api {
     Result (CALL* set_text_window_text)(StringView owner_id, TextWindow window, size_t tab, StringView text);
     Result (CALL* get_text_window_status)(StringView owner_id, TextWindow window, TextWindowStatus* status);
     Result (CALL* destroy_text_window)(StringView owner_id, TextWindow window);
+
+    Result (CALL* set_mod_setting_bool)(StringView owner_id, StringView key, uint8_t value);
+    Result (CALL* set_mod_setting_number)(StringView owner_id, StringView key, double value);
+    Result (CALL* register_ui_page)(StringView owner_id, const UiPageDescriptor* descriptor, Registration* registration);
+    Result (CALL* visit_ui_pages)(StringView owner_id, UiPageVisitor visitor, void* user_data);
 } Api;
 
 typedef Result (CALL* ModLifecycleCallback)(const Api* api, void* user_data);
